@@ -1,19 +1,27 @@
-import { readFile } from 'fs/promises'
 import { ImageResponse } from 'next/og'
-import { join } from 'path'
 import { siteConfig } from '@/lib/config'
 
-export const runtime = 'nodejs'
+export const runtime = 'edge'
 
-async function loadLogo(): Promise<string> {
-  const logoPath = join(process.cwd(), 'public', 'ikui', 'logo.svg')
-  const logoSvg = await readFile(logoPath, 'utf-8')
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes.buffer
+}
+
+async function loadLogo(origin: string): Promise<string> {
+  const logoSvg = await fetch(new URL('/ikui/logo.svg', origin)).then((res) =>
+    res.text(),
+  )
   const logoSvgWhite = logoSvg.replace(/(fill|stroke)="black"/g, '$1="white"')
-  return `data:image/svg+xml;base64,${Buffer.from(logoSvgWhite).toString('base64')}`
+  return `data:image/svg+xml,${encodeURIComponent(logoSvgWhite)}`
 }
 
 async function loadAssets(): Promise<
-  { name: string; data: Buffer; weight: 400 | 500 | 600; style: 'normal' }[]
+  { name: string; data: ArrayBuffer; weight: 400 | 500 | 600; style: 'normal' }[]
 > {
   const [
     { base64Font: normal },
@@ -28,19 +36,19 @@ async function loadAssets(): Promise<
   return [
     {
       name: 'Geist',
-      data: Buffer.from(normal, 'base64'),
+      data: base64ToArrayBuffer(normal),
       weight: 400,
       style: 'normal',
     },
     {
       name: 'Geist',
-      data: Buffer.from(medium, 'base64'),
+      data: base64ToArrayBuffer(medium),
       weight: 500,
       style: 'normal',
     },
     {
       name: 'Geist',
-      data: Buffer.from(semibold, 'base64'),
+      data: base64ToArrayBuffer(semibold),
       weight: 600,
       style: 'normal',
     },
@@ -52,7 +60,10 @@ export async function GET(request: Request) {
   const title = searchParams.get('title')
   const description = searchParams.get('description')
 
-  const [fonts, logoUrl] = await Promise.all([loadAssets(), loadLogo()])
+  const [fonts, logoUrl] = await Promise.all([
+    loadAssets(),
+    loadLogo(request.url),
+  ])
 
   return new ImageResponse(
     <div
