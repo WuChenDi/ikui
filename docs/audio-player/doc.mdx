@@ -1,0 +1,91 @@
+import { Demo } from './demo'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Installation
+
+<InstallationTabs item="audio-player">
+```tsx file=../../registry/ikui/audio-player.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { AudioPlayer } from "@/components/audio-player";
+```
+```tsx
+<AudioPlayer blob={blob} />
+```
+```tsx
+<AudioPlayer url="/audio/sample.mp3" />
+```
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "blob",
+        type: "Blob",
+        nameDetails: "Audio blob to play and visualize. Takes precedence over url"
+      },
+      {
+        name: "url",
+        type: "string",
+        nameDetails: "Audio URL to play and visualize"
+      },
+      {
+        name: "width",
+        type: "number",
+        typeDetails: "Width of the visualizer. Defaults to the container width"
+      },
+      {
+        name: "height",
+        type: "number",
+        default: "84",
+        typeDetails: "Height of the visualizer"
+      },
+      {
+        name: "barWidth",
+        type: "number",
+        default: "2",
+        typeDetails: "Width of each individual bar"
+      },
+      {
+        name: "gap",
+        type: "number",
+        default: "1",
+        typeDetails: "Gap between each bar"
+      },
+      {
+        name: "barColor",
+        type: "string",
+        typeDetails: "Color of the unplayed bars"
+      },
+      {
+        name: "barPlayedColor",
+        type: "string",
+        default: "rgb(34, 197, 94)",
+        typeDetails: "Color of the played bars"
+      },
+      {
+        name: "className",
+        type: "string",
+        nameDetails: "Additional CSS classes for the wrapper"
+      },
+      {
+        name: "onPlayStateChange",
+        type: "(playing: boolean) => void",
+        nameDetails: "Called whenever playback starts or stops"
+      }
+    ]}
+  />

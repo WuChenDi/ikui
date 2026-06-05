@@ -1,0 +1,60 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "ikui",
+  "homepage": "https://ik-ui.pages.dev",
+  "author": "ikui (https://ik-ui.pages.dev)",
+  "items": [
+    {
+      "name": "copy-button",
+      "type": "registry:component",
+      "title": "Copy Button",
+      "description": "A copy-to-clipboard button with blur transition effect.",
+      "files": [
+        {
+          "path": "registry/ikui/copy-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [],
+      "category": "button"
+    },
+    {
+      "name": "audio-visualizer",
+      "type": "registry:component",
+      "title": "Audio Visualizer",
+      "description": "Render an audio blob as a canvas waveform, with played and unplayed bars driven by the current playback time.",
+      "files": [
+        {
+          "path": "registry/ikui/audio-visualizer.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "category": "display"
+    },
+    {
+      "name": "audio-player",
+      "type": "registry:component",
+      "title": "Audio Player",
+      "description": "An audio player with play/pause controls, elapsed and total time, and a built-in waveform visualizer that tracks playback progress.",
+      "files": [
+        {
+          "path": "registry/ikui/audio-player.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "button",
+        "@ikui/audio-visualizer"
+      ],
+      "category": "display"
+    }
+  ]
+}

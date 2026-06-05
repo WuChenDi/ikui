@@ -1,0 +1,107 @@
+import { Demo } from './demo'
+import { Demo as DemoPlayed } from './demo-played'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Installation
+
+<InstallationTabs item="audio-visualizer">
+```tsx file=../../registry/ikui/audio-visualizer.tsx
+```
+</InstallationTabs>
+
+## Examples
+
+### Playback Progress
+
+Pass `currentTime` to color the bars that have already been played with
+`barPlayedColor`.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoPlayed />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-played.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Usage
+
+```tsx
+import { AudioVisualizer } from "@/components/audio-visualizer";
+```
+```tsx
+<AudioVisualizer blob={blob} height={80} />
+```
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "blob",
+        type: "Blob",
+        nameDetails: "Audio blob to visualize"
+      },
+      {
+        name: "height",
+        type: "number",
+        nameDetails: "Height of the visualizer canvas"
+      },
+      {
+        name: "width",
+        type: "number",
+        typeDetails: "Width of the visualizer. Defaults to the container width"
+      },
+      {
+        name: "barWidth",
+        type: "number",
+        default: "2",
+        typeDetails: "Width of each individual bar"
+      },
+      {
+        name: "gap",
+        type: "number",
+        default: "1",
+        typeDetails: "Gap between each bar"
+      },
+      {
+        name: "currentTime",
+        type: "number",
+        typeDetails: "Timestamp up to which the audio has been played"
+      },
+      {
+        name: "backgroundColor",
+        type: "string",
+        default: "transparent",
+        typeDetails: "Background color of the canvas"
+      },
+      {
+        name: "barColor",
+        type: "string",
+        default: "rgb(184, 184, 184)",
+        typeDetails: "Color of the unplayed bars"
+      },
+      {
+        name: "barPlayedColor",
+        type: "string",
+        default: "rgb(160, 198, 255)",
+        typeDetails: "Color of the played bars"
+      },
+      {
+        name: "style",
+        type: "React.CSSProperties",
+        nameDetails: "Custom styles passed to the canvas"
+      }
+    ]}
+  />
