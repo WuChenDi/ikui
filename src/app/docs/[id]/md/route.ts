@@ -1,6 +1,6 @@
-import { readFile } from 'fs/promises'
 import { NextResponse } from 'next/server'
-import { join } from 'path'
+
+export const runtime = 'edge'
 
 export async function GET(
   _request: Request,
@@ -8,8 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const docPath = join(process.cwd(), 'docs', id, 'doc.mdx')
-    const content = await readFile(docPath, 'utf-8')
+    const { default: content } = await import(`@/docs/${id}/doc.mdx?raw`)
 
     return new NextResponse(content, {
       headers: {
