@@ -1,0 +1,102 @@
+# AGENTS.md
+
+Guidance for AI agents working in this repository.
+
+## Project
+
+**ikui** — a copy-paste React component library plus its documentation site.
+Derived from the MIT-licensed [spell-ui](https://github.com/xxtomm/spell-ui),
+re-themed onto [Base UI](https://base-ui.com) primitives. Components are
+distributed through a shadcn-style registry (`registry.json` → `public/r/*.json`),
+not published as an npm package.
+
+Live site / registry: https://ik-ui.pages.dev
+
+## Stack
+
+- **Next.js 16** (App Router, RSC, `--webpack`) + **React 19**
+- **Tailwind CSS 4** (CSS-first, `src/app/globals.css`; no `tailwind.config`)
+- **Base UI** (`@base-ui/react`) as the only UI primitive layer — **no Radix**
+- **MDX** docs via `@next/mdx` (`remark-code-import`, `remark-gfm`,
+  `rehype-slug`, `rehype-autolink-headings`, Shiki highlighting)
+- **Biome** for lint + format (replaces ESLint/Prettier)
+- **TypeScript 6** (strict), **pnpm 11**, **Node >= 22**
+- Animations: `motion`; icons: `lucide-react`
+
+## Commands
+
+```bash
+pnpm dev              # next dev (wrapped by `nsl run --name ikui`), http://ikui.localhost:3355
+pnpm build            # next build --webpack
+pnpm lint             # biome check .
+pnpm format           # biome format --write .
+pnpm registry:build   # shadcn build → regenerate public/r/*.json from registry.json
+pnpm clean            # remove node_modules/.next/out/dist
+```
+
+Always run `pnpm lint` before considering a change done. There is no test suite;
+verify by building and by checking the rendered docs page for the component.
+
+## Layout
+
+```
+registry/ikui/        # the actual component source — what users copy/install
+docs/<name>/          # per-component docs: doc.mdx + demo.tsx (+ demo-*.tsx variants)
+registry.json         # registry manifest (source of truth for sidebar + install)
+public/r/*.json       # generated registry output (do not hand-edit)
+src/app/              # Next.js App Router (docs, og, api/github/stars, sitemap…)
+src/components/       # site chrome (header, sidebar, mdx widgets); ui/ = shadcn primitives
+src/lib/              # utils (cn, metadata), registry/doc loaders, config, types
+src/mdx-components.tsx # MDX component map (DemoCanvas, InstallationTabs, PropsTable…)
+docs/plan, docs/task  # PMA workflow tracking (see below)
+```
+
+Path aliases (`tsconfig.json`): `@/*` → `src/*` and repo root; `@/docs/*` → `docs/*`.
+
+## Conventions
+
+- **Code style** is enforced by Biome — do not fight it:
+  - single quotes, semicolons as-needed, 2-space indent.
+  - `import type { ... }` required for type-only imports (separated style).
+  - imports are auto-organized; `import * as z from "zod"` (never `{ z }`).
+  - floating/misused promises are errors.
+- `src/components/ui/**` and `registry/ikui/**` are **excluded from Biome** —
+  they follow upstream shadcn/Base UI formatting; match it, don't reformat.
+- Use `cn()` from `@/lib/utils` for class merging.
+- Registry components should be self-contained and copy-pasteable: minimal deps,
+  declare every external dep in the registry item's `dependencies` /
+  `registryDependencies`.
+
+## Adding a component
+
+Four files, per `CONTRIBUTING.md`:
+
+1. `registry/ikui/<name>.tsx` — the component.
+2. `registry.json` — add an item (`name`, `title`, `description`, `files`,
+   `dependencies`, `registryDependencies`, `category`).
+3. `docs/<name>/demo.tsx` — a demo (add `demo-*.tsx` for variants).
+4. `docs/<name>/doc.mdx` — docs using `DemoCanvas`/`InstallationTabs`/`PropsTable`.
+
+Then run `pnpm registry:build`. The sidebar and doc routing are generated from
+`registry.json` (see `src/lib/doc.ts` for category labels/order), so no manual
+nav edits are needed.
+
+## PMA workflow
+
+This repo is managed with the **PMA skill**. Follow the three phases strictly —
+investigate → proposal → implement — and use the file-based tracking:
+
+- Plans: `docs/plan/P-XXX-*.md`
+- Tasks: `docs/task/` (index in `docs/task/index.md`)
+
+Do not skip phases or bypass the task files for non-trivial work.
+
+## Notes / gotchas
+
+- `mobile-nav.tsx` still references `--radix-popover-content-available-*` CSS
+  vars in a className string (cosmetic, non-breaking leftover from migration).
+- `webpack` config adds a `?raw` resourceQuery loader so MDX/source files can be
+  imported as raw strings for the code-preview blocks.
+- `/docs/:slug.md` is rewritten to `/docs/:slug/md` (raw markdown export route).
+- Remote-visible Git metadata (commits, PRs) must be English and must not mention
+  AI agents/assistants.

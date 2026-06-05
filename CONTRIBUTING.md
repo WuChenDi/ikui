@@ -43,7 +43,7 @@ Once done, open a pull request from your forked repo to the main repo [here](htt
    pnpm dev
    ```
 
-Open http://localhost:3000 to view the docs.
+Open http://ikui.localhost:3355 to view the docs.
 
 ## Adding a New Component
 
