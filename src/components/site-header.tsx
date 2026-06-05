@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import type { DocSchema } from '@/lib/types'
 import { SearchForm } from './command-menu'
-import { ConditionalThemeToggle } from './conditional-theme-toggle'
 import { GithubStars } from './github-stars'
 import { IkLogo } from './ik-logo'
 import { MobileNav } from './mobile-nav'
+import { ThemeToggle } from './theme-toggle'
 
 export default function SiteHeader({ docSchema }: { docSchema?: DocSchema }) {
   return (
@@ -43,7 +43,7 @@ export default function SiteHeader({ docSchema }: { docSchema?: DocSchema }) {
         <div className="flex gap-2 lg:gap-3 items-center">
           {docSchema && <SearchForm docSchema={docSchema} />}
           <GithubStars />
-          <ConditionalThemeToggle />
+          <ThemeToggle />
         </div>
       </div>
     </header>

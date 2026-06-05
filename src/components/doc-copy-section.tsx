@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { ClaudeIcon } from '@/components/icons/claude'
 import { V0Icon } from '@/components/icons/v0'
 import { Button } from '@/components/ui/button'
+import { ButtonGroup } from '@/components/ui/button-group'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -110,9 +111,7 @@ export function DocCopySection({ content, url }: DocCopySectionProps) {
   const dropdownContent = (
     <>
       {Object.entries(menuItems).map(([key, value]) => (
-        <DropdownMenuItem key={key} asChild>
-          {value()}
-        </DropdownMenuItem>
+        <DropdownMenuItem key={key}>{value()}</DropdownMenuItem>
       ))}
     </>
   )
@@ -124,7 +123,6 @@ export function DocCopySection({ content, url }: DocCopySectionProps) {
           key={key}
           variant="ghost"
           size="sm"
-          asChild
           className="w-full justify-start"
         >
           {value()}
@@ -135,69 +133,66 @@ export function DocCopySection({ content, url }: DocCopySectionProps) {
 
   return (
     <Popover>
-      <div className="hidden md:inline-flex -space-x-px rounded-full shadow-none rtl:space-x-reverse mr-2">
-        <Button
-          className="rounded-none border-r-1 shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10 relative cursor-pointer"
-          variant="secondary"
-          size="sm"
-          onClick={handleCopy}
-        >
-          <div className="flex items-center gap-2">
-            <div className="relative w-4 h-4">
-              <div
-                className={cn(
-                  'absolute inset-0 transition-all duration-200 flex items-center justify-center',
-                  copied
-                    ? 'scale-100 opacity-100 blur-none'
-                    : 'scale-70 opacity-0 blur-[2px]',
-                )}
-              >
-                <Check className="h-4 w-4 text-emerald-500" />
-              </div>
-              <div
-                className={cn(
-                  'absolute inset-0 transition-all duration-200 flex items-center justify-center',
-                  copied
-                    ? 'scale-0 opacity-0 blur-[2px]'
-                    : 'scale-100 opacity-100 blur-none',
-                )}
-              >
-                <Copy className="h-4 w-4 text-muted-foreground dark:text-[#b5b5b5]" />
-              </div>
+      <ButtonGroup className="hidden md:inline-flex">
+        <Button variant="secondary" size="sm" onClick={handleCopy}>
+          <div className="relative size-4">
+            <div
+              className={cn(
+                'absolute inset-0 transition-all duration-200 flex items-center justify-center',
+                copied
+                  ? 'scale-100 opacity-100 blur-none'
+                  : 'scale-70 opacity-0 blur-[2px]',
+              )}
+            >
+              <Check className="size-4 text-emerald-500" />
             </div>
-            <span>Copy this page</span>
+            <div
+              className={cn(
+                'absolute inset-0 transition-all duration-200 flex items-center justify-center',
+                copied
+                  ? 'scale-0 opacity-0 blur-[2px]'
+                  : 'scale-100 opacity-100 blur-none',
+              )}
+            >
+              <Copy className="size-4 text-muted-foreground dark:text-[#b5b5b5]" />
+            </div>
           </div>
+          <span>Copy this page</span>
         </Button>
 
         {/* Desktop Dropdown */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild className="hidden sm:flex">
-            <Button
-              className="cursor-pointer rounded-l-none size-8 shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10 "
-              variant="secondary"
-              size="icon"
-              aria-label="Open options"
-            >
-              <ChevronDown size={16} aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="secondary"
+                size="icon-sm"
+                className="hidden sm:flex"
+                aria-label="Open options"
+              >
+                <ChevronDown aria-hidden="true" />
+              </Button>
+            }
+          />
           <DropdownMenuContent align="end" className="w-48">
             {dropdownContent}
           </DropdownMenuContent>
         </DropdownMenu>
 
         {/* Mobile Popover */}
-        <PopoverTrigger asChild className="flex sm:hidden">
-          <Button
-            className="rounded-none size-8 shadow-none first:rounded-s-md last:rounded-e-md focus-visible:z-10"
-            variant="outline"
-            size="icon"
-            aria-label="Open options"
-          >
-            <ChevronDown size={16} aria-hidden="true" />
-          </Button>
-        </PopoverTrigger>
-      </div>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="icon"
+              className="flex sm:hidden"
+              aria-label="Open options"
+            >
+              <ChevronDown size={16} aria-hidden="true" />
+            </Button>
+          }
+        />
+      </ButtonGroup>
       <PopoverContent className="w-52" align="start">
         {popoverContent}
       </PopoverContent>

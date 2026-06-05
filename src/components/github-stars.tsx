@@ -25,19 +25,16 @@ export function GithubStars() {
         : stars
 
   return (
-    <Button
-      asChild
-      variant="outline"
-      className="h-8 px-3 cursor-pointer dark:bg-background dark:hover:bg-input/20 shadow-none"
-    >
+    <Button variant="outline">
       <Link
         href={siteConfig.links.github}
         target="_blank"
         rel="noopener noreferrer"
+        className="flex items-center gap-2"
       >
         <GitHubIcon className="size-4" />
         {displayValue === null ? (
-          <Skeleton className="h-4 w-6 rounded-sm" />
+          <Skeleton className="size-4 rounded-sm" />
         ) : (
           <span className="tabular-nums">{displayValue}</span>
         )}

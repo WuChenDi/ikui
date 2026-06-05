@@ -1,4 +1,3 @@
-import { Rss } from 'lucide-react'
 import Link from 'next/link'
 import { siteConfig } from '@/lib/config'
 import { GitHubIcon } from './icons/github'
@@ -64,15 +63,6 @@ export function SiteFooter() {
                 aria-label="Telegram"
               >
                 <TelegramIcon className="size-5" />
-              </Link>
-              <Link
-                href={siteConfig.links.blog}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary/55 transition-colors duration-300 ease-out hover:text-primary"
-                aria-label="Blog"
-              >
-                <Rss className="size-5" />
               </Link>
             </div>
           </div>

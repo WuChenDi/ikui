@@ -48,7 +48,6 @@ export function AppSidebar({
                   <SidebarMenuItem key={navItem.id}>
                     <SidebarMenuButton
                       className="data-[active=true]:shadow-[0_0_0_1px_rgba(0,0,0,.08),_0px_2px_2px_rgba(0,0,0,.04)] data-[active=true]:not-dark:bg-white transition-all"
-                      asChild
                       isActive={pathname === `/docs/${navItem.id}`}
                       onClick={() => {
                         if (isMobile) {

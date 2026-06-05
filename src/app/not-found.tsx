@@ -60,10 +60,7 @@ export default function NotFound() {
             voluptatum quae.
           </p>
         </div>
-        <Button
-          className="rounded-full pl-3 gap-1.5 active:scale-[0.97] will-change-transform ease-out duration-300"
-          asChild
-        >
+        <Button>
           <Link href={'/'}>
             <ArrowLeft />
             Go Back

@@ -69,30 +69,10 @@ export function CodeBlockCommand({
             strokeWidth={2}
           />
           <TabsList className="h-auto bg-transparent p-0" translate="no">
-            <TabsTrigger
-              value="pnpm"
-              className="h-auto rounded-sm px-2 py-1 text-xs font-mono data-[state=active]:bg-background data-[state=active]:border data-[state=active]:border-border"
-            >
-              pnpm
-            </TabsTrigger>
-            <TabsTrigger
-              value="npm"
-              className="h-auto rounded-sm px-2 py-1 text-xs font-mono data-[state=active]:bg-background data-[state=active]:border data-[state=active]:border-border"
-            >
-              npm
-            </TabsTrigger>
-            <TabsTrigger
-              value="yarn"
-              className="h-auto rounded-sm px-2 py-1 text-xs font-mono data-[state=active]:bg-background data-[state=active]:border data-[state=active]:border-border"
-            >
-              yarn
-            </TabsTrigger>
-            <TabsTrigger
-              value="bun"
-              className="h-auto rounded-sm px-2 py-1 text-xs font-mono data-[state=active]:bg-background data-[state=active]:border data-[state=active]:border-border"
-            >
-              bun
-            </TabsTrigger>
+            <TabsTrigger value="pnpm">pnpm</TabsTrigger>
+            <TabsTrigger value="npm">npm</TabsTrigger>
+            <TabsTrigger value="yarn">yarn</TabsTrigger>
+            <TabsTrigger value="bun">bun</TabsTrigger>
           </TabsList>
           <Button
             size="icon"

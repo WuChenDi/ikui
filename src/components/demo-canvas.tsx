@@ -3,6 +3,7 @@
 import { Loader2 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import React, { Suspense } from 'react'
+import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import RefreshAnticlockwise from './icons/refresh'
@@ -30,33 +31,24 @@ export function DemoCanvas({
     <Tabs defaultValue="preview">
       <div className="flex items-center justify-between not-prose">
         <TabsList className="bg-transparent">
-          <TabsTrigger
-            value="preview"
-            className="rounded-md cursor-pointer data-[state=active]:bg-white px-2 text-center data-[state=active]:shadow-[0_0_0_1px_rgba(0,0,0,.08),_0px_2px_2px_rgba(0,0,0,.04)] data-[state=active]:dark:bg-[#0B0B09]"
-          >
-            Preview
-          </TabsTrigger>
-          <TabsTrigger
-            value="code"
-            className="rounded-md cursor-pointer data-[state=active]:bg-white px-2 text-center data-[state=active]:shadow-[0_0_0_1px_rgba(0,0,0,.08),_0px_2px_2px_rgba(0,0,0,.04)] data-[state=active]:dark:bg-[#0B0B09]"
-          >
-            Code
-          </TabsTrigger>
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+          <TabsTrigger value="code">Code</TabsTrigger>
         </TabsList>
         <div className="flex items-center gap-1">
           {v0Id && <OpenInV0Button id={v0Id} />}
-          <button
+          <Button
             onClick={handleRefresh}
-            className="cursor-pointer p-1.5 hover:bg-muted rounded-md"
+            variant="ghost"
+            size="icon-sm"
             title="Refresh component"
           >
             <RefreshAnticlockwise
               className={cn(
-                'h-4 w-4 transition-transform duration-500',
+                'transition-transform duration-500',
                 isRotating && 'rotate-180',
               )}
             />
-          </button>
+          </Button>
         </div>
       </div>
       <div key={key}>{children}</div>

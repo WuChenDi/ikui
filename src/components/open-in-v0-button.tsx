@@ -10,15 +10,12 @@ export function OpenInV0Button({ id }: { id: string }) {
   const url = `${baseUrl}/r/${id}.json`
 
   return (
-    <Button
-      aria-label="Open in v0"
-      className="h-7 gap-1 rounded-md px-3 text-xs shadow-none"
-      asChild
-    >
+    <Button aria-label="Open in v0" size="sm" className="gap-1 shadow-none">
       <a
         href={`https://v0.dev/chat/api/open?url=${url}`}
         target="_blank"
         rel="noreferrer"
+        className="flex items-center gap-1"
       >
         Open in{' '}
         <svg

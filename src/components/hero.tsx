@@ -16,19 +16,10 @@ export function Hero() {
           you can copy and paste into any project.
         </p>
         <div className="flex flex-row gap-3 mt-2 w-auto">
-          <Button
-            size="lg"
-            className="rounded-full active:scale-[0.97] will-change-transform ease-out duration-150 px-4.5"
-            asChild
-          >
+          <Button>
             <Link href={'/docs/introduction'}>Get Started</Link>
           </Button>
-          <Button
-            size="lg"
-            variant="secondary"
-            className="rounded-full active:scale-[0.97] will-change-transform ease-out duration-150 px-4.5"
-            asChild
-          >
+          <Button variant="secondary">
             <Link href={'/docs/components'}>Components</Link>
           </Button>
         </div>

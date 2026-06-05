@@ -6,17 +6,12 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Command,
-  CommandCollection,
   CommandDialog,
-  CommandDialogPopup,
   CommandEmpty,
-  CommandFooter,
   CommandGroup,
-  CommandGroupLabel,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandPanel,
   CommandSeparator,
 } from '@/components/ui/command'
 import { useConfig } from '@/hooks/use-config'
@@ -62,6 +57,11 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
       }
     })
   }, [docSchema])
+
+  const allItems = useMemo(
+    () => groupedItems.flatMap((g) => g.items),
+    [groupedItems],
+  )
 
   const handlePageHighlight = useCallback(
     (item: PageItem | null) => {
@@ -130,7 +130,6 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
       <Button
         onClick={() => setOpen(true)}
         variant="outline"
-        size="sm"
         className="hidden sm:inline-flex cursor-text items-center gap-2 text-sm text-muted-foreground dark:bg-background dark:hover:bg-input/20 shadow-none"
       >
         <Search className="size-4" />
@@ -141,71 +140,61 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
         </kbd>
       </Button>
       <CommandDialog onOpenChange={setOpen} open={open}>
-        <CommandDialogPopup>
-          <Command
-            items={groupedItems}
-            onItemHighlighted={(highlightedValue) => {
-              const item = highlightedValue as PageItem | null
-              handlePageHighlight(item)
-            }}
-          >
-            <CommandInput placeholder="Type a command or search..." />
-            <CommandPanel>
-              <CommandEmpty>
-                The search results could not be found.
-              </CommandEmpty>
-              <CommandList>
-                {(group: PageGroup, _index: number) => (
-                  <Fragment key={group.value}>
-                    <CommandGroup items={group.items}>
-                      <CommandGroupLabel>{group.value}</CommandGroupLabel>
-                      <CommandCollection>
-                        {(item: PageItem) => (
-                          <CommandItem
-                            key={item.value}
-                            onClick={() => {
-                              router.push(item.url)
-                              setOpen(false)
-                            }}
-                            value={item.value}
-                          >
-                            {item.label}
-                          </CommandItem>
-                        )}
-                      </CommandCollection>
-                    </CommandGroup>
-                    <CommandSeparator />
-                  </Fragment>
-                )}
-              </CommandList>
-            </CommandPanel>
-            <CommandFooter>
-              <div className="flex items-center gap-1.5">
-                <span className="whitespace-nowrap">Go to Page</span>
-                <kbd className="font-mono place-content-center grid shadow-[0_0_0_1px_var(--border)] font-normal min-h-4 px-1 rounded text-xs">
-                  <CornerDownLeft className="size-2.5" />
-                </kbd>
-              </div>
-              {copyPayload ? (
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="truncate font-mono">{copyPayload}</span>
-                  <div className="flex items-center gap-1">
-                    <span className="inline-flex items-center shadow-[0_0_0_1px_var(--border)] font-normal min-h-4 px-1 rounded text-[10px]">
-                      {isMac ? '⌘' : 'Ctrl'}
-                      <span>C</span>
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="place-content-center grid shadow-[0_0_0_1px_var(--border)] font-normal min-h-4 px-1 rounded text-xs">
-                    Esc
+        <Command
+          onValueChange={(value) => {
+            const item = allItems.find((i) => i.value === value) ?? null
+            handlePageHighlight(item)
+          }}
+        >
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>The search results could not be found.</CommandEmpty>
+            {groupedItems.map((group, index) => (
+              <Fragment key={group.value}>
+                <CommandGroup heading={group.value}>
+                  {group.items.map((item) => (
+                    <CommandItem
+                      key={item.value}
+                      value={item.value}
+                      onSelect={() => {
+                        router.push(item.url)
+                        setOpen(false)
+                      }}
+                    >
+                      {item.label}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+                {index < groupedItems.length - 1 && <CommandSeparator />}
+              </Fragment>
+            ))}
+          </CommandList>
+          <div className="flex items-center justify-between border-t px-2 py-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <span className="whitespace-nowrap">Go to Page</span>
+              <kbd className="font-mono place-content-center grid shadow-[0_0_0_1px_var(--border)] font-normal min-h-4 px-1 rounded text-xs">
+                <CornerDownLeft className="size-2.5" />
+              </kbd>
+            </div>
+            {copyPayload ? (
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="truncate font-mono">{copyPayload}</span>
+                <div className="flex items-center gap-1">
+                  <span className="inline-flex items-center shadow-[0_0_0_1px_var(--border)] font-normal min-h-4 px-1 rounded text-[10px]">
+                    {isMac ? '⌘' : 'Ctrl'}
+                    <span>C</span>
                   </span>
                 </div>
-              )}
-            </CommandFooter>
-          </Command>
-        </CommandDialogPopup>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="place-content-center grid shadow-[0_0_0_1px_var(--border)] font-normal min-h-4 px-1 rounded text-xs">
+                  Esc
+                </span>
+              </div>
+            )}
+          </div>
+        </Command>
       </CommandDialog>
     </>
   )

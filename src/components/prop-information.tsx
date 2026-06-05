@@ -12,7 +12,7 @@ interface PropInformationProps {
 export function PropInformation({ content }: PropInformationProps) {
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <button
           type="button"
           className="inline-flex items-center justify-center rounded-md p-1 transition-colors hover:bg-accent"

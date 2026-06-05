@@ -142,37 +142,25 @@ export default async function DocPage({
               </div>
               <div className="flex items-center gap-2">
                 <DocCopySection content={rawContent} url={`/docs/${id}`} />
-                <Button
-                  variant="secondary"
-                  className="rounded-full size-8 shadow-none active:scale-[0.97] will-change-transform ease-out duration-150 transition-transform"
-                  size="icon"
-                  disabled={!prevDoc}
-                  asChild={!!prevDoc}
-                >
+                <Button variant="secondary" size="icon-sm" disabled={!prevDoc}>
                   {prevDoc ? (
                     <Link href={`/docs/${prevDoc.id}`} title={prevDoc.title}>
-                      <ArrowLeft className="text-muted-foreground" />
+                      <ArrowLeft />
                     </Link>
                   ) : (
                     <span>
-                      <ArrowLeft className="text-muted-foreground" />
+                      <ArrowLeft />
                     </span>
                   )}
                 </Button>
-                <Button
-                  variant="secondary"
-                  className="rounded-full size-8 shadow-none active:scale-[0.97] will-change-transform ease-out duration-300 transition-colors"
-                  size="icon"
-                  disabled={!nextDoc}
-                  asChild={!!nextDoc}
-                >
+                <Button variant="secondary" size="icon-sm" disabled={!nextDoc}>
                   {nextDoc ? (
                     <Link href={`/docs/${nextDoc.id}`} title={nextDoc.title}>
-                      <ArrowRight className="text-muted-foreground" />
+                      <ArrowRight />
                     </Link>
                   ) : (
                     <span>
-                      <ArrowRight className="text-muted-foreground" />
+                      <ArrowRight />
                     </span>
                   )}
                 </Button>
