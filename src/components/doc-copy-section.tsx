@@ -12,11 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 interface DocCopySectionProps {
@@ -116,86 +111,50 @@ export function DocCopySection({ content, url }: DocCopySectionProps) {
     </>
   )
 
-  const popoverContent = (
-    <>
-      {Object.entries(menuItems).map(([key, value]) => (
-        <Button
-          key={key}
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start"
-        >
-          {value()}
-        </Button>
-      ))}
-    </>
-  )
-
   return (
-    <Popover>
-      <ButtonGroup className="hidden md:inline-flex">
-        <Button variant="secondary" size="sm" onClick={handleCopy}>
-          <div className="relative size-4">
-            <div
-              className={cn(
-                'absolute inset-0 transition-all duration-200 flex items-center justify-center',
-                copied
-                  ? 'scale-100 opacity-100 blur-none'
-                  : 'scale-70 opacity-0 blur-[2px]',
-              )}
-            >
-              <Check className="size-4 text-emerald-500" />
-            </div>
-            <div
-              className={cn(
-                'absolute inset-0 transition-all duration-200 flex items-center justify-center',
-                copied
-                  ? 'scale-0 opacity-0 blur-[2px]'
-                  : 'scale-100 opacity-100 blur-none',
-              )}
-            >
-              <Copy className="size-4 text-muted-foreground dark:text-[#b5b5b5]" />
-            </div>
+    <ButtonGroup className="hidden md:inline-flex">
+      <Button variant="secondary" size="sm" onClick={handleCopy}>
+        <div className="relative size-4">
+          <div
+            className={cn(
+              'absolute inset-0 transition-all duration-200 flex items-center justify-center',
+              copied
+                ? 'scale-100 opacity-100 blur-none'
+                : 'scale-70 opacity-0 blur-[2px]',
+            )}
+          >
+            <Check className="size-4 text-emerald-500" />
           </div>
-          <span>Copy this page</span>
-        </Button>
+          <div
+            className={cn(
+              'absolute inset-0 transition-all duration-200 flex items-center justify-center',
+              copied
+                ? 'scale-0 opacity-0 blur-[2px]'
+                : 'scale-100 opacity-100 blur-none',
+            )}
+          >
+            <Copy className="size-4 text-muted-foreground dark:text-[#b5b5b5]" />
+          </div>
+        </div>
+        <span>Copy this page</span>
+      </Button>
 
-        {/* Desktop Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="secondary"
-                size="icon-sm"
-                className="hidden sm:flex"
-                aria-label="Open options"
-              >
-                <ChevronDown aria-hidden="true" />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-48">
-            {dropdownContent}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Mobile Popover */}
-        <PopoverTrigger
+      <DropdownMenu>
+        <DropdownMenuTrigger
           render={
             <Button
-              variant="outline"
-              size="icon"
-              className="flex sm:hidden"
+              variant="secondary"
+              size="icon-sm"
               aria-label="Open options"
             >
-              <ChevronDown size={16} aria-hidden="true" />
+              <ChevronDown aria-hidden="true" />
             </Button>
           }
         />
-      </ButtonGroup>
-      <PopoverContent className="w-52" align="start">
-        {popoverContent}
-      </PopoverContent>
-    </Popover>
+        <DropdownMenuContent align="end" className="w-48">
+          {dropdownContent}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </ButtonGroup>
   )
 }
