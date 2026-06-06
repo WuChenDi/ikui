@@ -54,8 +54,9 @@ export function AppSidebar({
                           toggleSidebar()
                         }
                       }}
+                      render={<Link href={`/docs/${navItem.id}`} />}
                     >
-                      <Link href={`/docs/${navItem.id}`}>{navItem.title}</Link>
+                      {navItem.title}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

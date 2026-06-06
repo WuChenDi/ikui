@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Demo as AudioVisualizerDemo } from '@/docs/audio-visualizer/demo'
 import { Demo as CopyButtonDemo } from '@/docs/copy-button/demo'
+import { Demo as ThumbnailStripDemo } from '@/docs/thumbnail-strip/demo'
 
 export function Hero() {
   return (
@@ -48,6 +49,18 @@ export function Hero() {
             className="text-sm leading-4 text-muted-foreground hover:text-foreground transition-colors"
           >
             Audio Visualizer
+          </Link>
+        </div>
+
+        <div className="md:col-span-2 rounded-2xl border shadow-inner min-h-[200px] md:min-h-[240px] flex flex-col p-4 overflow-hidden">
+          <div className="flex-1 flex items-center justify-center w-full">
+            <ThumbnailStripDemo />
+          </div>
+          <Link
+            href="/docs/thumbnail-strip"
+            className="text-sm leading-4 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Thumbnail Strip
           </Link>
         </div>
       </div>

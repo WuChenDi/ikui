@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { ThumbnailStrip } from '@/registry/ikui/thumbnail-strip'
 import { VideoThumbnailCache } from '@/registry/ikui/video-thumbnail-cache'
 
@@ -49,9 +50,13 @@ export function Demo() {
 
   if (state.kind === 'loading') {
     return (
-      <p className="text-muted-foreground text-sm">
-        Decoding video via mediabunny…
-      </p>
+      <div className="flex w-full max-w-2xl flex-col gap-2">
+        <Skeleton className="h-5 w-72" />
+        <Skeleton
+          className="w-full rounded-md"
+          style={{ height: TILE_HEIGHT }}
+        />
+      </div>
     )
   }
   if (state.kind === 'error') {

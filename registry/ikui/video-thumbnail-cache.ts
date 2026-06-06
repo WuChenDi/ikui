@@ -76,6 +76,8 @@ export class VideoThumbnailCache {
   private readonly blob: Blob;
 
   private thumbnails = new Map<string, ImageBitmap>();
+  private posterUrls = new Map<string, string>();
+  private posterPending = new Map<string, Promise<string | null>>();
   private sortedTimes: number[] = [];
   private sink: VideoSampleSink | null = null;
   private metadata: VideoThumbnailMetadata | null = null;
@@ -215,11 +217,59 @@ export class VideoThumbnailCache {
     return next;
   }
 
-  /** Close every cached bitmap and drop the underlying sink. */
+  /**
+   * Decode one frame and return a tiled-poster-ready object URL. Useful as an
+   * instant fallback that fills a strip before per-tile frames load. Results are
+   * memoized per (snapped) time and concurrent calls are de-duplicated; the
+   * cache owns the URLs and revokes them in `dispose()`. Returns `null` when the
+   * frame cannot be decoded. Default time: 0.
+   */
+  getPosterUrl(time = 0): Promise<string | null> {
+    const key = timeKey(snapTime(time));
+    const existing = this.posterUrls.get(key);
+    if (existing) return Promise.resolve(existing);
+    const pending = this.posterPending.get(key);
+    if (pending) return pending;
+    const next = this.buildPosterUrl(snapTime(time), key);
+    this.posterPending.set(key, next);
+    return next;
+  }
+
+  private async buildPosterUrl(
+    time: number,
+    key: string,
+  ): Promise<string | null> {
+    try {
+      if (this.disposed) return null;
+      const bitmap = await new Promise<ImageBitmap | null>((resolve) => {
+        void this.loadBitmaps({
+          times: [{ id: 0, time }],
+          onBitmap: ({ bitmap }) => resolve(bitmap),
+        }).then(() => resolve(null));
+      });
+      if (!bitmap || this.disposed) return null;
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      ctx.drawImage(bitmap, 0, 0);
+      const blob = await canvas.convertToBlob();
+      if (this.disposed) return null;
+      const url = URL.createObjectURL(blob);
+      this.posterUrls.set(key, url);
+      return url;
+    } finally {
+      this.posterPending.delete(key);
+    }
+  }
+
+  /** Close every cached bitmap, revoke poster URLs, and drop the underlying sink. */
   dispose(): void {
     this.disposed = true;
     for (const bitmap of this.thumbnails.values()) bitmap.close();
     this.thumbnails.clear();
+    for (const url of this.posterUrls.values()) URL.revokeObjectURL(url);
+    this.posterUrls.clear();
+    this.posterPending.clear();
     this.sortedTimes = [];
     this.sink = null;
   }

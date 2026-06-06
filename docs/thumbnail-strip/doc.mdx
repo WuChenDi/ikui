@@ -58,6 +58,11 @@ queued onto a 150 ms debounced batch; results stream back through
 `cache.loadBitmaps` and paint incrementally. A nearest-cached frame is
 painted as a placeholder while the exact one resolves.
 
+By default (`autoFallback`) the strip also decodes the first frame and tiles
+it beneath the canvas, so the row is filled instantly and never flashes blank
+before tiles load. Pass an explicit `fallbackUrl` to override the poster, or
+`autoFallback={false}` to disable it.
+
 ## Props
 
 <PropsTable
@@ -96,7 +101,13 @@ painted as a placeholder while the exact one resolves.
       {
         name: "fallbackUrl",
         type: "string",
-        typeDetails: "Single image tiled with repeat-x beneath the canvas as an instant fallback"
+        typeDetails: "Single image tiled with repeat-x beneath the canvas as an instant fallback. Takes precedence over the auto-generated poster"
+      },
+      {
+        name: "autoFallback",
+        type: "boolean",
+        default: "true",
+        typeDetails: "When no fallbackUrl is set, decode the first frame (at startOffset) and tile it as the fallback poster so the strip is never blank before tiles load"
       },
       {
         name: "objectFit",

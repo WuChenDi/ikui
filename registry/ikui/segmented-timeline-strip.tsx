@@ -17,6 +17,8 @@ export interface TimelineSegment {
   duration: number;
   /** Seconds skipped at the start of the cache's video for this segment. Default: 0. */
   startOffset?: number;
+  /** Optional poster URL tiled beneath the canvas as an instant fallback before tiles decode. */
+  fallbackUrl?: string;
   /** Optional short text drawn in a bottom label bar over the segment. */
   label?: string;
 }
@@ -38,6 +40,8 @@ export interface SegmentedTimelineStripProps {
   tileWidth?: number;
   /** Show a small "Ns" badge in the top-right with the total duration. Default: true. */
   showTotalDurationBadge?: boolean;
+  /** Auto-generate a tiled fallback poster per segment (unless it sets its own `fallbackUrl`) so segments are never blank before tiles load. Default: true. */
+  autoFallback?: boolean;
   /** Background color drawn beneath unloaded tiles. Default: `"#111827"`. */
   placeholderColor?: string;
   /** Accent color for the active border and playhead. Default: `"#6366f1"`. */
@@ -54,6 +58,7 @@ export function SegmentedTimelineStrip({
   height = DEFAULT_HEIGHT,
   tileWidth = DEFAULT_TILE_WIDTH,
   showTotalDurationBadge = true,
+  autoFallback = true,
   placeholderColor = "#111827",
   accentColor = "#6366f1",
   className,
@@ -154,6 +159,8 @@ export function SegmentedTimelineStrip({
                 totalWidth={w}
                 tileWidth={tileWidth}
                 tileHeight={height}
+                fallbackUrl={seg.fallbackUrl}
+                autoFallback={autoFallback}
               />
               {currentIndex !== undefined && !isActive && (
                 <div
