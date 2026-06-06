@@ -61,7 +61,7 @@ export default function NotFound() {
           </p>
         </div>
         <Button>
-          <Link href={'/'}>
+          <Link href={'/'} className="flex items-center gap-2">
             <ArrowLeft />
             Go Back
           </Link>
