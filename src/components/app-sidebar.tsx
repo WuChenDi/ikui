@@ -29,7 +29,7 @@ export function AppSidebar({
   }
 
   return (
-    <Sidebar className="mt-14" {...props}>
+    <Sidebar className="mt-14 border-none" {...props}>
       {/* mt-14 > for header height */}
       <SidebarContent
         className="max-h-[calc(100vh-100px)] overflow-y-auto"

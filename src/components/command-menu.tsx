@@ -14,6 +14,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command'
+import { Kbd } from '@/components/ui/kbd'
 import { useConfig } from '@/hooks/use-config'
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { useIsMac } from '@/hooks/use-is-mac'
@@ -33,6 +34,7 @@ interface PageGroup {
 
 export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
   const [open, setOpen] = useState(false)
+  const [selectedValue, setSelectedValue] = useState('')
   const [selectedType, setSelectedType] = useState<'page' | 'component' | null>(
     null,
   )
@@ -132,16 +134,16 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
         variant="outline"
         className="hidden sm:inline-flex cursor-text items-center gap-2 text-sm text-muted-foreground dark:bg-background dark:hover:bg-input/20 shadow-none"
       >
-        <Search className="size-4" />
+        <Search />
         <span className="pr-6 lg:hidden">Search...</span>
         <span className="pr-8 hidden lg:inline">Search documentation...</span>
-        <kbd className="-me-1 font-mono place-content-center grid dark:shadow-[0_0_0_1px_var(--input)] shadow-[0_0_0_1px_var(--input)] text-foreground font-normal min-h-5 min-w-5 rounded text-xs">
-          /
-        </kbd>
+        <Kbd>/</Kbd>
       </Button>
-      <CommandDialog onOpenChange={setOpen} open={open}>
+      <CommandDialog className="sm:max-w-xl" onOpenChange={setOpen} open={open}>
         <Command
+          value={selectedValue}
           onValueChange={(value) => {
+            setSelectedValue(value)
             const item = allItems.find((i) => i.value === value) ?? null
             handlePageHighlight(item)
           }}
@@ -172,9 +174,9 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
           <div className="flex items-center justify-between border-t px-2 py-1.5 text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <span className="whitespace-nowrap">Go to Page</span>
-              <kbd className="font-mono place-content-center grid shadow-[0_0_0_1px_var(--border)] font-normal min-h-4 px-1 rounded text-xs">
+              <Kbd>
                 <CornerDownLeft className="size-2.5" />
-              </kbd>
+              </Kbd>
             </div>
             {copyPayload ? (
               <div className="flex min-w-0 items-center gap-2">
@@ -188,9 +190,7 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="place-content-center grid shadow-[0_0_0_1px_var(--border)] font-normal min-h-4 px-1 rounded text-xs">
-                  Esc
-                </span>
+                <Kbd>Esc</Kbd>
               </div>
             )}
           </div>
