@@ -241,12 +241,15 @@ export class VideoThumbnailCache {
   ): Promise<string | null> {
     try {
       if (this.disposed) return null;
-      const bitmap = await new Promise<ImageBitmap | null>((resolve) => {
+      let bitmap = await new Promise<ImageBitmap | null>((resolve) => {
         void this.loadBitmaps({
           times: [{ id: 0, time }],
           onBitmap: ({ bitmap }) => resolve(bitmap),
         }).then(() => resolve(null));
       });
+      // loadBitmaps skips already-cached times without firing onBitmap, so fall
+      // back to the cached bitmap when the batch resolved nothing.
+      if (!bitmap) bitmap = this.getCachedBitmap(time);
       if (!bitmap || this.disposed) return null;
       const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
       const ctx = canvas.getContext("2d");
@@ -257,6 +260,9 @@ export class VideoThumbnailCache {
       const url = URL.createObjectURL(blob);
       this.posterUrls.set(key, url);
       return url;
+    } catch (err) {
+      console.warn("VideoThumbnailCache getPosterUrl failed:", err);
+      return null;
     } finally {
       this.posterPending.delete(key);
     }

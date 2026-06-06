@@ -150,6 +150,7 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
         return;
       }
       let cancelled = false;
+      setAutoFallbackUrl(undefined);
       void cache.getPosterUrl(startOffset).then((u) => {
         if (!cancelled && u) setAutoFallbackUrl(u);
       });
