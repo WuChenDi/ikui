@@ -15,8 +15,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "nsl run --name \"ikui\" next dev --webpack",
-    "build": "next build --webpack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "biome check .",
     "format": "biome format --write .",

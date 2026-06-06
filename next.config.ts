@@ -1,10 +1,5 @@
 import createMDX from '@next/mdx'
-import rehypeShiki from '@shikijs/rehype'
 import type { NextConfig } from 'next'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeSlug from 'rehype-slug'
-import codeImport from 'remark-code-import'
-import remarkGfm from 'remark-gfm'
 
 const nextConfig: NextConfig = {
   trailingSlash: false,
@@ -30,11 +25,11 @@ const nextConfig: NextConfig = {
 
 const withMDX = createMDX({
   options: {
-    remarkPlugins: [[codeImport, { cache: false }], remarkGfm],
+    remarkPlugins: [['remark-code-import', { cache: false }], 'remark-gfm'],
     rehypePlugins: [
-      rehypeSlug,
+      'rehype-slug',
       [
-        rehypeAutolinkHeadings,
+        'rehype-autolink-headings',
         {
           behavior: 'wrap',
           properties: {
@@ -44,7 +39,7 @@ const withMDX = createMDX({
         },
       ],
       [
-        rehypeShiki,
+        '@shikijs/rehype',
         {
           themes: {
             light: 'github-light',
