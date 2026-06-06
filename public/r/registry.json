@@ -35,6 +35,21 @@
       "category": "display"
     },
     {
+      "name": "audio-player",
+      "type": "registry:component",
+      "title": "Audio Player",
+      "description": "An audio player with play/pause controls, elapsed and total time, and a built-in waveform visualizer that tracks playback progress.",
+      "files": [
+        {
+          "path": "registry/ikui/audio-player.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["button", "@ikui/audio-visualizer"],
+      "category": "display"
+    },
+    {
       "name": "video-thumbnail-cache",
       "type": "registry:lib",
       "title": "Video Thumbnail Cache",
@@ -80,21 +95,6 @@
         "@ikui/thumbnail-strip",
         "@ikui/video-thumbnail-cache"
       ],
-      "category": "display"
-    },
-    {
-      "name": "audio-player",
-      "type": "registry:component",
-      "title": "Audio Player",
-      "description": "An audio player with play/pause controls, elapsed and total time, and a built-in waveform visualizer that tracks playback progress.",
-      "files": [
-        {
-          "path": "registry/ikui/audio-player.tsx",
-          "type": "registry:component"
-        }
-      ],
-      "dependencies": ["lucide-react"],
-      "registryDependencies": ["button", "@ikui/audio-visualizer"],
       "category": "display"
     }
   ]
