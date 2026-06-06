@@ -24,17 +24,17 @@ Visit our [contributing guide](https://github.com/WuChenDi/ik-ui/blob/main/CONTR
 
 ## Community
 
-Have questions, comments or feedback? Reach out on [Telegram](https://t.me/wuchendi) or read the [blog](https://wcd.pages.dev/).
+Have questions, comments or feedback? Reach out on [Telegram](https://t.me/wuchendi).
 
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=WuChenDi/ik-ui&type=Date)](https://www.star-history.com/#WuChenDi/ik-ui&Date)
 
 
-## Credits
+<!-- ## Credits
 
 ikui is derived from the MIT-licensed [spell-ui](https://github.com/xxtomm/spell-ui)
-project, re-themed onto [Base UI](https://base-ui.com) primitives.
+project, re-themed onto [Base UI](https://base-ui.com) primitives. -->
 
 ## License
 
