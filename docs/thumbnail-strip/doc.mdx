@@ -1,0 +1,123 @@
+import { Demo } from './demo'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A horizontal canvas strip that lays a video's frames out along a timeline,
+one frame per tile. Designed for video editor track rows and scrubbable
+overviews — viewport-virtualized so only the visible range is decoded and
+painted.
+
+Pairs with the [`video-thumbnail-cache`](./video-thumbnail-cache) lib, which
+wraps mediabunny and handles frame decoding, caching, and eviction. The
+strip itself only consumes a `cache` reference plus the visual parameters.
+
+## Installation
+
+The strip pulls `video-thumbnail-cache` (and transitively `mediabunny`) in
+automatically — one install gives you the full pair.
+
+<InstallationTabs item="thumbnail-strip">
+```tsx file=../../registry/ikui/thumbnail-strip.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { ThumbnailStrip } from "@/components/thumbnail-strip";
+import { VideoThumbnailCache } from "@/lib/video-thumbnail-cache";
+```
+```tsx
+const cache = await VideoThumbnailCache.fromUrl(videoUrl)
+const { duration } = cache.getMetadata()!
+
+<ThumbnailStrip
+  cache={cache}
+  duration={duration}
+  totalWidth={duration * pixelsPerSecond}
+  tileWidth={96}
+  tileHeight={60}
+/>
+```
+
+The strip computes `secondsPerTile = (tileWidth / totalWidth) * duration`
+internally. To "zoom", change `totalWidth`. To window into a sub-range of
+the video (e.g. trimmed clip), pass `startOffset` and a shorter `duration`.
+
+The component auto-detects the nearest scrollable ancestor and only paints
+the visible range plus a 200 px overscan. Frames missing from the cache are
+queued onto a 150 ms debounced batch; results stream back through
+`cache.loadBitmaps` and paint incrementally. A nearest-cached frame is
+painted as a placeholder while the exact one resolves.
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "cache",
+        type: "VideoThumbnailCache",
+        nameDetails: "Frame source — see the video-thumbnail-cache docs"
+      },
+      {
+        name: "duration",
+        type: "number",
+        nameDetails: "Duration of the visible range in seconds"
+      },
+      {
+        name: "startOffset",
+        type: "number",
+        default: "0",
+        typeDetails: "Seconds skipped at the start of the cache's video"
+      },
+      {
+        name: "totalWidth",
+        type: "number",
+        nameDetails: "Total strip width in CSS pixels"
+      },
+      {
+        name: "tileWidth",
+        type: "number",
+        nameDetails: "Width of each tile in CSS pixels"
+      },
+      {
+        name: "tileHeight",
+        type: "number",
+        nameDetails: "Strip and tile height in CSS pixels"
+      },
+      {
+        name: "fallbackUrl",
+        type: "string",
+        typeDetails: "Single image tiled with repeat-x beneath the canvas as an instant fallback"
+      },
+      {
+        name: "objectFit",
+        type: '"cover" | "contain" | "fill"',
+        default: '"cover"',
+        typeDetails: "How decoded frames fit into each tile"
+      },
+      {
+        name: "scrollContainer",
+        type: "HTMLElement | null",
+        typeDetails: "Scroll container override. Auto-detected when undefined; null uses the viewport"
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Class applied to the outer wrapper"
+      },
+      {
+        name: "style",
+        type: "React.CSSProperties",
+        typeDetails: "Inline styles applied to the outer wrapper"
+      }
+    ]}
+  />

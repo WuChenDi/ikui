@@ -103,7 +103,7 @@
       "!**/.turbo",
       "!**/.cache",
       "!src/components/ui/**/*.tsx",
-      "!registry/ikui/**/*.tsx"
+      "!registry/ikui/**/*.{ts,tsx}"
     ]
   }
 }

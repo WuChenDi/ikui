@@ -21,6 +21,10 @@
     "paths": {
       "@/docs/*": ["./docs/*"],
       "@/components/audio-visualizer": ["./registry/ikui/audio-visualizer.tsx"],
+      "@/components/thumbnail-strip": ["./registry/ikui/thumbnail-strip.tsx"],
+      "@/lib/video-thumbnail-cache": [
+        "./registry/ikui/video-thumbnail-cache.ts"
+      ],
       "@/*": ["./src/*", "./*"]
     }
   },

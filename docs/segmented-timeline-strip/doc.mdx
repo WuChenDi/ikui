@@ -1,0 +1,131 @@
+import { Demo } from './demo'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A horizontal timeline overview that concatenates multiple video segments
+end-to-end. Each segment is rendered by a
+[`thumbnail-strip`](./thumbnail-strip); the wrapper layers DOM chrome on
+top — active-segment border, dim mask, segment label, playhead, total
+duration badge — and translates click-to-seek into per-segment
+coordinates.
+
+Segment widths are proportional to `duration`. The whole strip fills its
+container; no horizontal scrolling. Multiple segments may share one
+`VideoThumbnailCache` (different `startOffset`s into the same video) or
+each carry its own cache (multi-clip projects).
+
+## Installation
+
+Pulls `thumbnail-strip` and `video-thumbnail-cache` (and transitively
+`mediabunny`) automatically.
+
+<InstallationTabs item="segmented-timeline-strip">
+```tsx file=../../registry/ikui/segmented-timeline-strip.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import {
+  SegmentedTimelineStrip,
+  type TimelineSegment,
+} from "@/components/segmented-timeline-strip";
+import { VideoThumbnailCache } from "@/lib/video-thumbnail-cache";
+```
+```tsx
+const cache = await VideoThumbnailCache.fromUrl(videoUrl)
+const { duration } = cache.getMetadata()!
+const segDur = duration / 5
+
+const segments: TimelineSegment[] = Array.from({ length: 5 }, (_, i) => ({
+  id: i,
+  cache,
+  duration: segDur,
+  startOffset: i * segDur,
+  label: String(i + 1),
+}))
+
+<SegmentedTimelineStrip
+  segments={segments}
+  currentIndex={currentIndex}
+  currentTime={video.currentTime - currentIndex * segDur}
+  onSeek={({ segmentIndex, timeWithinSegment }) => {
+    video.currentTime = segmentIndex * segDur + timeWithinSegment
+  }}
+/>
+```
+
+To wire a video element's `timeupdate` to the playhead, lift `currentTime`
+into React state and feed the strip the *segment-local* time (subtract the
+current segment's `startOffset`).
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "segments",
+        type: "TimelineSegment[]",
+        nameDetails: "Each segment carries a cache, duration, optional startOffset, optional label"
+      },
+      {
+        name: "currentIndex",
+        type: "number",
+        typeDetails: "Active segment. Gets the accent border; others receive a dim mask"
+      },
+      {
+        name: "currentTime",
+        type: "number",
+        default: "0",
+        typeDetails: "Playback time within the current segment in seconds (drives the playhead)"
+      },
+      {
+        name: "onSeek",
+        type: "({ segmentIndex, timeWithinSegment }) => void",
+        typeDetails: "Click-to-seek callback. Cursor becomes a pointer when provided"
+      },
+      {
+        name: "height",
+        type: "number",
+        default: "64",
+        typeDetails: "Strip height in CSS pixels"
+      },
+      {
+        name: "tileWidth",
+        type: "number",
+        default: "36",
+        typeDetails: "Width of each thumbnail tile in CSS pixels"
+      },
+      {
+        name: "showTotalDurationBadge",
+        type: "boolean",
+        default: "true",
+        typeDetails: "Render a small Ns badge in the top-right with the summed duration"
+      },
+      {
+        name: "placeholderColor",
+        type: "string",
+        default: '"#111827"',
+        typeDetails: "Background color drawn beneath unloaded tiles"
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Class applied to the outer wrapper"
+      },
+      {
+        name: "style",
+        type: "React.CSSProperties",
+        typeDetails: "Inline styles applied to the outer wrapper"
+      }
+    ]}
+  />

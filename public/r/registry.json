@@ -15,9 +15,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": [
-        "lucide-react"
-      ],
+      "dependencies": ["lucide-react"],
       "registryDependencies": [],
       "category": "button"
     },
@@ -37,6 +35,54 @@
       "category": "display"
     },
     {
+      "name": "video-thumbnail-cache",
+      "type": "registry:lib",
+      "title": "Video Thumbnail Cache",
+      "description": "Decode video frames via mediabunny on demand and cache them as ImageBitmaps. Backs the thumbnail-strip and segmented-timeline-strip components.",
+      "files": [
+        {
+          "path": "registry/ikui/video-thumbnail-cache.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": ["mediabunny"],
+      "registryDependencies": [],
+      "category": "display"
+    },
+    {
+      "name": "thumbnail-strip",
+      "type": "registry:component",
+      "title": "Thumbnail Strip",
+      "description": "A viewport-virtualized canvas strip rendering video thumbnails along a horizontal timeline. Pairs with video-thumbnail-cache for the frame decoding.",
+      "files": [
+        {
+          "path": "registry/ikui/thumbnail-strip.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": ["@ikui/video-thumbnail-cache"],
+      "category": "display"
+    },
+    {
+      "name": "segmented-timeline-strip",
+      "type": "registry:component",
+      "title": "Segmented Timeline Strip",
+      "description": "Multi-clip timeline overview built by composing one thumbnail-strip per segment with DOM chrome (active border, dim mask, label, playhead, total duration badge) and click-to-seek.",
+      "files": [
+        {
+          "path": "registry/ikui/segmented-timeline-strip.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "@ikui/thumbnail-strip",
+        "@ikui/video-thumbnail-cache"
+      ],
+      "category": "display"
+    },
+    {
       "name": "audio-player",
       "type": "registry:component",
       "title": "Audio Player",
@@ -47,13 +93,8 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": [
-        "lucide-react"
-      ],
-      "registryDependencies": [
-        "button",
-        "@ikui/audio-visualizer"
-      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["button", "@ikui/audio-visualizer"],
       "category": "display"
     }
   ]
