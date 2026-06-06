@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "shadcn/tailwind.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -48,6 +49,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --animate-skeleton: skeleton 2s -1s infinite linear;
+
   @keyframes skeleton {
     to {
       background-position: -200% 0;
@@ -130,6 +132,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -150,8 +153,10 @@ html {
 
 html,
 body {
-  scrollbar-width: none; /* firefox */
-  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;
+  /* firefox */
+  -ms-overflow-style: none;
+  /* IE 10+ */
 }
 
 details {
@@ -164,7 +169,8 @@ summary {
 
 ::-webkit-scrollbar {
   width: 0px;
-  display: none; /* Safari and Chrome */
+  display: none;
+  /* Safari and Chrome */
   display: none;
   -ms-overflow-style: none;
   scrollbar-width: none;
