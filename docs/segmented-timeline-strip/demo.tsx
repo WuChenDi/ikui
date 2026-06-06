@@ -2,6 +2,7 @@
 
 import { Pause, Play } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { TimelineSegment } from '@/registry/ikui/segmented-timeline-strip'
 import { SegmentedTimelineStrip } from '@/registry/ikui/segmented-timeline-strip'
 import { VideoThumbnailCache } from '@/registry/ikui/video-thumbnail-cache'
@@ -149,9 +150,15 @@ export function Demo() {
 
   if (state.kind === 'loading') {
     return (
-      <p className="text-muted-foreground text-sm">
-        Decoding videos via mediabunny…
-      </p>
+      <div className="flex w-full max-w-2xl flex-col gap-3">
+        <Skeleton className="h-64 w-full rounded-md" />
+        <div className="flex items-center gap-3">
+          <Skeleton className="size-9 rounded-full" />
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-5 w-20" />
+        </div>
+        <Skeleton className="h-16 w-full rounded-md" />
+      </div>
     )
   }
   if (state.kind === 'error') {
@@ -176,7 +183,7 @@ export function Demo() {
         crossOrigin="anonymous"
         playsInline
         onLoadedMetadata={handleLoadedMetadata}
-        className="max-h-64 w-full rounded-md bg-black"
+        className="h-64 w-full rounded-md bg-black object-contain"
       >
         <track kind="captions" />
       </video>

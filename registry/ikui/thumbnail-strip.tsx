@@ -23,8 +23,15 @@ export interface ThumbnailStripProps {
   /**
    * Optional URL of a single thumbnail tiled with `background-repeat: repeat-x`
    * beneath the canvas. Useful as an instant fallback before any tile loads.
+   * Takes precedence over the auto-generated poster.
    */
   fallbackUrl?: string;
+  /**
+   * When `true` and no `fallbackUrl` is given, decode the first frame of the
+   * range (at `startOffset`) and tile it as the fallback poster so the strip is
+   * never blank before tiles load. Default: `true`.
+   */
+  autoFallback?: boolean;
   /** How decoded frames are fit into each tile cell. Default: `"cover"`. */
   objectFit?: "cover" | "contain" | "fill";
   /**
@@ -114,6 +121,7 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
       tileWidth,
       tileHeight,
       fallbackUrl,
+      autoFallback = true,
       objectFit = "cover",
       scrollContainer: explicitContainer,
       className,
@@ -134,17 +142,35 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
       [],
     );
 
+    const [autoFallbackUrl, setAutoFallbackUrl] = React.useState<string>();
+
+    React.useEffect(() => {
+      if (fallbackUrl || !autoFallback) {
+        setAutoFallbackUrl(undefined);
+        return;
+      }
+      let cancelled = false;
+      void cache.getPosterUrl(startOffset).then((u) => {
+        if (!cancelled && u) setAutoFallbackUrl(u);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [cache, fallbackUrl, autoFallback, startOffset]);
+
+    const effectiveFallbackUrl = fallbackUrl ?? autoFallbackUrl;
+
     const fallbackStyle = React.useMemo<React.CSSProperties | undefined>(
       () =>
-        fallbackUrl
+        effectiveFallbackUrl
           ? {
-              backgroundImage: `url(${fallbackUrl})`,
+              backgroundImage: `url(${effectiveFallbackUrl})`,
               backgroundRepeat: "repeat-x",
               backgroundSize: `${tileWidth}px ${tileHeight}px`,
               backgroundPosition: "left top",
             }
           : undefined,
-      [fallbackUrl, tileWidth, tileHeight],
+      [effectiveFallbackUrl, tileWidth, tileHeight],
     );
 
     React.useLayoutEffect(() => {

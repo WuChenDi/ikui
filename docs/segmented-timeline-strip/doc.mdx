@@ -75,7 +75,7 @@ current segment's `startOffset`).
       {
         name: "segments",
         type: "TimelineSegment[]",
-        nameDetails: "Each segment carries a cache, duration, optional startOffset, optional label"
+        nameDetails: "Each segment carries a cache, duration, optional startOffset, fallbackUrl, label"
       },
       {
         name: "currentIndex",
@@ -112,10 +112,16 @@ current segment's `startOffset`).
         typeDetails: "Render a small Ns badge in the top-right with the summed duration"
       },
       {
+        name: "autoFallback",
+        type: "boolean",
+        default: "true",
+        typeDetails: "Auto-generate a tiled poster per segment (unless it sets its own fallbackUrl) so segments are never blank before tiles load"
+      },
+      {
         name: "placeholderColor",
         type: "string",
         default: '"#111827"',
-        typeDetails: "Background color drawn beneath unloaded tiles"
+        typeDetails: "Background color drawn beneath unloaded tiles and the poster"
       },
       {
         name: "className",
