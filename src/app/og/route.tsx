@@ -21,7 +21,12 @@ async function loadLogo(origin: string): Promise<string> {
 }
 
 async function loadAssets(): Promise<
-  { name: string; data: ArrayBuffer; weight: 400 | 500 | 600; style: 'normal' }[]
+  {
+    name: string
+    data: ArrayBuffer
+    weight: 400 | 500 | 600
+    style: 'normal'
+  }[]
 > {
   const [
     { base64Font: normal },

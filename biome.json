@@ -102,8 +102,7 @@
       "!**/.wrangler",
       "!**/.turbo",
       "!**/.cache",
-      "!src/components/ui/**/*.tsx",
-      "!registry/ikui/**/*.{ts,tsx}"
+      "!src/components/ui/**/*.tsx"
     ]
   }
 }

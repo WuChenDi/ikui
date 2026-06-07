@@ -108,10 +108,10 @@ export default function TermsOfServicePage() {
                 Limitation of Liability
               </h2>
               <p>
-                To the fullest extent permitted by law, ikui and its
-                maintainers shall not be liable for any indirect, incidental,
-                special, consequential, or punitive damages arising from your
-                use of the site, its components, or any sponsorship arrangement.
+                To the fullest extent permitted by law, ikui and its maintainers
+                shall not be liable for any indirect, incidental, special,
+                consequential, or punitive damages arising from your use of the
+                site, its components, or any sponsorship arrangement.
               </p>
             </section>
 
