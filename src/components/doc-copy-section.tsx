@@ -3,6 +3,7 @@
 import { Bot, Check, ChevronDown, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { ClaudeIcon } from '@/components/icons/claude'
+import { MarkdownIcon } from '@/components/icons/markdown'
 import { V0Icon } from '@/components/icons/v0'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
@@ -46,67 +47,50 @@ export function DocCopySection({ content, url }: DocCopySectionProps) {
     pathname = url
   }
 
-  const menuItems = {
-    viewMarkdown: () => {
-      const mdUrl = `${pathname}.md`
-      return (
-        <a
-          href={mdUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2"
-        >
-          <svg strokeLinejoin="round" viewBox="0 0 22 16" className="h-4 w-4">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M19.5 2.25H2.5C1.80964 2.25 1.25 2.80964 1.25 3.5V12.5C1.25 13.1904 1.80964 13.75 2.5 13.75H19.5C20.1904 13.75 20.75 13.1904 20.75 12.5V3.5C20.75 2.80964 20.1904 2.25 19.5 2.25ZM2.5 1C1.11929 1 0 2.11929 0 3.5V12.5C0 13.8807 1.11929 15 2.5 15H19.5C20.8807 15 22 13.8807 22 12.5V3.5C22 2.11929 20.8807 1 19.5 1H2.5ZM3 4.5H4H4.25H4.6899L4.98715 4.82428L7 7.02011L9.01285 4.82428L9.3101 4.5H9.75H10H11V5.5V11.5H9V7.79807L7.73715 9.17572L7 9.97989L6.26285 9.17572L5 7.79807V11.5H3V5.5V4.5ZM15 8V4.5H17V8H19.5L17 10.5L16 11.5L15 10.5L12.5 8H15Z"
-              fill="currentColor"
-            />
-          </svg>
-          View as Markdown
-        </a>
-      )
+  const menuItems = [
+    {
+      key: 'viewMarkdown',
+      href: `${pathname}.md`,
+      icon: <MarkdownIcon className="h-4 w-4" />,
+      label: 'View as Markdown',
     },
-    v0: () => (
-      <a
-        href={getPromptUrl('https://v0.dev', url)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2"
-      >
-        <V0Icon />
-        Open in v0
-      </a>
-    ),
-    chatgpt: () => (
-      <a
-        href={getPromptUrl('https://chatgpt.com', url)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2"
-      >
-        <Bot />
-        Open in ChatGPT
-      </a>
-    ),
-    claude: () => (
-      <a
-        href={getPromptUrl('https://claude.ai/new', url)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2"
-      >
-        <ClaudeIcon />
-        Open in Claude
-      </a>
-    ),
-  }
+    {
+      key: 'v0',
+      href: getPromptUrl('https://v0.dev', url),
+      icon: <V0Icon />,
+      label: 'Open in v0',
+    },
+    {
+      key: 'chatgpt',
+      href: getPromptUrl('https://chatgpt.com', url),
+      icon: <Bot />,
+      label: 'Open in ChatGPT',
+    },
+    {
+      key: 'claude',
+      href: getPromptUrl('https://claude.ai/new', url),
+      icon: <ClaudeIcon />,
+      label: 'Open in Claude',
+    },
+  ]
 
   const dropdownContent = (
     <>
-      {Object.entries(menuItems).map(([key, value]) => (
-        <DropdownMenuItem key={key}>{value()}</DropdownMenuItem>
+      {menuItems.map(({ key, href, icon, label }) => (
+        <DropdownMenuItem
+          key={key}
+          render={
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="gap-2"
+            >
+              {icon}
+              {label}
+            </a>
+          }
+        />
       ))}
     </>
   )
