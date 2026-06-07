@@ -1,55 +1,55 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import type { VideoThumbnailCache } from "@/lib/video-thumbnail-cache";
+import * as React from 'react'
+import type { VideoThumbnailCache } from '@/lib/video-thumbnail-cache'
 
-const ASYNC_LOAD_DEBOUNCE_MS = 150;
-const MAX_CANVAS_DIMENSION = 8192;
-const RENDER_PADDING_PX = 200;
+const ASYNC_LOAD_DEBOUNCE_MS = 150
+const MAX_CANVAS_DIMENSION = 8192
+const RENDER_PADDING_PX = 200
 
 export interface ThumbnailStripProps {
   /** Cache providing the underlying video frames. */
-  cache: VideoThumbnailCache;
+  cache: VideoThumbnailCache
   /** Duration of the visible range in seconds. */
-  duration: number;
+  duration: number
   /** Seconds of video skipped at the start. Useful when one cache backs multiple sub-ranges. Default: 0. */
-  startOffset?: number;
+  startOffset?: number
   /** Total strip width in CSS pixels. Caller controls zoom by varying this value. */
-  totalWidth: number;
+  totalWidth: number
   /** Width of each tile in CSS pixels. */
-  tileWidth: number;
+  tileWidth: number
   /** Strip height (also tile height and canvas height) in CSS pixels. */
-  tileHeight: number;
+  tileHeight: number
   /**
    * Optional URL of a single thumbnail tiled with `background-repeat: repeat-x`
    * beneath the canvas. Useful as an instant fallback before any tile loads.
    * Takes precedence over the auto-generated poster.
    */
-  fallbackUrl?: string;
+  fallbackUrl?: string
   /**
    * When `true` and no `fallbackUrl` is given, decode the first frame of the
    * range (at `startOffset`) and tile it as the fallback poster so the strip is
    * never blank before tiles load. Default: `true`.
    */
-  autoFallback?: boolean;
+  autoFallback?: boolean
   /** How decoded frames are fit into each tile cell. Default: `"cover"`. */
-  objectFit?: "cover" | "contain" | "fill";
+  objectFit?: 'cover' | 'contain' | 'fill'
   /**
    * Scroll container to virtualize against. If `undefined`, the nearest
    * scrollable ancestor is auto-detected. Pass `null` to use the viewport.
    */
-  scrollContainer?: HTMLElement | null;
-  className?: string;
-  style?: React.CSSProperties;
+  scrollContainer?: HTMLElement | null
+  className?: string
+  style?: React.CSSProperties
 }
 
 function findScrollContainer(element: HTMLElement): HTMLElement | null {
-  let current = element.parentElement;
+  let current = element.parentElement
   while (current) {
-    if (current.scrollWidth > current.clientWidth + 1) return current;
-    current = current.parentElement;
+    if (current.scrollWidth > current.clientWidth + 1) return current
+    current = current.parentElement
   }
-  return null;
+  return null
 }
 
 function drawTile({
@@ -61,54 +61,54 @@ function drawTile({
   destHeight,
   objectFit,
 }: {
-  ctx: CanvasRenderingContext2D;
-  image: ImageBitmap;
-  destX: number;
-  destY: number;
-  destWidth: number;
-  destHeight: number;
-  objectFit: "cover" | "contain" | "fill";
+  ctx: CanvasRenderingContext2D
+  image: ImageBitmap
+  destX: number
+  destY: number
+  destWidth: number
+  destHeight: number
+  objectFit: 'cover' | 'contain' | 'fill'
 }): void {
-  if (objectFit === "fill") {
-    ctx.drawImage(image, destX, destY, destWidth, destHeight);
-    return;
+  if (objectFit === 'fill') {
+    ctx.drawImage(image, destX, destY, destWidth, destHeight)
+    return
   }
 
-  const sourceAspect = image.width / image.height;
-  const destAspect = destWidth / destHeight;
+  const sourceAspect = image.width / image.height
+  const destAspect = destWidth / destHeight
 
-  if (objectFit === "cover") {
-    let sx: number;
-    let sy: number;
-    let sw: number;
-    let sh: number;
+  if (objectFit === 'cover') {
+    let sx: number
+    let sy: number
+    let sw: number
+    let sh: number
     if (sourceAspect > destAspect) {
-      sh = image.height;
-      sw = image.height * destAspect;
-      sx = (image.width - sw) / 2;
-      sy = 0;
+      sh = image.height
+      sw = image.height * destAspect
+      sx = (image.width - sw) / 2
+      sy = 0
     } else {
-      sw = image.width;
-      sh = image.width / destAspect;
-      sx = 0;
-      sy = (image.height - sh) / 2;
+      sw = image.width
+      sh = image.width / destAspect
+      sx = 0
+      sy = (image.height - sh) / 2
     }
-    ctx.drawImage(image, sx, sy, sw, sh, destX, destY, destWidth, destHeight);
-    return;
+    ctx.drawImage(image, sx, sy, sw, sh, destX, destY, destWidth, destHeight)
+    return
   }
 
-  let dw: number;
-  let dh: number;
+  let dw: number
+  let dh: number
   if (sourceAspect > destAspect) {
-    dw = destWidth;
-    dh = destWidth / sourceAspect;
+    dw = destWidth
+    dh = destWidth / sourceAspect
   } else {
-    dh = destHeight;
-    dw = destHeight * sourceAspect;
+    dh = destHeight
+    dw = destHeight * sourceAspect
   }
-  const dx = destX + (destWidth - dw) / 2;
-  const dy = destY + (destHeight - dh) / 2;
-  ctx.drawImage(image, dx, dy, dw, dh);
+  const dx = destX + (destWidth - dw) / 2
+  const dy = destY + (destHeight - dh) / 2
+  ctx.drawImage(image, dx, dy, dw, dh)
 }
 
 const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
@@ -122,123 +122,123 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
       tileHeight,
       fallbackUrl,
       autoFallback = true,
-      objectFit = "cover",
+      objectFit = 'cover',
       scrollContainer: explicitContainer,
       className,
       style,
     },
     ref,
   ) => {
-    const wrapperRef = React.useRef<HTMLDivElement>(null);
-    const canvasRef = React.useRef<HTMLCanvasElement>(null);
-    const renderIdRef = React.useRef(0);
-    const drawIdRef = React.useRef(0);
-    const debounceRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
-    const rafRef = React.useRef<number>(0);
+    const wrapperRef = React.useRef<HTMLDivElement>(null)
+    const canvasRef = React.useRef<HTMLCanvasElement>(null)
+    const renderIdRef = React.useRef(0)
+    const drawIdRef = React.useRef(0)
+    const debounceRef = React.useRef<ReturnType<typeof setTimeout>>(undefined)
+    const rafRef = React.useRef<number>(0)
 
     React.useImperativeHandle(
       ref,
       () => canvasRef.current as HTMLCanvasElement,
       [],
-    );
+    )
 
-    const [autoFallbackUrl, setAutoFallbackUrl] = React.useState<string>();
+    const [autoFallbackUrl, setAutoFallbackUrl] = React.useState<string>()
 
     React.useEffect(() => {
       if (fallbackUrl || !autoFallback) {
-        setAutoFallbackUrl(undefined);
-        return;
+        setAutoFallbackUrl(undefined)
+        return
       }
-      let cancelled = false;
-      setAutoFallbackUrl(undefined);
+      let cancelled = false
+      setAutoFallbackUrl(undefined)
       void cache.getPosterUrl(startOffset).then((u) => {
-        if (!cancelled && u) setAutoFallbackUrl(u);
-      });
+        if (!cancelled && u) setAutoFallbackUrl(u)
+      })
       return () => {
-        cancelled = true;
-      };
-    }, [cache, fallbackUrl, autoFallback, startOffset]);
+        cancelled = true
+      }
+    }, [cache, fallbackUrl, autoFallback, startOffset])
 
-    const effectiveFallbackUrl = fallbackUrl ?? autoFallbackUrl;
+    const effectiveFallbackUrl = fallbackUrl ?? autoFallbackUrl
 
     const fallbackStyle = React.useMemo<React.CSSProperties | undefined>(
       () =>
         effectiveFallbackUrl
           ? {
               backgroundImage: `url(${effectiveFallbackUrl})`,
-              backgroundRepeat: "repeat-x",
+              backgroundRepeat: 'repeat-x',
               backgroundSize: `${tileWidth}px ${tileHeight}px`,
-              backgroundPosition: "left top",
+              backgroundPosition: 'left top',
             }
           : undefined,
       [effectiveFallbackUrl, tileWidth, tileHeight],
-    );
+    )
 
     React.useLayoutEffect(() => {
-      const renderId = ++renderIdRef.current;
-      const wrapper = wrapperRef.current;
-      const canvas = canvasRef.current;
-      if (!wrapper || !canvas) return;
-      if (totalWidth <= 0 || tileWidth <= 0) return;
+      const renderId = ++renderIdRef.current
+      const wrapper = wrapperRef.current
+      const canvas = canvasRef.current
+      if (!wrapper || !canvas) return
+      if (totalWidth <= 0 || tileWidth <= 0) return
 
       const container =
         explicitContainer === undefined
           ? findScrollContainer(wrapper)
-          : explicitContainer;
-      const dpr = window.devicePixelRatio || 1;
-      const maxLogicalWidth = Math.floor(MAX_CANVAS_DIMENSION / dpr);
-      const secondsPerTile = (tileWidth / totalWidth) * duration;
+          : explicitContainer
+      const dpr = window.devicePixelRatio || 1
+      const maxLogicalWidth = Math.floor(MAX_CANVAS_DIMENSION / dpr)
+      const secondsPerTile = (tileWidth / totalWidth) * duration
 
       const tileToTime = (i: number): number =>
-        Math.min(startOffset + i * secondsPerTile, startOffset + duration);
+        Math.min(startOffset + i * secondsPerTile, startOffset + duration)
 
       const draw = () => {
-        if (renderId !== renderIdRef.current) return;
-        const drawId = ++drawIdRef.current;
+        if (renderId !== renderIdRef.current) return
+        const drawId = ++drawIdRef.current
 
-        const wrapperRect = wrapper.getBoundingClientRect();
+        const wrapperRect = wrapper.getBoundingClientRect()
         const containerRect = container
           ? container.getBoundingClientRect()
-          : new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+          : new DOMRect(0, 0, window.innerWidth, window.innerHeight)
 
-        const relativeLeft = containerRect.left - wrapperRect.left;
-        const visStart = Math.max(0, relativeLeft - RENDER_PADDING_PX);
+        const relativeLeft = containerRect.left - wrapperRect.left
+        const visStart = Math.max(0, relativeLeft - RENDER_PADDING_PX)
         const visEnd = Math.min(
           totalWidth,
           relativeLeft + containerRect.width + RENDER_PADDING_PX,
-        );
+        )
 
-        const renderWidth = Math.ceil(visEnd - visStart);
-        if (renderWidth <= 0) return;
+        const renderWidth = Math.ceil(visEnd - visStart)
+        if (renderWidth <= 0) return
 
-        const cappedWidth = Math.min(renderWidth, maxLogicalWidth);
-        const renderStart = visStart;
+        const cappedWidth = Math.min(renderWidth, maxLogicalWidth)
+        const renderStart = visStart
 
-        const targetW = cappedWidth * dpr;
-        const targetH = tileHeight * dpr;
+        const targetW = cappedWidth * dpr
+        const targetH = tileHeight * dpr
         if (canvas.width !== targetW || canvas.height !== targetH) {
-          canvas.width = targetW;
-          canvas.height = targetH;
+          canvas.width = targetW
+          canvas.height = targetH
         }
-        canvas.style.width = `${cappedWidth}px`;
-        canvas.style.height = `${tileHeight}px`;
-        canvas.style.left = `${Math.round(renderStart)}px`;
+        canvas.style.width = `${cappedWidth}px`
+        canvas.style.height = `${tileHeight}px`
+        canvas.style.left = `${Math.round(renderStart)}px`
 
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
 
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, cappedWidth, tileHeight);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        ctx.clearRect(0, 0, cappedWidth, tileHeight)
 
-        const startTile = Math.floor(renderStart / tileWidth);
-        const endTile = Math.ceil(visEnd / tileWidth);
-        const tilesNeedingLoad: { id: number; time: number }[] = [];
+        const startTile = Math.floor(renderStart / tileWidth)
+        const endTile = Math.ceil(visEnd / tileWidth)
+        const tilesNeedingLoad: { id: number; time: number }[] = []
 
         for (let i = startTile; i < endTile; i++) {
-          const destX = i * tileWidth - renderStart;
-          const t = tileToTime(i);
-          const exact = cache.getCachedBitmap(t);
-          const image = exact ?? cache.getNearestCachedBitmap(t) ?? null;
+          const destX = i * tileWidth - renderStart
+          const t = tileToTime(i)
+          const exact = cache.getCachedBitmap(t)
+          const image = exact ?? cache.getNearestCachedBitmap(t) ?? null
 
           if (image) {
             drawTile({
@@ -249,13 +249,13 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
               destWidth: tileWidth,
               destHeight: tileHeight,
               objectFit,
-            });
+            })
           }
 
-          if (!exact) tilesNeedingLoad.push({ id: i, time: t });
+          if (!exact) tilesNeedingLoad.push({ id: i, time: t })
         }
 
-        if (debounceRef.current) clearTimeout(debounceRef.current);
+        if (debounceRef.current) clearTimeout(debounceRef.current)
 
         if (tilesNeedingLoad.length > 0) {
           debounceRef.current = setTimeout(() => {
@@ -263,7 +263,7 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
               renderId !== renderIdRef.current ||
               drawId !== drawIdRef.current
             ) {
-              return;
+              return
             }
             void cache.loadBitmaps({
               times: tilesNeedingLoad,
@@ -272,10 +272,10 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
                   renderId !== renderIdRef.current ||
                   drawId !== drawIdRef.current
                 ) {
-                  return;
+                  return
                 }
-                const tileIndex = Number(id);
-                const destX = tileIndex * tileWidth - renderStart;
+                const tileIndex = Number(id)
+                const destX = tileIndex * tileWidth - renderStart
                 drawTile({
                   ctx,
                   image: bitmap,
@@ -284,27 +284,27 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
                   destWidth: tileWidth,
                   destHeight: tileHeight,
                   objectFit,
-                });
+                })
               },
-            });
-          }, ASYNC_LOAD_DEBOUNCE_MS);
+            })
+          }, ASYNC_LOAD_DEBOUNCE_MS)
         }
-      };
+      }
 
-      draw();
+      draw()
 
       const onScroll = () => {
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        rafRef.current = requestAnimationFrame(draw);
-      };
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+        rafRef.current = requestAnimationFrame(draw)
+      }
 
-      container?.addEventListener("scroll", onScroll, { passive: true });
+      container?.addEventListener('scroll', onScroll, { passive: true })
 
       return () => {
-        container?.removeEventListener("scroll", onScroll);
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-      };
+        container?.removeEventListener('scroll', onScroll)
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+        if (debounceRef.current) clearTimeout(debounceRef.current)
+      }
     }, [
       cache,
       duration,
@@ -314,41 +314,41 @@ const ThumbnailStrip = React.forwardRef<HTMLCanvasElement, ThumbnailStripProps>(
       tileHeight,
       objectFit,
       explicitContainer,
-    ]);
+    ])
 
     return (
       <div
         ref={wrapperRef}
         className={className}
         style={{
-          position: "relative",
+          position: 'relative',
           width: totalWidth,
           height: tileHeight,
-          overflow: "hidden",
+          overflow: 'hidden',
           ...style,
         }}
       >
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             inset: 0,
-            pointerEvents: "none",
+            pointerEvents: 'none',
             ...fallbackStyle,
           }}
         />
         <canvas
           ref={canvasRef}
           style={{
-            position: "absolute",
+            position: 'absolute',
             top: 0,
-            pointerEvents: "none",
+            pointerEvents: 'none',
           }}
         />
       </div>
-    );
+    )
   },
-);
+)
 
-ThumbnailStrip.displayName = "ThumbnailStrip";
+ThumbnailStrip.displayName = 'ThumbnailStrip'
 
-export { ThumbnailStrip };
+export { ThumbnailStrip }
