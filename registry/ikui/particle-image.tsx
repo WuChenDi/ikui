@@ -123,6 +123,17 @@ function requestFrame(callback: FrameRequestCallback): void {
   raf(callback)
 }
 
+function normalizeColorArr(
+  value: number[] | string | undefined,
+): number[] | undefined {
+  if (!value) return undefined
+  // From `element.dataset`, an array is serialized to a comma-separated string.
+  const arr = Array.isArray(value)
+    ? value
+    : String(value).split(',').map(Number)
+  return arr.length > 0 && arr.every((n) => !isNaN(n)) ? arr : undefined
+}
+
 function resolveDimension(
   raw: number | string | undefined,
   base: number,
@@ -196,6 +207,8 @@ class ParticleEngine {
   private lifeCycle = false
   private disableInteraction: unknown
   private responsiveWidth = false
+  private resizeObserver?: ResizeObserver
+  private destroyed = false
 
   private initPosition = 'random'
   private initDirection = 'random'
@@ -282,6 +295,7 @@ class ParticleEngine {
   }
 
   start(options: Partial<ParticleEngineOptions> = {}) {
+    if (this.destroyed) return
     this.initPosition = options.initPosition || this.initPosition
     this.initDirection = options.initDirection || this.initDirection
     if (this.canvas) {
@@ -299,8 +313,12 @@ class ParticleEngine {
           'ontouchstart' in window ||
           (window.navigator as { msPointerEnabled?: boolean }).msPointerEnabled
         ) {
-          document.body.addEventListener('touchstart', this._touchHandler)
-          document.body.addEventListener('touchmove', this._touchHandler)
+          document.body.addEventListener('touchstart', this._touchHandler, {
+            passive: false,
+          })
+          document.body.addEventListener('touchmove', this._touchHandler, {
+            passive: false,
+          })
           document.body.addEventListener('touchend', this._clearTouches)
           document.body.addEventListener('touchcancel', this._clearTouches)
         } else {
@@ -328,6 +346,28 @@ class ParticleEngine {
     }
   }
 
+  /**
+   * Permanently tear the engine down: halt the animation loop, detach every
+   * listener, and drop the generated canvas. Safe to call before the source
+   * image has loaded — a late load will no longer (re)start the engine.
+   */
+  destroy() {
+    this.destroyed = true
+    this.state = 'stopped'
+    if (this.image) this.image.onload = null
+    this.resizeObserver?.disconnect()
+    document.body.removeEventListener('touchstart', this._touchHandler)
+    document.body.removeEventListener('touchmove', this._touchHandler)
+    document.body.removeEventListener('touchend', this._clearTouches)
+    document.body.removeEventListener('touchcancel', this._clearTouches)
+    if (this.canvas) {
+      this.canvas.removeEventListener('mousemove', this._mouseHandler)
+      this.canvas.removeEventListener('mouseout', this._clearTouches)
+      this.canvas.removeEventListener('click', this._clickHandler)
+      this.canvas.remove()
+    }
+  }
+
   private _animate() {
     if (this.state !== 'stopped') {
       this._calculate()
@@ -338,56 +378,51 @@ class ParticleEngine {
     }
   }
 
-  private get _mouseHandler() {
-    return (e: MouseEvent) => {
-      this.touches = [
-        {
-          x: e.offsetX,
-          y: e.offsetY,
+  // Event handlers are stable instance fields (not getters) so the exact same
+  // reference is passed to add/removeEventListener and can be detached.
+  private _mouseHandler = (e: MouseEvent) => {
+    this.touches = [
+      {
+        x: e.offsetX,
+        y: e.offsetY,
+        z: 49 + (this.layerCount - 1) * this.layerDistance,
+        force: 1,
+      },
+    ]
+  }
+
+  private _clickHandler = (_e: MouseEvent) => {
+    const strength = this.clickStrength
+    this.origins.forEach((o) => (o.z -= strength))
+    setTimeout(() => {
+      this.origins.forEach((o) => (o.z += strength))
+    }, 100)
+  }
+
+  private _touchHandler = (e: TouchEvent) => {
+    this.touches = []
+    if (!this.canvas) return
+    const rect = this.canvas.getBoundingClientRect()
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i]
+      if (touch.target === this.canvas) {
+        this.touches.push({
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top,
           z: 49 + (this.layerCount - 1) * this.layerDistance,
-          force: 1,
-        },
-      ]
-    }
-  }
-
-  private get _clickHandler() {
-    return (_e: MouseEvent) => {
-      const strength = this.clickStrength
-      this.origins.forEach((o) => (o.z -= strength))
-      setTimeout(() => {
-        this.origins.forEach((o) => (o.z += strength))
-      }, 100)
-    }
-  }
-
-  private get _touchHandler() {
-    return (e: TouchEvent) => {
-      this.touches = []
-      if (!this.canvas) return
-      const rect = this.canvas.getBoundingClientRect()
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        const touch = e.changedTouches[i]
-        if (touch.target === this.canvas) {
-          this.touches.push({
-            x: touch.pageX - rect.left,
-            y: touch.pageY - rect.top,
-            z: 49 + (this.layerCount - 1) * this.layerDistance,
-            force: touch.force || 1,
-          })
-          e.preventDefault()
-        }
+          force: touch.force || 1,
+        })
+        e.preventDefault()
       }
     }
   }
 
-  private get _clearTouches() {
-    return (_e: Event) => {
-      this.touches = []
-    }
+  private _clearTouches = (_e: Event) => {
+    this.touches = []
   }
 
   private _onImageLoaded(options: RawOptions) {
+    if (this.destroyed) return
     this.imageWidth = this.image.naturalWidth || this.image.width
     this.imageHeight = this.image.naturalHeight || this.image.height
     this.imageRatio = this.imageWidth / this.imageHeight
@@ -476,7 +511,7 @@ class ParticleEngine {
             out vec4 vColor;
 
             void main(void) {
-              gl_Position = rotationMatrix * perspectiveMatrix * modelViewMatrix * vec4(mirror * vertexPosition + vertexOffset, vertexPosition);
+              gl_Position = rotationMatrix * perspectiveMatrix * modelViewMatrix * vec4(mirror * vertexPosition + vertexOffset, 1.0);
               gl_PointSize = pointSize + max((log(vertexPosition.z) - 3.91) * depth, -pointSize + 1.0);
               vColor = vertexColor;
             }
@@ -554,12 +589,12 @@ class ParticleEngine {
     gl.uniformMatrix4fv(
       this.uModelViewMatrix,
       false,
-      new Float32Array(perspectiveMatrix),
+      new Float32Array(modelViewMatrix),
     )
     gl.uniformMatrix4fv(
       this.uPerspectiveMatrix,
       false,
-      new Float32Array(modelViewMatrix),
+      new Float32Array(perspectiveMatrix),
     )
     gl.uniform1f(this.uPointSize, this.particleSize)
     gl.uniform1f(this.uDepth, this.depth)
@@ -583,7 +618,7 @@ class ParticleEngine {
   private _webglRenderer() {
     const gl = this.context as WebGL2RenderingContext
     const vertices = new Float32Array(this.vertices as number[])
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     gl.drawArrays(gl.POINTS, 0, this.particles.length)
     gl.flush()
@@ -626,7 +661,7 @@ class ParticleEngine {
     this.mouseForce = Number(options.mouseForce) || 30
     this.clickStrength = Number(options.clickStrength) || 0
     this.color = options.color as string | undefined
-    this.colorArr = (options.colorArr as number[] | undefined) || this.colorArr
+    this.colorArr = normalizeColorArr(options.colorArr) || this.colorArr
   }
 
   private _initResponsive(options: RawOptions) {
@@ -638,11 +673,13 @@ class ParticleEngine {
         this.width = this.wrapperElement.clientWidth
         this.start()
       })
-      this.wrapperElement.addEventListener('resize', () => {
+      // Plain elements don't emit 'resize'; observe the box instead.
+      this.resizeObserver = new ResizeObserver(() => {
         if (this.width !== this.wrapperElement.clientWidth) {
           this.stop()
         }
       })
+      this.resizeObserver.observe(this.wrapperElement)
       this.width = this.wrapperElement.clientWidth
     }
   }
@@ -1196,12 +1233,7 @@ export function ParticleImage({
 
     const particles = new ParticleEngine(imageParticleRef.current)
 
-    return () => {
-      particles.stop()
-      particles.canvas?.remove()
-      // The source image may load (and append its canvas) after unmount.
-      requestAnimationFrame(() => particles.canvas?.remove())
-    }
+    return () => particles.destroy()
   }, [])
 
   return (
