@@ -1,0 +1,154 @@
+import { Demo } from './demo'
+import { Demo as DemoColor } from './demo-color'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+Sample any image into an interactive particle field. The source `<img>` is
+hidden and replaced by a canvas of particles that scatter away from the pointer
+and settle back toward their origin.
+
+## Installation
+
+<InstallationTabs item="particle-image">
+```tsx file=../../registry/ikui/particle-image.tsx
+```
+</InstallationTabs>
+
+## Examples
+
+### Colored particles
+
+Pass `color` to recolor every particle, and `initPosition` to control where
+they spawn from before settling.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoColor />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-color.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Usage
+
+```tsx
+import { ParticleImage } from "@/components/particle-image";
+```
+```tsx
+<ParticleImage imageSrc="/logo.svg" canvasWidth="300" canvasHeight="300" />
+```
+
+The source image must be same-origin or served with permissive CORS headers,
+since the engine reads its pixels off a canvas.
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "imageSrc",
+        type: "string",
+        nameDetails: "URL of the source image to sample into particles"
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Extra classes merged onto the hidden source img"
+      },
+      {
+        name: "canvasWidth",
+        type: "string",
+        typeDetails: "Canvas width in pixels. Defaults to the image's natural width"
+      },
+      {
+        name: "canvasHeight",
+        type: "string",
+        typeDetails: "Canvas height in pixels. Defaults to the image's natural height"
+      },
+      {
+        name: "gravity",
+        type: "string",
+        default: "0.08",
+        typeDetails: "Pull-back force toward each particle's origin"
+      },
+      {
+        name: "particleSize",
+        type: "string",
+        default: "1",
+        typeDetails: "Size of each rendered particle"
+      },
+      {
+        name: "particleGap",
+        type: "string",
+        default: "3",
+        typeDetails: "Spacing between sampled pixels. Lower is denser"
+      },
+      {
+        name: "mouseForce",
+        type: "string",
+        default: "30",
+        typeDetails: "Strength of the pointer's repelling force"
+      },
+      {
+        name: "renderer",
+        type: '"default" | "webgl"',
+        default: "default",
+        typeDetails: "Render backend"
+      },
+      {
+        name: "color",
+        type: "string",
+        typeDetails: "Solid color override (hex or rgb/rgba string)"
+      },
+      {
+        name: "colorArr",
+        type: "number[]",
+        typeDetails: "Solid color override as [r, g, b] / [r, g, b, a]"
+      },
+      {
+        name: "initPosition",
+        type: '"random" | "top" | "left" | "bottom" | "right" | "misplaced" | "none"',
+        default: "random",
+        typeDetails: "Where particles spawn from before settling"
+      },
+      {
+        name: "initDirection",
+        type: '"random" | "top" | "left" | "bottom" | "right" | "none"',
+        default: "random",
+        typeDetails: "Initial velocity direction"
+      },
+      {
+        name: "fadePosition",
+        type: '"explode" | "top" | "left" | "bottom" | "right" | "random" | "none"',
+        default: "none",
+        typeDetails: "Where particles disperse to on stop"
+      },
+      {
+        name: "fadeDirection",
+        type: '"random" | "top" | "left" | "bottom" | "right" | "none"',
+        default: "none",
+        typeDetails: "Velocity direction applied on stop"
+      },
+      {
+        name: "noise",
+        type: "number",
+        default: "10",
+        typeDetails: "Random jitter applied to each particle"
+      },
+      {
+        name: "responsiveWidth",
+        type: "boolean",
+        typeDetails: "Re-sample on container resize"
+      }
+    ]}
+  />

@@ -96,6 +96,21 @@
         "@ikui/video-thumbnail-cache"
       ],
       "category": "display"
+    },
+    {
+      "name": "particle-image",
+      "type": "registry:component",
+      "title": "Particle Image",
+      "description": "Turn any image into an interactive particle field that scatters from the pointer and settles back toward its origin.",
+      "files": [
+        {
+          "path": "registry/ikui/particle-image.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "category": "display"
     }
   ]
 }
