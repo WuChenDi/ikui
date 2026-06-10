@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { siteConfig } from '@/lib/config'
 import { allDocItems, getDoc, getDocSchema } from '@/lib/doc'
+import { processMdxForLLMs } from '@/lib/llm'
 import { getTableOfContents } from '@/lib/toc'
 import { absoluteUrl, buildOgUrl, constructMetadata } from '@/lib/utils'
 
@@ -89,11 +90,12 @@ export default async function DocPage({
     gettingStartedSection?.items.some((item) => item.id === id) ?? false
 
   let toc: { title?: string; url: string; depth: number }[] = []
-  let rawContent = ''
+  let llmContent = ''
   try {
-    const docPath = join(process.cwd(), 'docs', id, 'doc.mdx')
-    rawContent = await readFile(docPath, 'utf-8')
+    const docDir = join(process.cwd(), 'docs', id)
+    const rawContent = await readFile(join(docDir, 'doc.mdx'), 'utf-8')
     toc = await getTableOfContents(rawContent)
+    llmContent = await processMdxForLLMs(rawContent, docDir)
   } catch (error) {
     console.error('Error reading MDX file for TOC:', error)
   }
@@ -141,7 +143,7 @@ export default async function DocPage({
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <DocCopySection content={rawContent} url={`/docs/${id}`} />
+                <DocCopySection content={llmContent} url={`/docs/${id}`} />
                 <Button variant="secondary" size="icon-sm" disabled={!prevDoc}>
                   {prevDoc ? (
                     <Link href={`/docs/${prevDoc.id}`} title={prevDoc.title}>
