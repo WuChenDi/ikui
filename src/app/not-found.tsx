@@ -1,71 +1,29 @@
 'use client'
 
-import NumberFlow from '@number-flow/react'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 
 export default function NotFound() {
-  const [firstDigit, setFirstDigit] = useState(() =>
-    Math.floor(Math.random() * 10),
-  )
-  const [secondDigit, setSecondDigit] = useState(() =>
-    Math.floor(Math.random() * 10),
-  )
-  const [thirdDigit, setThirdDigit] = useState(() =>
-    Math.floor(Math.random() * 10),
-  )
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFirstDigit((prev) => (prev + 1) % 10)
-      setSecondDigit((prev) => (prev + 1) % 10)
-      setThirdDigit((prev) => (prev + 1) % 10)
-    }, 100)
-
-    const stopTimer = setTimeout(() => {
-      clearInterval(interval)
-
-      setFirstDigit(4)
-      setTimeout(() => {
-        setSecondDigit(0)
-      }, 200)
-      setTimeout(() => {
-        setThirdDigit(4)
-      }, 400)
-    }, 1000)
-
-    return () => {
-      clearInterval(interval)
-      clearTimeout(stopTimer)
-    }
-  }, [])
-
   return (
-    <div className="flex flex-col gap-6 justify-center items-center h-svh">
-      <div className="flex items-start justify-center flex-col gap-8 px-6">
-        <div className="flex flex-col gap-12 max-w-[400px]">
-          <div className="text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-2">
-            Error
-            <div className="flex gap-[0.5px]">
-              <NumberFlow value={firstDigit} trend={-1}></NumberFlow>
-              <NumberFlow value={secondDigit} trend={-1}></NumberFlow>
-              <NumberFlow value={thirdDigit} trend={-1}></NumberFlow>
-            </div>
-          </div>
-          <p className="font-medium font-lg text-muted-foreground">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iure
-            ratione sit numquam temporibus beatae explicabo eius quos quia
-            voluptatum quae.
-          </p>
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center text-center">
+      <span className="text-[9rem] leading-none font-extrabold text-foreground/10 select-none tracking-tighter">
+        404
+      </span>
+      <div className="-mt-10 flex flex-col items-center gap-3">
+        <h1 className="text-xl font-medium">Page Not Found</h1>
+        <p className="max-w-sm text-sm text-muted-foreground leading-relaxed">
+          The page you're looking for may have been removed, moved, or never
+          existed.
+        </p>
+        <div className="mt-8 flex justify-center">
+          <Button>
+            <Link href={'/'} className="flex items-center gap-2">
+              <ArrowLeft />
+              Go Back
+            </Link>
+          </Button>
         </div>
-        <Button>
-          <Link href={'/'} className="flex items-center gap-2">
-            <ArrowLeft />
-            Go Back
-          </Link>
-        </Button>
       </div>
     </div>
   )

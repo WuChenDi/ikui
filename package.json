@@ -27,7 +27,6 @@
     "@base-ui/react": "^1.5.0",
     "@mdx-js/loader": "^3.1.1",
     "@next/mdx": "16.2.7",
-    "@number-flow/react": "^0.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
