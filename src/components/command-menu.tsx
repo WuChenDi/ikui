@@ -25,6 +25,7 @@ interface PageItem {
   label: string
   url: string
   isComponent: boolean
+  external: boolean
 }
 
 interface PageGroup {
@@ -53,8 +54,9 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
         items: group.items.map((item) => ({
           value: item.id,
           label: item.title,
-          url: `/docs/${item.id}`,
+          url: item.href ?? `/docs/${item.id}`,
           isComponent: isComponentGroup,
+          external: Boolean(item.href),
         })),
       }
     })
@@ -159,7 +161,11 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
                       key={item.value}
                       value={item.value}
                       onSelect={() => {
-                        router.push(item.url)
+                        if (item.external) {
+                          window.open(item.url, '_blank', 'noopener,noreferrer')
+                        } else {
+                          router.push(item.url)
+                        }
                         setOpen(false)
                       }}
                     >

@@ -2,6 +2,8 @@ export interface DocItem {
   id: string
   title: string
   description: string
+  /** When set, the nav entry links to this raw/external URL instead of a `/docs/:id` page. */
+  href?: string
   meta?: {
     docs?: Array<{
       title: string
