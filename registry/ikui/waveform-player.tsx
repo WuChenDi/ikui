@@ -1,12 +1,12 @@
 'use client'
 
-import { Loader2, Pause, Play } from 'lucide-react'
+import { Pause, Play } from 'lucide-react'
 import * as React from 'react'
-import { AudioVisualizer } from '@/components/audio-visualizer'
+import { AudioWaveform } from '@/components/audio-waveform'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-interface AudioPlayerProps {
+interface WaveformPlayerProps {
   /**
    * Audio blob to play and visualize. Takes precedence over `url`.
    */
@@ -55,7 +55,7 @@ function formatTime(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-function AudioPlayer({
+function WaveformPlayer({
   blob,
   url,
   width,
@@ -66,16 +66,15 @@ function AudioPlayer({
   barPlayedColor = 'rgb(34, 197, 94)',
   className,
   onPlayStateChange,
-}: AudioPlayerProps) {
+}: WaveformPlayerProps) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null)
+  const seekRef = React.useRef<HTMLDivElement | null>(null)
+  const draggingRef = React.useRef(false)
   const onPlayStateChangeRef = React.useRef(onPlayStateChange)
   onPlayStateChangeRef.current = onPlayStateChange
   const [isPlaying, setIsPlaying] = React.useState(false)
   const [currentTime, setCurrentTime] = React.useState(0)
   const [duration, setDuration] = React.useState(0)
-  const [visualizerBlob, setVisualizerBlob] = React.useState<Blob | null>(
-    blob ?? null,
-  )
 
   React.useEffect(() => {
     if (!blob && !url) return
@@ -106,34 +105,6 @@ function AudioPlayer({
     }
   }, [blob, url])
 
-  React.useEffect(() => {
-    if (blob) {
-      setVisualizerBlob(blob)
-      return
-    }
-
-    if (!url) {
-      setVisualizerBlob(null)
-      return
-    }
-
-    let cancelled = false
-    setVisualizerBlob(null)
-
-    fetch(url)
-      .then((res) => res.blob())
-      .then((audioBlob) => {
-        if (!cancelled) setVisualizerBlob(audioBlob)
-      })
-      .catch(() => {
-        if (!cancelled) setVisualizerBlob(null)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [blob, url])
-
   const togglePlay = () => {
     const audio = audioRef.current
     if (!audio) return
@@ -147,6 +118,21 @@ function AudioPlayer({
       setIsPlaying(true)
       onPlayStateChange?.(true)
     }
+  }
+
+  // Click or drag across the visualizer to seek to that position.
+  const seekToClientX = (clientX: number) => {
+    const el = seekRef.current
+    const audio = audioRef.current
+    if (!el || !audio || !duration) return
+    const rect = el.getBoundingClientRect()
+    const fraction = Math.min(
+      Math.max((clientX - rect.left) / rect.width, 0),
+      1,
+    )
+    const time = fraction * duration
+    audio.currentTime = time
+    setCurrentTime(time)
   }
 
   return (
@@ -170,23 +156,35 @@ function AudioPlayer({
           )}
         </Button>
 
-        {visualizerBlob ? (
-          <AudioVisualizer
-            blob={visualizerBlob}
+        <div
+          ref={seekRef}
+          className="relative cursor-pointer"
+          style={{ width: width ?? '100%' }}
+          onPointerDown={(e) => {
+            draggingRef.current = true
+            e.currentTarget.setPointerCapture(e.pointerId)
+            seekToClientX(e.clientX)
+          }}
+          onPointerMove={(e) => {
+            if (draggingRef.current) seekToClientX(e.clientX)
+          }}
+          onPointerUp={(e) => {
+            draggingRef.current = false
+            e.currentTarget.releasePointerCapture(e.pointerId)
+          }}
+        >
+          <AudioWaveform
+            blob={blob}
+            audioUrl={blob ? undefined : url}
             width={width}
             height={height}
             barWidth={barWidth}
             gap={gap}
-            backgroundColor="transparent"
             barColor={barColor}
             barPlayedColor={barPlayedColor}
-            currentTime={currentTime}
+            progress={duration > 0 ? currentTime / duration : 0}
           />
-        ) : (
-          <div className="flex items-center justify-center h-20">
-            <Loader2 className="size-6 animate-spin text-muted-foreground" />
-          </div>
-        )}
+        </div>
       </div>
 
       <div className="flex justify-between text-xs text-muted-foreground pl-12 px-0.5 select-none">
@@ -197,5 +195,5 @@ function AudioPlayer({
   )
 }
 
-export type { AudioPlayerProps }
-export { AudioPlayer }
+export type { WaveformPlayerProps }
+export { WaveformPlayer }
