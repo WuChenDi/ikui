@@ -4,9 +4,9 @@ import { GradientText } from '@/components/reactbits/gradient-text'
 import { SpotlightCard } from '@/components/reactbits/spotlight-card'
 import { Waves } from '@/components/reactbits/waves'
 import { Button } from '@/components/ui/button'
-import { Demo as AudioVisualizerDemo } from '@/docs/audio-visualizer/demo'
 import { Demo as CopyButtonDemo } from '@/docs/copy-button/demo'
 import { Demo as ThumbnailStripDemo } from '@/docs/thumbnail-strip/demo'
+import { Demo as WaveformPlayerDemo } from '@/docs/waveform-player/demo'
 
 export function Hero() {
   return (
@@ -76,13 +76,13 @@ export function Hero() {
 
           <SpotlightCard className="col-span-1 flex min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
             <div className="flex w-full flex-1 items-center justify-center">
-              <AudioVisualizerDemo />
+              <WaveformPlayerDemo />
             </div>
             <Link
-              href="/docs/audio-visualizer"
+              href="/docs/waveform-player"
               className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
             >
-              Audio Visualizer
+              Waveform Player
             </Link>
           </SpotlightCard>
 

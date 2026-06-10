@@ -35,18 +35,18 @@
       "category": "display"
     },
     {
-      "name": "audio-player",
+      "name": "waveform-player",
       "type": "registry:component",
-      "title": "Audio Player",
-      "description": "An audio player with play/pause controls, elapsed and total time, and a built-in waveform visualizer that tracks playback progress.",
+      "title": "Waveform Player",
+      "description": "A compact audio player built on audio-waveform: play/pause, elapsed and total time, played-progress coloring, and click/drag-to-seek on the waveform.",
       "files": [
         {
-          "path": "registry/ikui/audio-player.tsx",
+          "path": "registry/ikui/waveform-player.tsx",
           "type": "registry:component"
         }
       ],
       "dependencies": ["lucide-react"],
-      "registryDependencies": ["button", "@ikui/audio-visualizer"],
+      "registryDependencies": ["button", "@ikui/audio-waveform"],
       "category": "display"
     },
     {

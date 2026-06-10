@@ -12,22 +12,24 @@ import { Demo } from './demo'
 
 ## Installation
 
-<InstallationTabs item="audio-player">
-```tsx file=../../registry/ikui/audio-player.tsx
+<InstallationTabs item="waveform-player">
+```tsx file=../../registry/ikui/waveform-player.tsx
 ```
 </InstallationTabs>
 
 ## Usage
 
 ```tsx
-import { AudioPlayer } from "@/components/audio-player";
+import { WaveformPlayer } from "@/components/waveform-player";
 ```
 ```tsx
-<AudioPlayer blob={blob} />
+<WaveformPlayer blob={blob} />
 ```
 ```tsx
-<AudioPlayer url="/audio/sample.mp3" />
+<WaveformPlayer url="/audio/sample.mp3" />
 ```
+
+Click or drag anywhere across the waveform to seek to that position.
 
 ## Props
 

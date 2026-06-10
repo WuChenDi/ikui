@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createSampleBlob } from '@/docs/audio-visualizer/demo'
-import { AudioPlayer } from '@/registry/ikui/audio-player'
+import { createSampleBlob } from '@/docs/audio-waveform/sample-audio'
+import { WaveformPlayer } from '@/registry/ikui/waveform-player'
 
 export function Demo() {
   const [blob, setBlob] = useState<Blob | null>(null)
@@ -15,7 +15,7 @@ export function Demo() {
 
   return (
     <div className="w-full max-w-md">
-      <AudioPlayer blob={blob} />
+      <WaveformPlayer blob={blob} />
     </div>
   )
 }
