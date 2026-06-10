@@ -164,3 +164,6 @@ files_summary*.md
 # Local migration scratch (cloned source projects)
 /tmp/
 tmp/
+
+# Generated docs markdown (built by next.config from docs/*/doc.mdx)
+/public/docs/
