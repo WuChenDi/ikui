@@ -1,5 +1,6 @@
 import createMDX from '@next/mdx'
 import type { NextConfig } from 'next'
+import { generateLlmMarkdownFiles } from './src/lib/llm'
 
 const nextConfig: NextConfig = {
   trailingSlash: false,
@@ -52,4 +53,11 @@ const withMDX = createMDX({
   },
 })
 
-export default withMDX(nextConfig)
+// Emit public/docs/<id>.md before the build so the .md links resolve to plain
+// static assets (clean, LLM-friendly Markdown). The existing rewrite + .md route
+// are left untouched as a fallback: public static files take precedence over
+// afterFiles rewrites, so the generated files win whenever they exist.
+export default async () => {
+  await generateLlmMarkdownFiles()
+  return withMDX(nextConfig)
+}
