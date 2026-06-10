@@ -20,6 +20,12 @@ export const basicDoc: DocSchema = [
         id: 'mcp',
         description: 'Integrating MCP with ikui lets you control it via AI.',
       },
+      {
+        title: 'llms.txt',
+        id: 'llms',
+        description: 'Plain-text index of ikui docs, optimized for LLMs.',
+        href: '/llms.txt',
+      },
     ],
   },
 ]

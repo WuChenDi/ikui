@@ -94,15 +94,28 @@ export function MobileNav({
                     {section.title}
                   </div>
                   <div className="flex flex-col gap-3">
-                    {section.items.map((item) => (
-                      <MobileLink
-                        key={item.id}
-                        href={`/docs/${item.id}`}
-                        onOpenChange={setOpen}
-                      >
-                        {item.title}
-                      </MobileLink>
-                    ))}
+                    {section.items.map((item) =>
+                      item.href ? (
+                        <a
+                          key={item.id}
+                          href={item.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => setOpen(false)}
+                          className="text-2xl font-medium transition-colors"
+                        >
+                          {item.title}
+                        </a>
+                      ) : (
+                        <MobileLink
+                          key={item.id}
+                          href={`/docs/${item.id}`}
+                          onOpenChange={setOpen}
+                        >
+                          {item.title}
+                        </MobileLink>
+                      ),
+                    )}
                   </div>
                 </div>
               ))}

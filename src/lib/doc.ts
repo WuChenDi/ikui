@@ -72,7 +72,7 @@ export const getDocSchema = async () => {
 
 export const allDocItems = async () => {
   const schema = await getDocSchema()
-  return schema.flatMap((section) => section.items)
+  return schema.flatMap((section) => section.items).filter((item) => !item.href)
 }
 
 export const getDoc = async (id: string) => {
