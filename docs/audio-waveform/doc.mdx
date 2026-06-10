@@ -1,0 +1,156 @@
+import { Demo } from './demo'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A static waveform built for timelines. It decodes an audio source (URL,
+`Blob`, or an already-decoded `AudioBuffer`) into normalized peaks — or
+takes a precomputed `peaks` array — and renders mirrored bars onto a
+canvas at an **explicit pixel width**. Decoding happens once; changing the
+`width` (e.g. on zoom) only re-draws, resampling the cached peaks. An
+optional `progress` fraction colors the played portion.
+
+Decode once and draw at any pixel width — it's built for a zoomable,
+horizontally-scrollable editor timeline track, not a fixed container. It
+also backs [`waveform-player`](./waveform-player), where the played portion is
+colored via `progress` and the bar doubles as a seek scrubber.
+
+## Installation
+
+<InstallationTabs item="audio-waveform">
+```tsx file=../../registry/ikui/audio-waveform.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { AudioWaveform } from "@/components/audio-waveform";
+```
+```tsx
+<AudioWaveform
+  audioUrl={url}
+  width={duration * pixelsPerSecond * zoom}
+  height={48}
+  progress={currentTime / duration}
+  barColor="rgba(255,255,255,0.45)"
+  barPlayedColor="rgba(255,255,255,0.95)"
+/>
+```
+
+Decode once and reuse the peaks across re-renders (or share them with
+another view) via `onDecoded`:
+
+```tsx
+const [peaks, setPeaks] = useState<number[]>()
+
+// first mount decodes; later renders pass `peaks` to skip decoding
+<AudioWaveform audioUrl={url} height={48} onDecoded={setPeaks} />
+{peaks && <AudioWaveform peaks={peaks} width={1200} height={48} />}
+```
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "audioUrl",
+        type: "string",
+        typeDetails: "Audio URL to fetch and decode. Provide one of url / blob / audioBuffer / peaks"
+      },
+      {
+        name: "blob",
+        type: "Blob",
+        typeDetails: "Audio blob to decode"
+      },
+      {
+        name: "audioBuffer",
+        type: "AudioBuffer",
+        typeDetails: "Already-decoded buffer — skips fetching and decoding"
+      },
+      {
+        name: "peaks",
+        type: "number[]",
+        typeDetails: "Precomputed normalized peaks (each 0..1). Skips decoding entirely"
+      },
+      {
+        name: "width",
+        type: "number",
+        typeDetails: "Explicit width in CSS px (drives zoom). Defaults to the container width"
+      },
+      {
+        name: "height",
+        type: "number",
+        typeDetails: "Height in CSS px"
+      },
+      {
+        name: "barWidth",
+        type: "number",
+        default: "2",
+        typeDetails: "Bar width in px"
+      },
+      {
+        name: "gap",
+        type: "number",
+        default: "1",
+        typeDetails: "Gap between bars in px"
+      },
+      {
+        name: "minBarHeight",
+        type: "number",
+        default: "2",
+        typeDetails: "Minimum bar height in px, so near-silence stays visible"
+      },
+      {
+        name: "backgroundColor",
+        type: "string",
+        default: '"transparent"',
+        typeDetails: "Background fill"
+      },
+      {
+        name: "barColor",
+        type: "string",
+        default: '"rgb(184, 184, 184)"',
+        typeDetails: "Bar color"
+      },
+      {
+        name: "barPlayedColor",
+        type: "string",
+        typeDetails: "Color for bars left of progress. Falls back to barColor when unset"
+      },
+      {
+        name: "progress",
+        type: "number",
+        default: "0",
+        typeDetails: "Played fraction 0..1. Bars before it use barPlayedColor"
+      },
+      {
+        name: "rounded",
+        type: "boolean",
+        default: "true",
+        typeDetails: "Rounded bar caps"
+      },
+      {
+        name: "onDecoded",
+        type: "(peaks: number[]) => void",
+        typeDetails: "Called once with the normalized peaks after decoding"
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Class applied to the wrapper"
+      },
+      {
+        name: "style",
+        type: "React.CSSProperties",
+        typeDetails: "Inline styles applied to the wrapper"
+      }
+    ]}
+  />

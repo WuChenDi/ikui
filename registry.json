@@ -20,13 +20,13 @@
       "category": "button"
     },
     {
-      "name": "audio-visualizer",
+      "name": "audio-waveform",
       "type": "registry:component",
-      "title": "Audio Visualizer",
-      "description": "Render an audio blob as a canvas waveform, with played and unplayed bars driven by the current playback time.",
+      "title": "Audio Waveform",
+      "description": "A static, width-explicit waveform for timelines. Decodes audio (URL / Blob / AudioBuffer) into normalized peaks — or takes precomputed peaks — and renders mirrored canvas bars at any pixel width, with optional played-progress coloring. Backs the waveform-player.",
       "files": [
         {
-          "path": "registry/ikui/audio-visualizer.tsx",
+          "path": "registry/ikui/audio-waveform.tsx",
           "type": "registry:component"
         }
       ],
