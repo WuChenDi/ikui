@@ -113,6 +113,21 @@
       "category": "display"
     },
     {
+      "name": "image-compare",
+      "type": "registry:component",
+      "title": "Image Compare",
+      "description": "A before/after image comparison slider. Drag (or hover) to reveal one image over another, horizontally or vertically, with optional labels, a custom handle, and a loading skeleton. Responsive out of the box.",
+      "files": [
+        {
+          "path": "registry/ikui/image-compare.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": [],
+      "category": "interactive"
+    },
+    {
       "name": "particle-image",
       "type": "registry:component",
       "title": "Particle Image",
