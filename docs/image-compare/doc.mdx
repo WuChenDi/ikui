@@ -1,0 +1,137 @@
+import { Demo } from './demo'
+import { Demo as VerticalDemo } from './demo-vertical'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A before/after image comparison slider. Two images are stacked in the same
+box; a draggable divider clips the top image to reveal the one beneath.
+Drag the handle — or set `hover` to reveal on pointer move — to wipe between
+them. The container always fits the parent width and derives its height from
+the images' aspect ratio, so it stays responsive.
+
+It is dependency-free and self-contained: a single `ResizeObserver` tracks
+the width, pointer-capture drives the slider, and everything is styled with
+inline styles. Labels, a custom handle, and a loading skeleton are all
+optional.
+
+## Vertical
+
+Set `vertical` to compare top vs. bottom instead of left vs. right. The
+`leftImage` becomes the top image and the `rightImage` the bottom one.
+
+<DemoCanvas>
+  <DemoPreview>
+    <VerticalDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-vertical.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Installation
+
+<InstallationTabs item="image-compare">
+```tsx file=../../registry/ikui/image-compare.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { ImageCompare } from "@/components/image-compare";
+```
+```tsx
+<ImageCompare
+  leftImage="/before.png"
+  rightImage="/after.png"
+  leftImageLabel="Before"
+  rightImageLabel="After"
+/>
+```
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "leftImage",
+        type: "string",
+        typeDetails: "URL of the left (or top, when vertical) image. Required"
+      },
+      {
+        name: "rightImage",
+        type: "string",
+        typeDetails: "URL of the right (or bottom, when vertical) image. Required"
+      },
+      {
+        name: "vertical",
+        type: "boolean",
+        default: "false",
+        typeDetails: "Compare top vs. bottom instead of left vs. right"
+      },
+      {
+        name: "hover",
+        type: "boolean",
+        default: "false",
+        typeDetails: "Move the slider on hover instead of requiring a drag"
+      },
+      {
+        name: "aspectRatio",
+        type: '"taller" | "wider"',
+        default: '"taller"',
+        typeDetails: "Which image's aspect ratio wins when the two differ"
+      },
+      {
+        name: "sliderPositionPercentage",
+        type: "number",
+        default: "0.5",
+        typeDetails: "Initial divider position, from 0 to 1"
+      },
+      {
+        name: "onSliderPositionChange",
+        type: "(position: number) => void",
+        typeDetails: "Called with the divider position (0 to 1) on every change"
+      },
+      {
+        name: "leftImageLabel",
+        type: "ReactNode",
+        typeDetails: "Label overlaid on the left (or top) image (e.g. \"Before\")"
+      },
+      {
+        name: "rightImageLabel",
+        type: "ReactNode",
+        typeDetails: "Label overlaid on the right (or bottom) image (e.g. \"After\")"
+      },
+      {
+        name: "leftImageAlt",
+        type: "string",
+        default: '""',
+        typeDetails: "alt attribute for the left image"
+      },
+      {
+        name: "rightImageAlt",
+        type: "string",
+        default: '""',
+        typeDetails: "alt attribute for the right image"
+      },
+      {
+        name: "handle",
+        type: "ReactNode",
+        typeDetails: "Replaces the default chevron handle. Pass an empty fragment to hide it"
+      },
+      {
+        name: "skeleton",
+        type: "ReactNode",
+        typeDetails: "Element shown while the images are loading"
+      }
+    ]}
+  />

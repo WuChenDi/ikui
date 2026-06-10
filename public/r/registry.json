@@ -20,13 +20,13 @@
       "category": "button"
     },
     {
-      "name": "audio-visualizer",
+      "name": "audio-waveform",
       "type": "registry:component",
-      "title": "Audio Visualizer",
-      "description": "Render an audio blob as a canvas waveform, with played and unplayed bars driven by the current playback time.",
+      "title": "Audio Waveform",
+      "description": "A static, width-explicit waveform for timelines. Decodes audio (URL / Blob / AudioBuffer) into normalized peaks — or takes precomputed peaks — and renders mirrored canvas bars at any pixel width, with optional played-progress coloring. Backs the waveform-player.",
       "files": [
         {
-          "path": "registry/ikui/audio-visualizer.tsx",
+          "path": "registry/ikui/audio-waveform.tsx",
           "type": "registry:component"
         }
       ],
@@ -35,18 +35,18 @@
       "category": "display"
     },
     {
-      "name": "audio-player",
+      "name": "waveform-player",
       "type": "registry:component",
-      "title": "Audio Player",
-      "description": "An audio player with play/pause controls, elapsed and total time, and a built-in waveform visualizer that tracks playback progress.",
+      "title": "Waveform Player",
+      "description": "A compact audio player built on audio-waveform: play/pause, elapsed and total time, played-progress coloring, and click/drag-to-seek on the waveform.",
       "files": [
         {
-          "path": "registry/ikui/audio-player.tsx",
+          "path": "registry/ikui/waveform-player.tsx",
           "type": "registry:component"
         }
       ],
       "dependencies": ["lucide-react"],
-      "registryDependencies": ["button", "@ikui/audio-visualizer"],
+      "registryDependencies": ["button", "@ikui/audio-waveform"],
       "category": "display"
     },
     {
@@ -96,6 +96,36 @@
         "@ikui/video-thumbnail-cache"
       ],
       "category": "display"
+    },
+    {
+      "name": "timeline-ruler",
+      "type": "registry:component",
+      "title": "Timeline Ruler",
+      "description": "A pure, zoom-aware, horizontally-scrollable time ruler: adaptive tick density and MM:SS / frame labels, with viewport virtualization. Just the scale — playhead, seeking, and tracks are left to the consumer.",
+      "files": [
+        {
+          "path": "registry/ikui/timeline-ruler.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "category": "display"
+    },
+    {
+      "name": "image-compare",
+      "type": "registry:component",
+      "title": "Image Compare",
+      "description": "A before/after image comparison slider. Drag (or hover) to reveal one image over another, horizontally or vertically, with optional labels, a custom handle, and a loading skeleton. Responsive out of the box.",
+      "files": [
+        {
+          "path": "registry/ikui/image-compare.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": [],
+      "category": "interactive"
     },
     {
       "name": "particle-image",
