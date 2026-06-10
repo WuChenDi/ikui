@@ -100,7 +100,7 @@ export function MobileNav({
                           key={item.id}
                           href={item.href}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           onClick={() => setOpen(false)}
                           className="text-2xl font-medium transition-colors"
                         >

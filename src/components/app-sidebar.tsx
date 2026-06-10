@@ -61,7 +61,7 @@ export function AppSidebar({
                           <a
                             href={navItem.href}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                           />
                         ) : (
                           <Link href={`/docs/${navItem.id}`} />
