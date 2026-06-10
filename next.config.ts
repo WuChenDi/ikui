@@ -1,5 +1,6 @@
 import createMDX from '@next/mdx'
 import type { NextConfig } from 'next'
+import { PHASE_PRODUCTION_SERVER } from 'next/constants'
 import { generateLlmMarkdownFiles } from './src/lib/llm'
 
 const nextConfig: NextConfig = {
@@ -57,7 +58,12 @@ const withMDX = createMDX({
 // static assets (clean, LLM-friendly Markdown). The existing rewrite + .md route
 // are left untouched as a fallback: public static files take precedence over
 // afterFiles rewrites, so the generated files win whenever they exist.
-export default async () => {
-  await generateLlmMarkdownFiles()
+//
+// Generate on build and dev, but skip `next start` — the production server only
+// serves the files already emitted during the build.
+export default async (phase: string) => {
+  if (phase !== PHASE_PRODUCTION_SERVER) {
+    await generateLlmMarkdownFiles()
+  }
   return withMDX(nextConfig)
 }

@@ -1,4 +1,4 @@
-import { mkdir, readdir, readFile, writeFile } from 'fs/promises'
+import { mkdir, readdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
 
 /**
@@ -143,6 +143,8 @@ export async function generateLlmMarkdownFiles(): Promise<void> {
   const docsDir = join(process.cwd(), 'docs')
   const outDir = join(process.cwd(), 'public', 'docs')
   const entries = await readdir(docsDir, { withFileTypes: true })
+  // Start clean so renamed/removed docs don't leave stale .md files behind.
+  await rm(outDir, { recursive: true, force: true })
   await mkdir(outDir, { recursive: true })
 
   await Promise.all(
