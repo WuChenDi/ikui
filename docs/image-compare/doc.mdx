@@ -17,10 +17,11 @@ Drag the handle — or set `hover` to reveal on pointer move — to wipe between
 them. The container always fits the parent width and derives its height from
 the images' aspect ratio, so it stays responsive.
 
-It is dependency-free and self-contained: a single `ResizeObserver` tracks
-the width, pointer-capture drives the slider, and everything is styled with
-inline styles. Labels, a custom handle, and a loading skeleton are all
-optional.
+It is self-contained: a single `ResizeObserver` tracks the width and
+pointer-capture drives the slider. Styling is plain Tailwind classes, with
+only the dynamic values (height, clip-path, slider offset) applied inline,
+and the default handle uses `lucide-react` chevrons. Labels, a custom
+handle, and a loading skeleton are all optional.
 
 ## Vertical
 

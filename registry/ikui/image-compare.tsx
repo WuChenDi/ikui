@@ -11,7 +11,7 @@ import {
 } from 'react'
 import { cn } from '@/lib/utils'
 
-interface ImageCompareProps {
+export interface ImageCompareProps {
   aspectRatio?: 'taller' | 'wider'
   handle?: ReactNode
   hover?: boolean
@@ -106,24 +106,38 @@ export function ImageCompare(props: ImageCompareProps) {
   const horizontal = !vertical
 
   // 0 to 1
-  const [sliderPosition, setSliderPosition] = useState<number>(
-    sliderPositionPercentage,
+  const [sliderPosition, setSliderPosition] = useState<number>(() =>
+    Math.min(Math.max(sliderPositionPercentage, 0), 1),
   )
   const [isSliding, setIsSliding] = useState<boolean>(false)
+
+  // Keep the latest callback in a ref so the pointer listeners always call
+  // the current one without having to reattach on every render.
+  const onSliderPositionChangeRef = useRef(onSliderPositionChange)
+  onSliderPositionChangeRef.current = onSliderPositionChange
 
   // size of the parent container
   const [containerWidth, setContainerWidth] = useState<number>(0)
   const [containerHeight, setContainerHeight] = useState<number>(0)
 
   // refs to HTML elements
-  const containerRef = useContainerWidth((width) => setContainerWidth(width))
+  const containerRef = useContainerWidth(setContainerWidth)
   const rightImageRef = useRef<HTMLImageElement>(null)
   const leftImageRef = useRef<HTMLImageElement>(null)
 
   // image loading flag
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const checkImagesLoaded = useCallback(() => {
-    if (leftImageRef.current?.complete && rightImageRef.current?.complete) {
+    const left = leftImageRef.current
+    const right = rightImageRef.current
+    // Require a non-zero natural size: a `complete` image that failed to load
+    // reports naturalWidth 0, which would later divide by zero in getImageRatio.
+    if (
+      left?.complete &&
+      right?.complete &&
+      left.naturalWidth > 0 &&
+      right.naturalWidth > 0
+    ) {
       setImagesLoaded(true)
     }
   }, [])
@@ -158,10 +172,9 @@ export function ImageCompare(props: ImageCompareProps) {
   }, [containerWidth, imagesLoaded, aspectRatio])
 
   // Setup pointer (mouse/touch) event listeners. Reset whenever the
-  // container size or any other relevant condition changes.
-  // onSliderPositionChange is intentionally omitted: a new prop ref each
-  // render would reattach listeners and may cause an infinite loop.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: see note above
+  // container size or any other relevant condition changes. The
+  // onSliderPositionChange callback is read through a ref, so it never
+  // needs to be a dependency here.
   useEffect(() => {
     // do nothing if refs are not ready, or images haven't loaded yet
     if (!containerRef.current || !imagesLoaded) {
@@ -189,7 +202,7 @@ export function ImageCompare(props: ImageCompareProps) {
         clampedPosition / (horizontal ? containerWidth : containerHeight)
 
       setSliderPosition(ratio)
-      onSliderPositionChange?.(ratio)
+      onSliderPositionChangeRef.current?.(ratio)
     }
 
     const onStart = (e: PointerEvent) => {
@@ -218,11 +231,13 @@ export function ImageCompare(props: ImageCompareProps) {
     containerElement.addEventListener('pointerdown', onStart)
     containerElement.addEventListener('pointermove', onMove)
     containerElement.addEventListener('pointerup', onFinish)
+    containerElement.addEventListener('pointercancel', onFinish)
 
     return () => {
       containerElement.removeEventListener('pointerdown', onStart)
       containerElement.removeEventListener('pointermove', onMove)
       containerElement.removeEventListener('pointerup', onFinish)
+      containerElement.removeEventListener('pointercancel', onFinish)
     }
   }, [
     imagesLoaded,
@@ -251,7 +266,9 @@ export function ImageCompare(props: ImageCompareProps) {
       {skeleton && !imagesLoaded && (
         <div
           className="relative box-border w-full overflow-hidden"
-          style={{ height: containerHeight }}
+          // Height is only known after the images load; until then let the
+          // skeleton size itself instead of collapsing to 0.
+          style={{ height: containerHeight || undefined }}
         >
           {skeleton}
         </div>
@@ -259,7 +276,6 @@ export function ImageCompare(props: ImageCompareProps) {
 
       <div
         ref={containerRef}
-        data-testid="container"
         className={cn(
           'relative box-border w-full overflow-hidden',
           horizontal ? 'touch-pan-y' : 'touch-pan-x',
@@ -271,7 +287,6 @@ export function ImageCompare(props: ImageCompareProps) {
         <img
           onLoad={() => checkImagesLoaded()}
           alt={rightImageAlt}
-          data-testid="right-image"
           ref={rightImageRef}
           src={rightImage}
           className="absolute block h-full w-full object-cover"
@@ -281,7 +296,6 @@ export function ImageCompare(props: ImageCompareProps) {
         <img
           onLoad={() => checkImagesLoaded()}
           alt={leftImageAlt}
-          data-testid="left-image"
           ref={leftImageRef}
           src={leftImage}
           className="absolute block h-full w-full object-cover"
