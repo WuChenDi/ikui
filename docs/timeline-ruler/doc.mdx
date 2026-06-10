@@ -1,0 +1,148 @@
+import { Demo } from './demo'
+import { Demo as CombinedDemo } from './demo-timeline'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A horizontal time ruler — the scale that sits beneath a video editor's
+timeline tracks. Tick density adapts to the zoom level: zoomed out it
+labels whole seconds as `MM:SS` (`H:MM:SS` past an hour); zoomed in it
+subdivides each second and labels individual frames as `Xf`. Tick and
+label intervals are chosen so labels stay readable (~120px apart) while
+ticks pack denser (~18px), and every label always lands on a tick.
+
+The ruler scrolls horizontally and virtualizes its ticks — only the marks
+inside the viewport (plus a small buffer) are rendered, so a long timeline
+stays cheap. It is fully self-contained: no editor store, no external
+state.
+
+It is **only the scale**. A playhead, click-to-seek, and the video/audio
+tracks it sits above are application concerns — the consumer composes them
+on top of the ruler. The component renders ticks and labels, nothing
+more.
+
+## In a timeline
+
+Embedded above a video track (`thumbnail-strip`) and an audio waveform
+(`audio-waveform`), all sharing **one** horizontal scrollbar through a
+single `scrollRef`. The ruler scrolls in lockstep with the tracks beneath
+it — this is the layout a video editor uses for its bottom scale. The
+playhead, seeking, and tracks are all built in this demo's composition
+layer, not by the ruler.
+
+<DemoCanvas>
+  <DemoPreview>
+    <CombinedDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-timeline.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Installation
+
+<InstallationTabs item="timeline-ruler">
+```tsx file=../../registry/ikui/timeline-ruler.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { TimelineRuler } from "@/components/timeline-ruler";
+```
+```tsx
+const [zoom, setZoom] = useState(1)
+
+<TimelineRuler duration={120} zoom={zoom} fps={30} />
+```
+
+`zoom` multiplies `pixelsPerSecond`, so the same component covers a fully
+zoomed-out overview and a frame-accurate close-up. A playhead or
+click-to-seek is the consumer's job: wrap the ruler, read the click `x`,
+and divide by `pixelsPerSecond * zoom` to get the time.
+
+### Embedding above tracks
+
+By default the ruler owns its own horizontal scrollbar. To place it above
+timeline tracks that share **one** scrollbar — like a video editor — pass
+the shared scroll container as `scrollRef`. The ruler then renders inline
+(no scrollbar of its own) and virtualizes against that container, so it
+scrolls in lockstep with the tracks below.
+
+```tsx
+const scrollRef = useRef<HTMLDivElement>(null)
+
+<div ref={scrollRef} className="overflow-x-auto">
+  <div style={{ width: duration * 50 * zoom }}>
+    <TimelineRuler duration={duration} zoom={zoom} scrollRef={scrollRef} />
+    <ThumbnailStrip /* video track at the same width */ />
+    {/* …audio track, etc. */}
+  </div>
+</div>
+```
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "duration",
+        type: "number",
+        typeDetails: "Total timeline length in seconds. Determines the scrollable width"
+      },
+      {
+        name: "pixelsPerSecond",
+        type: "number",
+        default: "50",
+        typeDetails: "Base pixels per second at zoom = 1"
+      },
+      {
+        name: "zoom",
+        type: "number",
+        default: "1",
+        typeDetails: "Zoom multiplier applied to pixelsPerSecond"
+      },
+      {
+        name: "fps",
+        type: "number",
+        default: "30",
+        typeDetails: "Frames per second — controls the sub-second Xf labels at high zoom"
+      },
+      {
+        name: "height",
+        type: "number",
+        default: "24",
+        typeDetails: "Ruler height in CSS pixels"
+      },
+      {
+        name: "scrollRef",
+        type: "RefObject<HTMLElement | null>",
+        typeDetails: "External horizontal scroll container to virtualize against and sync with. Provide it to embed the ruler above tracks sharing one scrollbar (renders inline, no scrollbar of its own)"
+      },
+      {
+        name: "tickColor",
+        type: "string",
+        default: '"currentColor"',
+        typeDetails: "Tick mark and label color"
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Class applied to the scroll wrapper"
+      },
+      {
+        name: "style",
+        type: "React.CSSProperties",
+        typeDetails: "Inline styles applied to the scroll wrapper"
+      }
+    ]}
+  />
