@@ -2,25 +2,16 @@ import { basicDoc } from '@/basic-doc'
 import { getRegistry } from './registry'
 import type { DocItem, DocSchema, RegistryItem } from './types'
 
-const COMPONENTS_CATEGORIES = ['components', 'other', 'display'] as const
+const COMPONENTS_CATEGORIES = ['components', 'other'] as const
 
 const CATEGORY_LABELS: Record<string, string> = {
-  animation: 'Text Animations',
-  input: 'Inputs',
+  audio: 'Audio',
+  video: 'Video',
+  image: 'Image',
   button: 'Buttons',
-  feedback: 'Feedback',
-  background: 'Backgrounds',
-  interactive: 'Interactive',
 }
 
-const CATEGORY_ORDER = [
-  'animation',
-  'button',
-  'input',
-  'feedback',
-  'background',
-  'interactive',
-]
+const CATEGORY_ORDER = ['audio', 'video', 'image', 'button']
 
 function toDocItem(item: RegistryItem): DocItem {
   return {

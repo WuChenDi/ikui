@@ -32,7 +32,7 @@
       ],
       "dependencies": [],
       "registryDependencies": [],
-      "category": "display"
+      "category": "audio"
     },
     {
       "name": "waveform-player",
@@ -47,7 +47,7 @@
       ],
       "dependencies": ["lucide-react"],
       "registryDependencies": ["button", "@ikui/audio-waveform"],
-      "category": "display"
+      "category": "audio"
     },
     {
       "name": "video-thumbnail-cache",
@@ -62,7 +62,7 @@
       ],
       "dependencies": ["mediabunny"],
       "registryDependencies": [],
-      "category": "display"
+      "category": "video"
     },
     {
       "name": "thumbnail-strip",
@@ -77,7 +77,7 @@
       ],
       "dependencies": [],
       "registryDependencies": ["@ikui/video-thumbnail-cache"],
-      "category": "display"
+      "category": "video"
     },
     {
       "name": "segmented-timeline-strip",
@@ -95,7 +95,7 @@
         "@ikui/thumbnail-strip",
         "@ikui/video-thumbnail-cache"
       ],
-      "category": "display"
+      "category": "video"
     },
     {
       "name": "timeline-ruler",
@@ -110,7 +110,7 @@
       ],
       "dependencies": [],
       "registryDependencies": [],
-      "category": "display"
+      "category": "video"
     },
     {
       "name": "image-compare",
@@ -125,7 +125,7 @@
       ],
       "dependencies": ["lucide-react"],
       "registryDependencies": [],
-      "category": "interactive"
+      "category": "image"
     },
     {
       "name": "image-crop",
@@ -140,7 +140,7 @@
       ],
       "dependencies": [],
       "registryDependencies": [],
-      "category": "interactive"
+      "category": "image"
     },
     {
       "name": "particle-image",
@@ -155,7 +155,7 @@
       ],
       "dependencies": [],
       "registryDependencies": [],
-      "category": "display"
+      "category": "image"
     }
   ]
 }
