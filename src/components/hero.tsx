@@ -5,6 +5,8 @@ import { SpotlightCard } from '@/components/reactbits/spotlight-card'
 import { Waves } from '@/components/reactbits/waves'
 import { Button } from '@/components/ui/button'
 import { Demo as CopyButtonDemo } from '@/docs/copy-button/demo'
+import { Demo as ImageCompareDemo } from '@/docs/image-compare/demo'
+import { Demo as ParticleImageDemo } from '@/docs/particle-image/demo'
 import { Demo as ThumbnailStripDemo } from '@/docs/thumbnail-strip/demo'
 import { Demo as WaveformPlayerDemo } from '@/docs/waveform-player/demo'
 
@@ -83,6 +85,30 @@ export function Hero() {
               className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
             >
               Waveform Player
+            </Link>
+          </SpotlightCard>
+
+          <SpotlightCard className="col-span-1 flex min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+            <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
+              <ImageCompareDemo />
+            </div>
+            <Link
+              href="/docs/image-compare"
+              className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Image Compare
+            </Link>
+          </SpotlightCard>
+
+          <SpotlightCard className="col-span-1 flex min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+            <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
+              <ParticleImageDemo />
+            </div>
+            <Link
+              href="/docs/particle-image"
+              className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Particle Image
             </Link>
           </SpotlightCard>
 
