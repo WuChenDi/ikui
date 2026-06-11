@@ -1,4 +1,6 @@
 import { Demo } from './demo'
+import { Demo as TimelineDemo } from './demo-timeline'
+import { Demo as BarsDemo } from './demo-bars'
 
 <DemoCanvas>
   <DemoPreview>
@@ -55,6 +57,40 @@ const [peaks, setPeaks] = useState<number[]>()
 <AudioWaveform audioUrl={url} height={48} onDecoded={setPeaks} />
 {peaks && <AudioWaveform peaks={peaks} width={1200} height={48} />}
 ```
+
+## Examples
+
+### Zoomable timeline track
+
+The component is built for timelines: it decodes once, then draws at an
+explicit pixel `width`. Zoom widens the canvas and scrolls instead of
+re-fitting, reusing the cached peaks; click to move the `progress` split.
+
+<DemoCanvas>
+  <DemoPreview>
+    <TimelineDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-timeline.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Custom bars
+
+Tune the bar geometry and colors: `barWidth` and `gap` set the bar shape,
+`rounded` toggles the caps, and `barColor` / `barPlayedColor` color the
+unplayed and played sides of the `progress` split.
+
+<DemoCanvas>
+  <DemoPreview>
+    <BarsDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-bars.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
 
 ## Props
 

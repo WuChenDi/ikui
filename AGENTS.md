@@ -81,6 +81,44 @@ Then run `pnpm registry:build`. The sidebar and doc routing are generated from
 `registry.json` (see `src/lib/doc.ts` for category labels/order), so no manual
 nav edits are needed.
 
+### Doc page structure
+
+Every `doc.mdx` follows the same section skeleton, in this fixed order:
+
+```mdx
+{/* Hero: the raw component — no business scaffolding */}
+<DemoCanvas>
+  <DemoPreview><Demo /></DemoPreview>
+  <DemoCode>```tsx file=./demo.tsx ```</DemoCode>
+</DemoCanvas>
+
+One short intro paragraph (optional) — what the component is, right here.
+
+## Installation   {/* <InstallationTabs> */}
+## Usage          {/* import + one minimal snippet */}
+## Composition    {/* compound (multi-export) components only — text tree */}
+## Examples       {/* every live-preview variant as a ### sub-section */}
+## Props          {/* <PropsTable> — one per sub-component */}
+```
+
+Rules:
+
+- **Order is fixed**: Hero → Installation → Usage → (Composition) → Examples →
+  Props. Don't reorder.
+- **The hero `demo.tsx` is the rawest display of the component** — just the
+  component with minimal props, no business scaffolding (no zoom/seek controls,
+  percentage/clock readouts, info captions, surrounding video/audio players,
+  etc.). The component's own controlled state or built-in interaction is fine
+  (e.g. `image-crop`'s controlled `crop`, the ruler's own scrollbar). Anything
+  that wraps business logic around the component is an Example, not the hero.
+- **Every live-preview example is a `###` under `## Examples`** — never a
+  top-level `##`. A no-preview usage detail (prose + code, no `DemoCanvas`) may
+  stay as a `###` under `## Usage`.
+- **Intro prose goes in the paragraph under the hero, not inside `demo.tsx`.**
+- `## Composition` only for compound components; omit otherwise.
+- Keep `## Props` + `PropsTable`; no RTL section; metadata stays in
+  `registry.json` (no mdx frontmatter).
+
 ## PMA workflow
 
 This repo is managed with the **PMA skill**. Follow the three phases strictly —

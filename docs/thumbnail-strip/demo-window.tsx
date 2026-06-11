@@ -50,10 +50,13 @@ export function Demo() {
 
   if (state.kind === 'loading') {
     return (
-      <Skeleton
-        className="w-full max-w-2xl rounded-md"
-        style={{ height: TILE_HEIGHT }}
-      />
+      <div className="flex w-full max-w-2xl flex-col gap-2">
+        <Skeleton className="h-5 w-72" />
+        <Skeleton
+          className="w-full rounded-md"
+          style={{ height: TILE_HEIGHT }}
+        />
+      </div>
     )
   }
   if (state.kind === 'error') {
@@ -64,17 +67,28 @@ export function Demo() {
     )
   }
 
-  const totalWidth = Math.ceil(state.duration * PIXELS_PER_SECOND)
+  // Window into the middle of the clip: skip the first quarter, show the
+  // middle half. The same cache could back any number of such sub-ranges.
+  const startOffset = state.duration * 0.25
+  const windowDuration = state.duration * 0.5
+  const totalWidth = Math.ceil(windowDuration * PIXELS_PER_SECOND)
 
   return (
-    <div className="w-full max-w-2xl overflow-x-auto rounded-md border">
-      <ThumbnailStrip
-        cache={state.cache}
-        duration={state.duration}
-        totalWidth={totalWidth}
-        tileWidth={TILE_WIDTH}
-        tileHeight={TILE_HEIGHT}
-      />
+    <div className="flex w-full max-w-2xl flex-col gap-2">
+      <div className="text-muted-foreground text-sm">
+        skips {startOffset.toFixed(1)}s · shows {windowDuration.toFixed(1)}s of{' '}
+        {state.duration.toFixed(1)}s
+      </div>
+      <div className="overflow-x-auto rounded-md border">
+        <ThumbnailStrip
+          cache={state.cache}
+          duration={windowDuration}
+          startOffset={startOffset}
+          totalWidth={totalWidth}
+          tileWidth={TILE_WIDTH}
+          tileHeight={TILE_HEIGHT}
+        />
+      </div>
     </div>
   )
 }

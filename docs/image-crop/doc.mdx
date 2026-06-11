@@ -27,39 +27,6 @@ are keyboard-accessible: focus the crop and nudge it with the arrow keys
 It is self-contained: zero dependencies, all styling is plain Tailwind, and the
 only dynamic values (the selection box and the SVG mask) are applied inline.
 
-## Fixed aspect ratio with preview
-
-Pass `aspect` to lock the crop to a ratio — here `16 / 9`. The helper functions
-`makeAspectCrop` and `centerCrop` build a centered initial crop on image load,
-and `onComplete` feeds the pixel crop into a `<canvas>` preview.
-
-<DemoCanvas>
-  <DemoPreview>
-    <AspectDemo />
-  </DemoPreview>
-  <DemoCode>
-    ```tsx file=./demo-aspect.tsx
-    ```
-  </DemoCode>
-</DemoCanvas>
-
-## Custom styling
-
-The selection and handles ship with a teal default, but
-`selectionClassName` and `handleClassName` are merged onto them (later classes
-win via `cn`), so you can restyle the crop region without forking the
-component — here a dashed white border with small square handles.
-
-<DemoCanvas>
-  <DemoPreview>
-    <CustomDemo />
-  </DemoPreview>
-  <DemoCode>
-    ```tsx file=./demo-custom.tsx
-    ```
-  </DemoCode>
-</DemoCanvas>
-
 ## Installation
 
 <InstallationTabs item="image-crop">
@@ -79,6 +46,41 @@ const [crop, setCrop] = useState<Crop>();
   <img src="/photo.jpg" alt="" />
 </ImageCrop>;
 ```
+
+## Examples
+
+### Fixed aspect ratio with preview
+
+Pass `aspect` to lock the crop to a ratio — here `16 / 9`. The helper functions
+`makeAspectCrop` and `centerCrop` build a centered initial crop on image load,
+and `onComplete` feeds the pixel crop into a `<canvas>` preview.
+
+<DemoCanvas>
+  <DemoPreview>
+    <AspectDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-aspect.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Custom styling
+
+The selection and handles ship with a teal default, but
+`selectionClassName` and `handleClassName` are merged onto them (later classes
+win via `cn`), so you can restyle the crop region without forking the
+component — here a dashed white border with small square handles.
+
+<DemoCanvas>
+  <DemoPreview>
+    <CustomDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-custom.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
 
 ## Props
 

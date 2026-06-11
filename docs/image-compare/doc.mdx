@@ -23,21 +23,6 @@ only the dynamic values (height, clip-path, slider offset) applied inline,
 and the default handle uses `lucide-react` chevrons. Labels, a custom
 handle, and a loading skeleton are all optional.
 
-## Vertical
-
-Set `vertical` to compare top vs. bottom instead of left vs. right. The
-`leftImage` becomes the top image and the `rightImage` the bottom one.
-
-<DemoCanvas>
-  <DemoPreview>
-    <VerticalDemo />
-  </DemoPreview>
-  <DemoCode>
-    ```tsx file=./demo-vertical.tsx
-    ```
-  </DemoCode>
-</DemoCanvas>
-
 ## Installation
 
 <InstallationTabs item="image-compare">
@@ -58,6 +43,23 @@ import { ImageCompare } from "@/components/image-compare";
   rightImageLabel="After"
 />
 ```
+
+## Examples
+
+### Vertical
+
+Set `vertical` to compare top vs. bottom instead of left vs. right. The
+`leftImage` becomes the top image and the `rightImage` the bottom one.
+
+<DemoCanvas>
+  <DemoPreview>
+    <VerticalDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-vertical.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
 
 ## Props
 

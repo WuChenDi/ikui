@@ -1,4 +1,5 @@
 import { Demo } from './demo'
+import { Demo as WindowDemo } from './demo-window'
 
 <DemoCanvas>
   <DemoPreview>
@@ -62,6 +63,25 @@ By default (`autoFallback`) the strip also decodes the first frame and tiles
 it beneath the canvas, so the row is filled instantly and never flashes blank
 before tiles load. Pass an explicit `fallbackUrl` to override the poster, or
 `autoFallback={false}` to disable it.
+
+## Examples
+
+### Windowed sub-range
+
+Pass `startOffset` plus a shorter `duration` to window into part of the
+video — here the middle half, skipping the first quarter. One cache can back
+any number of such sub-ranges (e.g. a trimmed clip), each strip painting only
+its own window.
+
+<DemoCanvas>
+  <DemoPreview>
+    <WindowDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-window.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
 
 ## Props
 

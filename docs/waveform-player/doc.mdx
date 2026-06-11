@@ -1,4 +1,5 @@
 import { Demo } from './demo'
+import { Demo as ColorsDemo } from './demo-colors'
 
 <DemoCanvas>
   <DemoPreview>
@@ -30,6 +31,23 @@ import { WaveformPlayer } from "@/components/waveform-player";
 ```
 
 Click or drag anywhere across the waveform to seek to that position.
+
+## Examples
+
+### Custom colors
+
+`barColor` sets the unplayed bars and `barPlayedColor` the played portion
+(left of the playhead). Both accept any CSS color string.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ColorsDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-colors.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
 
 ## Props
 

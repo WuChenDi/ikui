@@ -1,4 +1,5 @@
 import { Demo } from './demo'
+import { Demo as ZoomDemo } from './demo-zoom'
 import { Demo as CombinedDemo } from './demo-timeline'
 
 <DemoCanvas>
@@ -27,25 +28,6 @@ It is **only the scale**. A playhead, click-to-seek, and the video/audio
 tracks it sits above are application concerns — the consumer composes them
 on top of the ruler. The component renders ticks and labels, nothing
 more.
-
-## In a timeline
-
-Embedded above a video track (`thumbnail-strip`) and an audio waveform
-(`audio-waveform`), all sharing **one** horizontal scrollbar through a
-single `scrollRef`. The ruler scrolls in lockstep with the tracks beneath
-it — this is the layout a video editor uses for its bottom scale. The
-playhead, seeking, and tracks are all built in this demo's composition
-layer, not by the ruler.
-
-<DemoCanvas>
-  <DemoPreview>
-    <CombinedDemo />
-  </DemoPreview>
-  <DemoCode>
-    ```tsx file=./demo-timeline.tsx
-    ```
-  </DemoCode>
-</DemoCanvas>
 
 ## Installation
 
@@ -89,6 +71,43 @@ const scrollRef = useRef<HTMLDivElement>(null)
   </div>
 </div>
 ```
+
+## Examples
+
+### Zooming
+
+`zoom` multiplies `pixelsPerSecond`, so one component spans a zoomed-out
+overview and a frame-accurate close-up. The tick and label density adapt as
+you zoom — whole seconds (`MM:SS`) out, individual frames (`Xf`) in.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ZoomDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-zoom.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### In a timeline
+
+Embedded above a video track (`thumbnail-strip`) and an audio waveform
+(`audio-waveform`), all sharing **one** horizontal scrollbar through a
+single `scrollRef`. The ruler scrolls in lockstep with the tracks beneath
+it — this is the layout a video editor uses for its bottom scale. The
+playhead, seeking, and tracks are all built in this demo's composition
+layer, not by the ruler.
+
+<DemoCanvas>
+  <DemoPreview>
+    <CombinedDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-timeline.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
 
 ## Props
 

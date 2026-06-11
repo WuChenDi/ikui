@@ -22,6 +22,18 @@ and settle back toward their origin.
 ```
 </InstallationTabs>
 
+## Usage
+
+```tsx
+import { ParticleImage } from "@/components/particle-image";
+```
+```tsx
+<ParticleImage imageSrc="/logo.svg" canvasWidth="300" canvasHeight="300" />
+```
+
+The source image must be same-origin or served with permissive CORS headers,
+since the engine reads its pixels off a canvas.
+
 ## Examples
 
 ### Colored particles
@@ -38,18 +50,6 @@ they spawn from before settling.
     ```
   </DemoCode>
 </DemoCanvas>
-
-## Usage
-
-```tsx
-import { ParticleImage } from "@/components/particle-image";
-```
-```tsx
-<ParticleImage imageSrc="/logo.svg" canvasWidth="300" canvasHeight="300" />
-```
-
-The source image must be same-origin or served with permissive CORS headers,
-since the engine reads its pixels off a canvas.
 
 ## Props
 
