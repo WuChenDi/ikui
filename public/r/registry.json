@@ -128,6 +128,21 @@
       "category": "interactive"
     },
     {
+      "name": "image-crop",
+      "type": "registry:component",
+      "title": "Image Crop",
+      "description": "A responsive, pointer- and keyboard-driven image cropping tool. Draw, drag, and 8-way resize a crop over any image or video, with fixed aspect ratios, circular crops, min/max bounds, rule-of-thirds guides, and percent/pixel crop callbacks. Self-contained Tailwind styling, zero dependencies.",
+      "files": [
+        {
+          "path": "registry/ikui/image-crop.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "category": "interactive"
+    },
+    {
       "name": "particle-image",
       "type": "registry:component",
       "title": "Particle Image",
