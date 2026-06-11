@@ -1,0 +1,183 @@
+import { Demo } from './demo'
+import { Demo as AspectDemo } from './demo-aspect'
+import { Demo as CustomDemo } from './demo-custom'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A responsive image cropping tool. Wrap any `<img>` (or `<video>`) and the user
+can draw a new crop, drag it around, and resize it from any of the eight
+handles. A masked overlay dims everything outside the selection. The `crop` is
+a controlled value: set it from `onChange` and pass it straight back in.
+
+Every change reports the crop twice — once in pixels and once in percent.
+Keep the percent crop in state so the selection stays correct when the
+container resizes, and use the pixel crop to drive a canvas preview or an
+upload. Pointer interaction uses pointer capture, and the selection and handles
+are keyboard-accessible: focus the crop and nudge it with the arrow keys
+(`Shift` for ×10, `Ctrl`/`Cmd` for ×100).
+
+It is self-contained: zero dependencies, all styling is plain Tailwind, and the
+only dynamic values (the selection box and the SVG mask) are applied inline.
+
+## Fixed aspect ratio with preview
+
+Pass `aspect` to lock the crop to a ratio — here `16 / 9`. The helper functions
+`makeAspectCrop` and `centerCrop` build a centered initial crop on image load,
+and `onComplete` feeds the pixel crop into a `<canvas>` preview.
+
+<DemoCanvas>
+  <DemoPreview>
+    <AspectDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-aspect.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Custom styling
+
+The selection and handles ship with a teal default, but
+`selectionClassName` and `handleClassName` are merged onto them (later classes
+win via `cn`), so you can restyle the crop region without forking the
+component — here a dashed white border with small square handles.
+
+<DemoCanvas>
+  <DemoPreview>
+    <CustomDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-custom.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Installation
+
+<InstallationTabs item="image-crop">
+```tsx file=../../registry/ikui/image-crop.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { ImageCrop, type Crop } from "@/components/image-crop";
+```
+```tsx
+const [crop, setCrop] = useState<Crop>();
+
+<ImageCrop crop={crop} onChange={(_, percentCrop) => setCrop(percentCrop)}>
+  <img src="/photo.jpg" alt="" />
+</ImageCrop>;
+```
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "onChange",
+        type: "(crop: PixelCrop, percentCrop: PercentCrop) => void",
+        typeDetails: "Fired on every change. Set the crop to state and pass it back. Required"
+      },
+      {
+        name: "crop",
+        type: "Crop",
+        typeDetails: "The controlled crop (pixel or percent). Omit for no crop"
+      },
+      {
+        name: "aspect",
+        type: "number",
+        typeDetails: "Lock the crop to an aspect ratio, e.g. 1 or 16 / 9"
+      },
+      {
+        name: "circularCrop",
+        type: "boolean",
+        default: "false",
+        typeDetails: "Render the crop area as a circle (or oval if aspect ≠ 1)"
+      },
+      {
+        name: "ruleOfThirds",
+        type: "boolean",
+        default: "false",
+        typeDetails: "Show rule-of-thirds guide lines inside the crop"
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        default: "false",
+        typeDetails: "Disable all interaction"
+      },
+      {
+        name: "locked",
+        type: "boolean",
+        default: "false",
+        typeDetails: "Allow dragging the crop, but not creating or resizing it"
+      },
+      {
+        name: "keepSelection",
+        type: "boolean",
+        default: "false",
+        typeDetails: "Keep the crop when clicking outside it instead of starting a new one"
+      },
+      {
+        name: "minWidth",
+        type: "number",
+        typeDetails: "Minimum crop width, in pixels"
+      },
+      {
+        name: "minHeight",
+        type: "number",
+        typeDetails: "Minimum crop height, in pixels"
+      },
+      {
+        name: "maxWidth",
+        type: "number",
+        typeDetails: "Maximum crop width, in pixels"
+      },
+      {
+        name: "maxHeight",
+        type: "number",
+        typeDetails: "Maximum crop height, in pixels"
+      },
+      {
+        name: "onComplete",
+        type: "(crop: PixelCrop, percentCrop: PercentCrop) => void",
+        typeDetails: "Fired after a resize, drag, or keyboard nudge completes"
+      },
+      {
+        name: "onDragStart",
+        type: "(e: PointerEvent) => void",
+        typeDetails: "Fired when the user starts dragging or resizing"
+      },
+      {
+        name: "onDragEnd",
+        type: "(e: PointerEvent) => void",
+        typeDetails: "Fired when the user releases after dragging or resizing"
+      },
+      {
+        name: "renderSelectionAddon",
+        type: "(state: ImageCropState) => ReactNode",
+        typeDetails: "Render a custom element inside the crop selection"
+      },
+      {
+        name: "selectionClassName",
+        type: "string",
+        typeDetails: "Classes merged onto the crop selection box — override the border color, width, etc."
+      },
+      {
+        name: "handleClassName",
+        type: "string",
+        typeDetails: "Classes merged onto each resize handle — override the size, color, shape, etc."
+      }
+    ]}
+  />
