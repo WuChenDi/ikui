@@ -1,3 +1,4 @@
+import { Blocks, BookText, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { siteConfig } from '@/lib/config'
 import { GitHubIcon } from './icons/github'
@@ -5,92 +6,107 @@ import { TelegramIcon } from './icons/telegram'
 import { XIcon } from './icons/x'
 import { IkLogo } from './ik-logo'
 
-const footerLinks = {
-  Product: [
-    { label: 'Docs', href: '/docs/introduction' },
-    { label: 'Components', href: '/docs/components' },
-    { label: 'MCP', href: '/docs/mcp' },
-  ],
-  Social: [
-    { label: 'GitHub', href: siteConfig.links.github },
-    { label: 'X (Twitter)', href: siteConfig.links.x },
-    { label: 'Telegram', href: siteConfig.links.telegram },
-    { label: 'Blog', href: siteConfig.links.blog },
-  ],
-  Legal: [
-    { label: 'Terms of Service', href: '/terms' },
-    { label: 'Privacy Policy', href: '/privacy' },
-  ],
-}
+const linkColumns = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'Docs', href: '/docs/introduction', icon: BookText },
+      { label: 'Components', href: '/docs/components', icon: Blocks },
+      { label: 'MCP', href: '/docs/mcp', icon: Sparkles },
+    ],
+  },
+  {
+    title: 'Connect',
+    links: [
+      { label: 'GitHub', href: siteConfig.links.github, icon: GitHubIcon },
+      { label: 'X (Twitter)', href: siteConfig.links.x, icon: XIcon },
+      {
+        label: 'Telegram',
+        href: siteConfig.links.telegram,
+        icon: TelegramIcon,
+      },
+    ],
+  },
+]
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border">
       <div className="mx-auto max-w-[1400px] px-4">
-        <div className="grid grid-cols-2 gap-8 py-12 md:grid-cols-4 md:py-16">
-          <div className="col-span-2 flex flex-col gap-4 md:col-span-1">
-            <Link href="/" className="flex items-center gap-1.5">
-              <IkLogo size={24} />
-              <span className="font-medium">ikui</span>
+        <div className="flex flex-col justify-between gap-12 py-12 md:flex-row md:py-16">
+          <div className="flex max-w-sm flex-col gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <IkLogo size={28} />
+              <span className="text-2xl font-semibold tracking-tight">
+                ikui
+              </span>
             </Link>
             <p className="text-pretty text-sm leading-relaxed text-muted-foreground/75">
-              Refined UI components for Design Engineers.
+              {siteConfig.description}
             </p>
-            <div className="mt-auto flex items-center gap-4 pt-4">
-              <Link
-                href={siteConfig.links.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary/55 transition-colors duration-300 ease-out hover:text-primary"
-                aria-label="GitHub"
-              >
-                <GitHubIcon className="size-5" />
-              </Link>
-              <Link
-                href={siteConfig.links.x}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary/55 transition-colors duration-300 ease-out hover:text-primary"
-                aria-label="X"
-              >
-                <XIcon className="size-4.5" />
-              </Link>
-              <Link
-                href={siteConfig.links.telegram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary/55 transition-colors duration-300 ease-out hover:text-primary"
-                aria-label="Telegram"
-              >
-                <TelegramIcon className="size-5" />
-              </Link>
-            </div>
+            <p className="text-xs text-muted-foreground/60">
+              Base UI powered · copy &amp; paste components
+            </p>
           </div>
 
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title} className="flex flex-col gap-3">
-              <span className="text-sm font-medium">{title}</span>
-              <ul className="flex flex-col gap-2">
-                {links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground/75 transition-colors hover:text-foreground"
-                      {...(link.href.startsWith('http')
-                        ? { target: '_blank', rel: 'noopener noreferrer' }
-                        : {})}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div className="flex gap-12 sm:gap-16 md:gap-20">
+            {linkColumns.map((column) => (
+              <div key={column.title} className="flex flex-col gap-3">
+                <span className="text-sm font-medium text-muted-foreground/60">
+                  {column.title}
+                </span>
+                <ul className="flex flex-col gap-3">
+                  {column.links.map((link) => {
+                    const Icon = link.icon
+                    const external = link.href.startsWith('http')
+                    return (
+                      <li key={link.href}>
+                        <Link
+                          href={link.href}
+                          className="flex items-center gap-2 text-sm text-muted-foreground/75 transition-colors hover:text-foreground"
+                          {...(external
+                            ? { target: '_blank', rel: 'noopener noreferrer' }
+                            : {})}
+                        >
+                          <Icon className="size-4" />
+                          {link.label}
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="py-6 text-xs text-muted-foreground/60">
-          <span>&copy; {new Date().getFullYear()} ikui</span>
+        <div className="flex flex-col gap-3 border-t border-border py-6 text-xs text-muted-foreground/60 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © Copyright 2026-PRESENT,{' '}
+            <Link
+              href="https://github.com/WuChenDi"
+              target="_blank"
+              rel="noreferrer"
+              className="transition-colors hover:text-foreground"
+            >
+              wudi
+            </Link>
+            . All Rights Reserved.
+          </p>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/terms"
+              className="transition-colors hover:text-foreground"
+            >
+              Terms
+            </Link>
+            <Link
+              href="/privacy"
+              className="transition-colors hover:text-foreground"
+            >
+              Privacy
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
