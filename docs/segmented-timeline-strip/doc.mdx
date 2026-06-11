@@ -1,4 +1,5 @@
 import { Demo } from './demo'
+import { Demo as PlayerDemo } from './demo-player'
 
 <DemoCanvas>
   <DemoPreview>
@@ -67,6 +68,25 @@ const segments: TimelineSegment[] = Array.from({ length: 5 }, (_, i) => ({
 To wire a video element's `timeupdate` to the playhead, lift `currentTime`
 into React state and feed the strip the *segment-local* time (subtract the
 current segment's `startOffset`).
+
+## Examples
+
+### Wired to a video player
+
+Each segment can instead carry its own `VideoThumbnailCache` (a multi-clip
+project). Lift `currentTime` from the `<video>`, feed the strip the
+segment-local time, and on `onSeek` swap the video `src` when crossing a clip
+boundary — here two real clips that auto-advance on `ended`.
+
+<DemoCanvas>
+  <DemoPreview>
+    <PlayerDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-player.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
 
 ## Props
 

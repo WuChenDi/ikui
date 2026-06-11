@@ -14,8 +14,17 @@ export function Demo() {
   if (!blob) return null
 
   return (
-    <div className="w-full max-w-2xl">
-      <AudioWaveform blob={blob} height={64} />
+    <div className="w-full max-w-md">
+      <AudioWaveform
+        blob={blob}
+        height={64}
+        barWidth={6}
+        gap={3}
+        rounded
+        progress={0.5}
+        barColor="rgb(203, 213, 225)"
+        barPlayedColor="rgb(244, 63, 94)"
+      />
     </div>
   )
 }
