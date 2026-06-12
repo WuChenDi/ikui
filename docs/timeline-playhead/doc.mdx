@@ -1,0 +1,133 @@
+import { Demo } from './demo'
+import { Demo as TimelineDemo } from './demo-timeline'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+The playhead — the vertical cursor that marks the current time on an editor's
+timeline. It positions itself by time (`currentTime` × `pixelsPerSecond` ×
+`zoom`, the **same basis as `timeline-ruler`**) and fills whatever container
+it sits in, so it spans the ruler and every track beneath it. Drag the line or
+its knob to scrub; because it lives inside the scrolled content, it scrolls in
+lockstep with the tracks.
+
+It is **controlled**: render it at `currentTime` and update from `onSeek`. The
+handles are focusable, so arrow keys nudge frame by frame.
+
+It is **only the cursor**. The playback clock and click-to-seek on the ruler or
+tracks are application concerns — the consumer wires the container's click to
+`onSeek` and feeds the playback time back in. The component draws a draggable
+line, nothing more.
+
+## Installation
+
+<InstallationTabs item="timeline-playhead">
+```tsx file=../../registry/ikui/timeline-playhead.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { TimelinePlayhead } from "@/components/timeline-playhead";
+```
+```tsx
+const [time, setTime] = useState(0)
+
+<div style={{ position: "relative", width: duration * 50 }}>
+  <TimelineRuler duration={duration} />
+  {/* …tracks… */}
+  <TimelinePlayhead
+    currentTime={time}
+    duration={duration}
+    onSeek={setTime}
+  />
+</div>
+```
+
+The playhead is absolutely positioned and measures pointer scrubs against its
+parent, so place it inside the **time-scaled content** — a `position: relative`
+container of width `duration × pixelsPerSecond × zoom` that also holds the ruler
+and tracks. It then spans them all and stays aligned to the ticks.
+
+## Examples
+
+### Across the tracks
+
+The playhead sitting over a `timeline-ruler` and an audio clip
+(`timeline-element` + `audio-waveform`), spanning both. Click anywhere to move
+it, or drag the knob to scrub — the consumer turns the container's click into
+`onSeek`; the playhead handles its own drag.
+
+<DemoCanvas>
+  <DemoPreview>
+    <TimelineDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-timeline.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "currentTime",
+        type: "number",
+        typeDetails: "Playhead position in seconds"
+      },
+      {
+        name: "duration",
+        type: "number",
+        typeDetails: "Total timeline length in seconds — clamps scrubbing"
+      },
+      {
+        name: "pixelsPerSecond",
+        type: "number",
+        default: "50",
+        typeDetails: "Base pixels per second at zoom = 1. Match the ruler's value"
+      },
+      {
+        name: "zoom",
+        type: "number",
+        default: "1",
+        typeDetails: "Zoom multiplier applied to pixelsPerSecond"
+      },
+      {
+        name: "step",
+        type: "number",
+        default: "0.1",
+        typeDetails: "Keyboard nudge step in seconds"
+      },
+      {
+        name: "color",
+        type: "string",
+        default: '"currentColor"',
+        typeDetails: "Line and knob color"
+      },
+      {
+        name: "onSeek",
+        type: "(time: number) => void",
+        typeDetails: "Fired with the new time while dragging, or on arrow-key nudge"
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Class applied to the playhead"
+      },
+      {
+        name: "style",
+        type: "React.CSSProperties",
+        typeDetails: "Inline styles applied to the playhead"
+      }
+    ]}
+  />
