@@ -13,11 +13,18 @@ import { cn } from '@/lib/utils'
 
 export interface ImageCompareProps {
   aspectRatio?: 'taller' | 'wider'
+  /**
+   * Fill the parent container's height instead of deriving it from the image
+   * ratio. The parent must have a definite height. Pair with
+   * `objectFit="contain"` to letterbox images without cropping or overflow.
+   */
+  fill?: boolean
   handle?: ReactNode
   hover?: boolean
   leftImage: string
   leftImageAlt?: string
   leftImageLabel?: ReactNode
+  objectFit?: 'cover' | 'contain'
   onSliderPositionChange?: (position: number) => void
   rightImage: string
   rightImageAlt?: string
@@ -56,9 +63,9 @@ function calculateContainerHeight(
   return containerWidth * idealRatio
 }
 
-/** Triggers a callback when the attached element's width changes. */
-function useContainerWidth(
-  onResize: (width: number) => void,
+/** Triggers a callback when the attached element's size changes. */
+function useContainerSize(
+  onResize: (size: { width: number; height: number }) => void,
 ): RefObject<HTMLDivElement | null> {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -71,12 +78,16 @@ function useContainerWidth(
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0]
       if (entry) {
-        onResize(entry.contentRect.width)
+        onResize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        })
       }
     })
     observer.observe(element)
     // Initial call
-    onResize(element.getBoundingClientRect().width)
+    const rect = element.getBoundingClientRect()
+    onResize({ width: rect.width, height: rect.height })
 
     return () => {
       observer.disconnect()
@@ -89,11 +100,13 @@ function useContainerWidth(
 export function ImageCompare(props: ImageCompareProps) {
   const {
     aspectRatio = 'taller',
+    fill = false,
     handle = null,
     hover = false,
     leftImage,
     leftImageAlt = '',
     leftImageLabel = null,
+    objectFit = 'cover',
     onSliderPositionChange,
     rightImage,
     rightImageAlt = '',
@@ -120,8 +133,18 @@ export function ImageCompare(props: ImageCompareProps) {
   const [containerWidth, setContainerWidth] = useState<number>(0)
   const [containerHeight, setContainerHeight] = useState<number>(0)
 
-  // refs to HTML elements
-  const containerRef = useContainerWidth(setContainerWidth)
+  // refs to HTML elements. In fill mode the height tracks the parent container
+  // rather than being derived from the image ratio.
+  const handleContainerResize = useCallback(
+    (size: { width: number; height: number }) => {
+      setContainerWidth(size.width)
+      if (fill) {
+        setContainerHeight(size.height)
+      }
+    },
+    [fill],
+  )
+  const containerRef = useContainerSize(handleContainerResize)
   const rightImageRef = useRef<HTMLImageElement>(null)
   const leftImageRef = useRef<HTMLImageElement>(null)
 
@@ -153,9 +176,11 @@ export function ImageCompare(props: ImageCompareProps) {
     }
   }, [leftImage, rightImage, checkImagesLoaded])
 
-  // Set container height based on the image ratio
+  // Set container height based on the image ratio (skipped in fill mode, where
+  // the height instead follows the parent container).
   useEffect(() => {
     if (
+      fill ||
       !(leftImageRef.current && rightImageRef.current) ||
       containerWidth === 0 ||
       !imagesLoaded
@@ -169,7 +194,7 @@ export function ImageCompare(props: ImageCompareProps) {
       aspectRatio,
     )
     setContainerHeight(height)
-  }, [containerWidth, imagesLoaded, aspectRatio])
+  }, [containerWidth, imagesLoaded, aspectRatio, fill])
 
   // Setup pointer (mouse/touch) event listeners. Reset whenever the
   // container size or any other relevant condition changes. The
@@ -278,10 +303,11 @@ export function ImageCompare(props: ImageCompareProps) {
         ref={containerRef}
         className={cn(
           'relative box-border w-full overflow-hidden',
+          fill && 'h-full',
           horizontal ? 'touch-pan-y' : 'touch-pan-x',
           imagesLoaded ? 'block' : 'hidden',
         )}
-        style={{ height: containerHeight }}
+        style={fill ? undefined : { height: containerHeight }}
       >
         {/* biome-ignore lint/performance/noImgElement: clip-path overlay with arbitrary URLs, next/image would not fit */}
         <img
@@ -289,7 +315,10 @@ export function ImageCompare(props: ImageCompareProps) {
           alt={rightImageAlt}
           ref={rightImageRef}
           src={rightImage}
-          className="absolute block h-full w-full object-cover"
+          className={cn(
+            'absolute block h-full w-full',
+            objectFit === 'contain' ? 'object-contain' : 'object-cover',
+          )}
           style={{ clipPath: rightClip }}
         />
         {/* biome-ignore lint/performance/noImgElement: clip-path overlay with arbitrary URLs, next/image would not fit */}
@@ -298,7 +327,10 @@ export function ImageCompare(props: ImageCompareProps) {
           alt={leftImageAlt}
           ref={leftImageRef}
           src={leftImage}
-          className="absolute block h-full w-full object-cover"
+          className={cn(
+            'absolute block h-full w-full',
+            objectFit === 'contain' ? 'object-contain' : 'object-cover',
+          )}
           style={{ clipPath: leftClip }}
         />
         <div
