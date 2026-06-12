@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AudioWaveform } from '@/registry/ikui/audio-waveform'
 import { ThumbnailStrip } from '@/registry/ikui/thumbnail-strip'
+import { TimelineElement } from '@/registry/ikui/timeline-element'
+import { TimelinePlayhead } from '@/registry/ikui/timeline-playhead'
 import { TimelineRuler } from '@/registry/ikui/timeline-ruler'
 import { VideoThumbnailCache } from '@/registry/ikui/video-thumbnail-cache'
 
@@ -15,9 +17,8 @@ const VIDEO_URL =
 const PPS = 50
 const MIN_ZOOM = 0.5
 const MAX_ZOOM = 6
-const RULER_H = 22
-const VIDEO_TRACK_H = 56
-const AUDIO_TRACK_H = 44
+const RULER_H = 24
+const TRACK_HEIGHT = 56
 const TILE_WIDTH = 80
 
 type LoadState =
@@ -31,7 +32,6 @@ export function Demo() {
   const [playhead, setPlayhead] = useState(0)
 
   const scrollRef = useRef<HTMLDivElement>(null)
-  const draggingRef = useRef(false)
 
   useEffect(() => {
     let cancelled = false
@@ -90,8 +90,6 @@ export function Demo() {
     )
   }
 
-  const playheadX = Math.min(Math.max(playhead, 0), duration) * pps
-
   return (
     <div className="flex w-full max-w-2xl flex-col gap-3">
       <div className="flex items-center gap-2 text-sm">
@@ -121,27 +119,16 @@ export function Demo() {
         </div>
       </div>
 
-      <div className="bg-muted/30 overflow-hidden rounded-md border">
+      <div className="bg-muted/30 rounded-md border p-3">
         {/* Single shared horizontal scroll container — the ruler and both
             tracks live inside it, so they scroll in lockstep. */}
         <div ref={scrollRef} className="overflow-x-auto overflow-y-hidden">
           <div
-            className="relative cursor-ew-resize select-none"
+            className="relative cursor-pointer select-none"
             style={{ width: contentWidth, minWidth: '100%' }}
-            onPointerDown={(e) => {
-              draggingRef.current = true
-              e.currentTarget.setPointerCapture(e.pointerId)
-              positionFromEvent(e)
-            }}
-            onPointerMove={(e) => {
-              if (draggingRef.current) positionFromEvent(e)
-            }}
-            onPointerUp={(e) => {
-              draggingRef.current = false
-              e.currentTarget.releasePointerCapture(e.pointerId)
-            }}
+            onPointerDown={positionFromEvent}
           >
-            <div className="text-muted-foreground border-b px-px">
+            <div className="text-muted-foreground">
               <TimelineRuler
                 duration={duration}
                 zoom={zoom}
@@ -150,35 +137,68 @@ export function Demo() {
               />
             </div>
 
-            <ThumbnailStrip
-              cache={state.cache}
+            <div
+              className="mt-2"
+              style={{
+                position: 'relative',
+                width: contentWidth,
+                height: TRACK_HEIGHT,
+              }}
+            >
+              <TimelineElement
+                startTime={0}
+                duration={duration}
+                pixelsPerSecond={PPS}
+                zoom={zoom}
+                height={TRACK_HEIGHT}
+                trimmable={false}
+              >
+                <ThumbnailStrip
+                  cache={state.cache}
+                  duration={duration}
+                  totalWidth={contentWidth}
+                  tileWidth={TILE_WIDTH}
+                  tileHeight={TRACK_HEIGHT}
+                />
+              </TimelineElement>
+            </div>
+
+            <div
+              className="mt-2"
+              style={{
+                position: 'relative',
+                width: contentWidth,
+                height: TRACK_HEIGHT,
+              }}
+            >
+              <TimelineElement
+                startTime={0}
+                duration={duration}
+                pixelsPerSecond={PPS}
+                zoom={zoom}
+                height={TRACK_HEIGHT}
+                color="#7c4ddb"
+                trimmable={false}
+              >
+                <AudioWaveform
+                  audioUrl={VIDEO_URL}
+                  width={contentWidth}
+                  height={TRACK_HEIGHT}
+                  progress={duration > 0 ? playhead / duration : 0}
+                  barColor="rgba(255,255,255,0.4)"
+                  barPlayedColor="rgba(255,255,255,0.95)"
+                />
+              </TimelineElement>
+            </div>
+
+            {/* Playhead spanning the ruler and the tracks. */}
+            <TimelinePlayhead
+              currentTime={playhead}
               duration={duration}
-              totalWidth={contentWidth}
-              tileWidth={TILE_WIDTH}
-              tileHeight={VIDEO_TRACK_H}
+              pixelsPerSecond={PPS}
+              zoom={zoom}
+              onSeek={setPlayhead}
             />
-
-            <div
-              style={{ backgroundColor: '#7c4ddb', width: contentWidth }}
-              className="border-t border-black/10"
-            >
-              <AudioWaveform
-                audioUrl={VIDEO_URL}
-                width={contentWidth}
-                height={AUDIO_TRACK_H}
-                progress={duration > 0 ? playhead / duration : 0}
-                barColor="rgba(255,255,255,0.4)"
-                barPlayedColor="rgba(255,255,255,0.95)"
-              />
-            </div>
-
-            {/* Playhead marker spanning the ruler and the tracks. */}
-            <div
-              className="pointer-events-none absolute top-0 bottom-0 z-10 w-px bg-rose-500"
-              style={{ left: playheadX }}
-            >
-              <div className="absolute -top-px -left-[3px] size-[7px] rounded-full bg-rose-500" />
-            </div>
           </div>
         </div>
       </div>
@@ -189,9 +209,10 @@ export function Demo() {
         same clip (<code>audio-waveform</code>), all sharing one horizontal
         scrollbar via a single <code>scrollRef</code> — scroll the strip and the
         ruler stays locked to the tracks; zoom in/out and the labels adapt from{' '}
-        <code>MM:SS</code> down to per-frame <code>Xf</code> marks. Click or
-        drag to move the playhead; the waveform colors the played portion up to
-        it. The ruler itself renders no media and does not play anything.
+        <code>MM:SS</code> down to per-frame <code>Xf</code> marks. Click to
+        move the <code>timeline-playhead</code>, or drag its knob to scrub; the
+        waveform colors the played portion up to it. The ruler itself renders no
+        media and does not play anything.
       </p>
     </div>
   )
