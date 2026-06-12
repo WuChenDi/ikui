@@ -21,6 +21,11 @@
     "paths": {
       "@/docs/*": ["./docs/*"],
       "@/components/audio-waveform": ["./registry/ikui/audio-waveform.tsx"],
+      "@/components/timeline-ruler": ["./registry/ikui/timeline-ruler.tsx"],
+      "@/components/timeline-element": ["./registry/ikui/timeline-element.tsx"],
+      "@/components/timeline-playhead": [
+        "./registry/ikui/timeline-playhead.tsx"
+      ],
       "@/components/thumbnail-strip": ["./registry/ikui/thumbnail-strip.tsx"],
       "@/lib/video-thumbnail-cache": [
         "./registry/ikui/video-thumbnail-cache.ts"

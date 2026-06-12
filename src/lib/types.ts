@@ -19,7 +19,11 @@ export type DocSchema = Array<{
 
 export interface RegistryItem {
   name: string
-  type: 'registry:component' | 'registry:hook' | 'registry:lib'
+  type:
+    | 'registry:component'
+    | 'registry:hook'
+    | 'registry:lib'
+    | 'registry:block'
   title: string
   description: string
   category?: string

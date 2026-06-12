@@ -26,8 +26,14 @@ export interface TimelineElementProps {
   selected?: boolean
   /** Show left/right trim handles while selected. Default: `true`. */
   trimmable?: boolean
+  /** Allow dragging the body to slide the element along the track — keeps
+   *  `duration`, clamped within `[0, maxEnd]`. Default: `false`. */
+  movable?: boolean
   /** Minimum duration in seconds while trimming. Default: `0`. */
   minDuration?: number
+  /** Maximum end (`startTime + duration`) in seconds — clamps the right handle
+   *  so the clip can't extend past the track/source. Default: `Infinity`. */
+  maxEnd?: number
   /** Keyboard nudge step in seconds. Default: `0.1`. */
   step?: number
   /** Fired on pointer down — select this clip. */
@@ -51,7 +57,9 @@ export function TimelineElement({
   color = '#915dbe',
   selected = false,
   trimmable = true,
+  movable = false,
   minDuration = 0,
+  maxEnd = Number.POSITIVE_INFINITY,
   step = 0.1,
   onSelect,
   onResize,
@@ -91,17 +99,30 @@ export function TimelineElement({
           duration: origin.duration - clamped,
         }
       }
-      // right edge changes duration only
+      // right edge changes duration only, capped so the end stays within maxEnd
       return {
         startTime: origin.startTime,
-        duration: Math.max(minDuration, origin.duration + dt),
+        duration: Math.min(
+          maxEnd - origin.startTime,
+          Math.max(minDuration, origin.duration + dt),
+        ),
       }
     },
-    [minDuration],
+    [minDuration, maxEnd],
+  )
+
+  // Slide the whole element, keeping its duration; clamp within [0, maxEnd].
+  const move = React.useCallback(
+    (origin: TimelineElementResize, dt: number): TimelineElementResize => {
+      const maxStart = maxEnd - origin.duration
+      const startTime = Math.min(Math.max(0, origin.startTime + dt), maxStart)
+      return { startTime, duration: origin.duration }
+    },
+    [maxEnd],
   )
 
   const dragRef = React.useRef<{
-    side: 'left' | 'right'
+    side: 'left' | 'right' | 'move'
     startX: number
     origin: TimelineElementResize
   } | null>(null)
@@ -111,7 +132,10 @@ export function TimelineElement({
       const drag = dragRef.current
       if (!drag) return
       const dt = (event.clientX - drag.startX) / pps
-      const next = trim(drag.side, drag.origin, dt)
+      const next =
+        drag.side === 'move'
+          ? move(drag.origin, dt)
+          : trim(drag.side, drag.origin, dt)
       setLive(next)
       onResizeRef.current?.(next)
     }
@@ -127,11 +151,14 @@ export function TimelineElement({
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
     }
-  }, [pps, trim])
+  }, [pps, trim, move])
 
   const startTrim = (side: 'left' | 'right') => (event: React.PointerEvent) => {
     event.preventDefault()
     event.stopPropagation()
+    // Capture the pointer so the drag keeps tracking even if it leaves the
+    // 12px handle (fast drags, or the handle moving out from under the cursor).
+    event.currentTarget.setPointerCapture?.(event.pointerId)
     dragRef.current = {
       side,
       startX: event.clientX,
@@ -149,9 +176,25 @@ export function TimelineElement({
     onResizeEnd?.(next)
   }
 
-  // A trim handle: a faint edge bar with a white grip, after a video editor's
-  // clip handle. Returned from a plain function (not a nested component) so it
-  // keeps its identity across renders and holds focus.
+  // Body pointer-down: always selects; when `movable`, also starts a drag that
+  // slides the whole element. Handles stop propagation, so grabbing an edge
+  // trims instead of moving.
+  const startMove = (event: React.PointerEvent) => {
+    onSelect?.()
+    if (!movable) return
+    event.preventDefault()
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+    dragRef.current = {
+      side: 'move',
+      startX: event.clientX,
+      origin: currentRef.current,
+    }
+  }
+
+  // A trim handle: a primary-colored edge bar with a contrasting grip, after a
+  // video editor's clip handle. Theme-aware (works on light and dark tracks).
+  // Returned from a plain function (not a nested component) so it keeps its
+  // identity across renders and holds focus.
   const renderHandle = (side: 'left' | 'right') => (
     <div
       role="slider"
@@ -174,9 +217,12 @@ export function TimelineElement({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(255, 255, 255, 0.18)',
+        background: 'var(--primary)',
         cursor: side === 'left' ? 'w-resize' : 'e-resize',
         touchAction: 'none',
+        // Sit above sibling overlays (e.g. a playhead) so the handle is always
+        // the grab target — otherwise a line crossing the edge swallows the drag.
+        zIndex: 50,
       }}
     >
       <div
@@ -184,7 +230,7 @@ export function TimelineElement({
           width: 4,
           height: '45%',
           borderRadius: 9999,
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'var(--primary-foreground)',
         }}
       />
     </div>
@@ -192,7 +238,7 @@ export function TimelineElement({
 
   return (
     <div
-      onPointerDown={() => onSelect?.()}
+      onPointerDown={startMove}
       className={className}
       style={{
         position: 'absolute',
@@ -203,7 +249,7 @@ export function TimelineElement({
         borderRadius: 8,
         overflow: 'hidden',
         background: color,
-        cursor: 'pointer',
+        cursor: movable ? 'grab' : 'pointer',
         touchAction: 'none',
         ...style,
       }}
@@ -218,7 +264,7 @@ export function TimelineElement({
             position: 'absolute',
             inset: 0,
             borderRadius: 8,
-            boxShadow: 'inset 0 0 0 2px rgba(255, 255, 255, 0.9)',
+            boxShadow: 'inset 0 0 0 2px var(--primary)',
             pointerEvents: 'none',
           }}
         />

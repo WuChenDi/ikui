@@ -143,6 +143,31 @@
       "category": "timeline"
     },
     {
+      "name": "audio-trimmer",
+      "type": "registry:block",
+      "title": "Audio Trimmer",
+      "description": "A business composition built from the timeline primitives: trim an audio clip with the timeline-element handles, then play back only the trimmed [startTime, startTime + duration] window. The playhead follows playback, the waveform colors in as it plays, and an In / Out / length readout tracks the selection.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/audio-trimmer.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["lucide-react", "mediabunny"],
+      "registryDependencies": [
+        "@ikui/timeline-ruler",
+        "@ikui/timeline-element",
+        "@ikui/timeline-playhead",
+        "@ikui/audio-waveform",
+        "button",
+        "card",
+        "slider",
+        "scroll-area",
+        "skeleton"
+      ],
+      "category": "blocks"
+    },
+    {
       "name": "image-compare",
       "type": "registry:component",
       "title": "Image Compare",
