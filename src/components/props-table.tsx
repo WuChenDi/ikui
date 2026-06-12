@@ -1,13 +1,14 @@
+import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { PropInformation } from './prop-information'
 
 interface PropsTableItem {
   name: string
-  nameDetails?: React.ReactNode
+  nameDetails?: ReactNode
   type: string
-  typeDetails?: React.ReactNode
+  typeDetails?: ReactNode
   default?: string
-  defaultDetails?: React.ReactNode
+  defaultDetails?: ReactNode
 }
 
 interface PropsTableProps {

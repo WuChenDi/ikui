@@ -2,7 +2,8 @@
 
 import Link, { type LinkProps } from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import * as React from 'react'
+import type { ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import type { DocSchema } from '@/lib/types'
@@ -15,14 +16,14 @@ export function MobileNav({
   docSchema: DocSchema
   className?: string
 }) {
-  const [open, setOpen] = React.useState(false)
-  const [mounted, setMounted] = React.useState(false)
+  const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true)
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) return
     const root = document.documentElement
     const previous = root.style.overflow
@@ -135,7 +136,7 @@ function MobileLink({
   ...props
 }: LinkProps & {
   onOpenChange?: (open: boolean) => void
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }) {
   const router = useRouter()

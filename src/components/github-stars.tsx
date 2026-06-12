@@ -1,16 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { siteConfig } from '@/lib/config'
 import { GitHubIcon } from './icons/github'
 import { Button } from './ui/button'
 import { Skeleton } from './ui/skeleton'
 
 export function GithubStars() {
-  const [stars, setStars] = React.useState<number | null>(null)
+  const [stars, setStars] = useState<number | null>(null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch('/api/github/stars')
       .then((res) => res.json())
       .then((data: { stars: number }) => setStars(data.stars))

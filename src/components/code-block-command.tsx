@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, Copy, Terminal } from 'lucide-react'
-import * as React from 'react'
+import { useCallback, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfig } from '@/hooks/use-config'
@@ -22,7 +22,7 @@ export function CodeBlockCommand({
   const [config, setConfig] = useConfig()
   const { isCopied, copyToClipboard } = useCopyToClipboard()
 
-  const commands = React.useMemo(() => {
+  const commands = useMemo(() => {
     if (mcp) {
       return {
         pnpm: `pnpm dlx shadcn@latest mcp init`,
@@ -39,7 +39,7 @@ export function CodeBlockCommand({
     }
   }, [item, mcp])
 
-  const copyCommand = React.useCallback(() => {
+  const copyCommand = useCallback(() => {
     const command = commands[config.packageManager]
     if (command) {
       void copyToClipboard(command)

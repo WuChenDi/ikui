@@ -2,7 +2,8 @@
 
 import { SquarePen } from 'lucide-react'
 import Link from 'next/link'
-import * as React from 'react'
+import type { ReactNode } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { siteConfig } from '@/lib/config'
 import { cn } from '@/lib/utils'
 import MenuLeft from './icons/menu-left'
@@ -11,9 +12,9 @@ import { XIcon } from './icons/x'
 import { Separator } from './ui/separator'
 
 function useActiveItem(itemIds: string[]) {
-  const [activeId, setActiveId] = React.useState<string | null>(null)
+  const [activeId, setActiveId] = useState<string | null>(null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -52,7 +53,7 @@ export function DocsTableOfContents({
   boldActive = true,
 }: {
   toc: {
-    title?: React.ReactNode
+    title?: ReactNode
     url: string
     depth: number
   }[]
@@ -60,7 +61,7 @@ export function DocsTableOfContents({
   docId?: string
   boldActive?: boolean
 }) {
-  const itemIds = React.useMemo(
+  const itemIds = useMemo(
     () => toc.map((item) => item.url.replace('#', '')),
     [toc],
   )

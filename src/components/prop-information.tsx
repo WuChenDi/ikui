@@ -1,4 +1,5 @@
 import { InfoIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 import {
   Popover,
   PopoverContent,
@@ -6,7 +7,7 @@ import {
 } from '@/components/ui/popover'
 
 interface PropInformationProps {
-  content: React.ReactNode
+  content: ReactNode
 }
 
 export function PropInformation({ content }: PropInformationProps) {

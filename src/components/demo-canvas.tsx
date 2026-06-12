@@ -2,7 +2,8 @@
 
 import { Loader2 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import React, { Suspense } from 'react'
+import type { ReactNode } from 'react'
+import { Suspense, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
@@ -12,12 +13,12 @@ import { OpenInV0Button } from './open-in-v0-button'
 export function DemoCanvas({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
   className?: string
   center?: boolean
 }) {
-  const [key, setKey] = React.useState(0)
-  const [isRotating, setIsRotating] = React.useState(false)
+  const [key, setKey] = useState(0)
+  const [isRotating, setIsRotating] = useState(false)
   const pathname = usePathname()
   const v0Id = pathname?.split('/docs/')[1] || ''
 
@@ -61,7 +62,7 @@ export function DemoPreview({
   center,
   className,
 }: {
-  children: React.ReactNode
+  children: ReactNode
   center?: boolean
   className?: string
 }) {
@@ -86,7 +87,7 @@ export function DemoPreview({
   )
 }
 
-export function DemoCode({ children }: { children: React.ReactNode }) {
+export function DemoCode({ children }: { children: ReactNode }) {
   return (
     <TabsContent value="code" className="[&_pre]:my-0">
       {children}

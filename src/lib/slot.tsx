@@ -1,12 +1,19 @@
-import * as React from 'react'
+import type {
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  Ref,
+  RefObject,
+} from 'react'
+import { cloneElement, forwardRef, isValidElement } from 'react'
 
 type AnyProps = Record<string, unknown>
 
-function mergeRefs<T>(...refs: React.Ref<T>[]) {
+function mergeRefs<T>(...refs: Ref<T>[]) {
   return (node: T) => {
     for (const ref of refs) {
       if (typeof ref === 'function') ref(node)
-      else if (ref) (ref as React.RefObject<T | null>).current = node
+      else if (ref) (ref as RefObject<T | null>).current = node
     }
   }
 }
@@ -43,26 +50,26 @@ function mergeProps(slotProps: AnyProps, childProps: AnyProps): AnyProps {
   return merged
 }
 
-export interface SlotProps extends React.HTMLAttributes<HTMLElement> {
-  children?: React.ReactNode
+export interface SlotProps extends HTMLAttributes<HTMLElement> {
+  children?: ReactNode
 }
 
 /**
  * Minimal `asChild` primitive: merges its props onto the single child element.
  * Zero-dependency `asChild` slot implementation.
  */
-export const Slot = React.forwardRef<HTMLElement, SlotProps>(function Slot(
+export const Slot = forwardRef<HTMLElement, SlotProps>(function Slot(
   { children, ...props },
   ref,
 ) {
-  if (!React.isValidElement(children)) {
+  if (!isValidElement(children)) {
     return null
   }
 
-  const child = children as React.ReactElement<AnyProps>
-  const childRef = (child as { ref?: React.Ref<HTMLElement> }).ref
+  const child = children as ReactElement<AnyProps>
+  const childRef = (child as { ref?: Ref<HTMLElement> }).ref
 
-  return React.cloneElement(child, {
+  return cloneElement(child, {
     ...mergeProps(props as AnyProps, child.props),
     ref: ref ? mergeRefs(ref, childRef ?? null) : childRef,
   } as AnyProps)

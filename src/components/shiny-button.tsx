@@ -1,6 +1,7 @@
 import type { VariantProps } from 'class-variance-authority'
 import { cva } from 'class-variance-authority'
-import * as React from 'react'
+import type { ComponentProps, ReactElement, ReactNode } from 'react'
+import { Children, cloneElement } from 'react'
 import { Slot } from '@/lib/slot'
 
 import { cn } from '@/lib/utils'
@@ -62,7 +63,7 @@ function ShinyButton({
   sheen = false,
   children,
   ...props
-}: React.ComponentProps<'button'> &
+}: ComponentProps<'button'> &
   VariantProps<typeof shinyButtonVariants> & {
     asChild?: boolean
     sheen?: boolean
@@ -70,8 +71,8 @@ function ShinyButton({
   const classes = cn(shinyButtonVariants({ variant, size, className }))
 
   if (asChild) {
-    const child = React.Children.only(children) as React.ReactElement<{
-      children?: React.ReactNode
+    const child = Children.only(children) as ReactElement<{
+      children?: ReactNode
     }>
     if (!sheen) {
       return (
@@ -85,7 +86,7 @@ function ShinyButton({
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: injects static keyframe CSS, no user input */}
         <style dangerouslySetInnerHTML={{ __html: shinyButtonKeyframes }} />
         <Slot data-slot="shiny-button" className={classes} {...props}>
-          {React.cloneElement(child, {
+          {cloneElement(child, {
             children: (
               <>
                 <span className="relative z-[1]">{child.props.children}</span>

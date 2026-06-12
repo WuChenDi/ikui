@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type * as React from 'react'
+import type { ComponentProps } from 'react'
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +19,7 @@ import type { DocSchema } from '@/lib/types'
 export function AppSidebar({
   docSchema,
   ...props
-}: React.ComponentProps<typeof Sidebar> & {
+}: ComponentProps<typeof Sidebar> & {
   docSchema: DocSchema
 }) {
   const pathname = usePathname()
