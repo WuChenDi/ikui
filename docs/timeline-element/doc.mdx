@@ -1,0 +1,201 @@
+import { Demo } from './demo'
+import { Demo as RulerDemo } from './demo-ruler'
+import { Demo as SegmentsDemo } from './demo-segments'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A timeline clip — the block that sits on an editor's track. It positions
+itself by time (`startTime` / `duration` × `pixelsPerSecond` × `zoom`, the
+**same basis as `timeline-ruler`**), so dropping it into a track lines it up
+under the ruler. The clip is content-agnostic: put an `audio-waveform`, a
+`thumbnail-strip`, a label — anything — inside as `children`.
+
+When `selected` it draws a border and left/right **trim handles**; dragging a
+handle resizes the clip and reports the new `{ startTime, duration }` through
+`onResize` / `onResizeEnd`. Trimming is clamped to `startTime >= 0` and
+`minDuration`.
+
+It is **only the clip**. The track lane, the playhead, seeking, snapping, and
+mapping a trim back to a media source offset are application concerns — the
+consumer composes them. The element renders a positioned, trimmable block,
+nothing more.
+
+## Installation
+
+<InstallationTabs item="timeline-element">
+```tsx file=../../registry/ikui/timeline-element.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { TimelineElement } from "@/components/timeline-element";
+```
+```tsx
+const [clip, setClip] = useState({ startTime: 0, duration: 10 })
+
+<div style={{ position: "relative", width, height: 56 }}>
+  <TimelineElement
+    startTime={clip.startTime}
+    duration={clip.duration}
+    pixelsPerSecond={50}
+    selected
+    onResize={setClip}
+  >
+    <AudioWaveform audioUrl="/clip.mp3" height={56} />
+  </TimelineElement>
+</div>
+```
+
+The element is **controlled**: it renders at the given `startTime` / `duration`
+and emits the new geometry while trimming — store it and pass it back. It is
+absolutely positioned, so it expects a `position: relative` track of the right
+width (`totalDuration × pixelsPerSecond × zoom`).
+
+To keep the content aligned to the timeline (instead of stretching with the
+clip), render it at the full source width and offset it by
+`-startTime × pixelsPerSecond`; the clip's `overflow: hidden` windows it.
+
+## Examples
+
+### Combined with the ruler
+
+`timeline-ruler` supplies the scale; a video clip (`thumbnail-strip`) and an
+audio clip (`audio-waveform`) sit on their tracks beneath it, all sharing one
+width and `pixelsPerSecond`. Click a clip to select it, then drag its handles
+to trim — the cuts stay aligned to the ruler's ticks. This is the core of a
+video/audio editor's timeline, built from primitives.
+
+<DemoCanvas>
+  <DemoPreview>
+    <RulerDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-ruler.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### A segmented track
+
+`segmented-timeline-strip` bakes in its own proportional scale, playhead, and
+seek. The composable equivalent is a row of `TimelineElement`s on one lane —
+here one video split into segments, each clip windowing the same
+`thumbnail-strip` — under a shared `timeline-ruler` and a single
+`timeline-playhead`. Click a segment to activate it (others dim) and to move the
+playhead. Same behavior as the strip, but in the timeline's `pixelsPerSecond`
+coordinate system, so it scrolls, zooms, and aligns with everything else.
+
+<DemoCanvas>
+  <DemoPreview>
+    <SegmentsDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-segments.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "startTime",
+        type: "number",
+        typeDetails: "Position on the track in seconds"
+      },
+      {
+        name: "duration",
+        type: "number",
+        typeDetails: "Visible length in seconds"
+      },
+      {
+        name: "pixelsPerSecond",
+        type: "number",
+        default: "50",
+        typeDetails: "Base pixels per second at zoom = 1. Match the ruler's value"
+      },
+      {
+        name: "zoom",
+        type: "number",
+        default: "1",
+        typeDetails: "Zoom multiplier applied to pixelsPerSecond"
+      },
+      {
+        name: "height",
+        type: "number",
+        default: "56",
+        typeDetails: "Height in CSS pixels"
+      },
+      {
+        name: "color",
+        type: "string",
+        default: '"#915dbe"',
+        typeDetails: "Clip fill color"
+      },
+      {
+        name: "selected",
+        type: "boolean",
+        default: "false",
+        typeDetails: "Draws the selection border and (when trimmable) the trim handles"
+      },
+      {
+        name: "trimmable",
+        type: "boolean",
+        default: "true",
+        typeDetails: "Show left/right trim handles while selected"
+      },
+      {
+        name: "minDuration",
+        type: "number",
+        default: "0",
+        typeDetails: "Minimum duration in seconds while trimming"
+      },
+      {
+        name: "step",
+        type: "number",
+        default: "0.1",
+        typeDetails: "Keyboard nudge step in seconds"
+      },
+      {
+        name: "onSelect",
+        type: "() => void",
+        typeDetails: "Fired on pointer down — select this clip"
+      },
+      {
+        name: "onResize",
+        type: "(next: TimelineElementResize) => void",
+        typeDetails: "Fired continuously while trimming"
+      },
+      {
+        name: "onResizeEnd",
+        type: "(next: TimelineElementResize) => void",
+        typeDetails: "Fired once when a trim drag ends"
+      },
+      {
+        name: "children",
+        type: "React.ReactNode",
+        typeDetails: "Clip content — a waveform, thumbnail strip, label, etc."
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Class applied to the clip"
+      },
+      {
+        name: "style",
+        type: "React.CSSProperties",
+        typeDetails: "Inline styles applied to the clip"
+      }
+    ]}
+  />
