@@ -110,7 +110,37 @@
       ],
       "dependencies": [],
       "registryDependencies": [],
-      "category": "video"
+      "category": "timeline"
+    },
+    {
+      "name": "timeline-element",
+      "type": "registry:component",
+      "title": "Timeline Element",
+      "description": "A positioned, trimmable timeline clip: places itself on a track by time (startTime/duration × pixelsPerSecond × zoom, the same basis as timeline-ruler) and renders any content inside — an audio waveform, a thumbnail strip, a label. Selectable, with left/right trim handles that emit the new geometry. The track, playhead, and seeking are left to the consumer.",
+      "files": [
+        {
+          "path": "registry/ikui/timeline-element.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "category": "timeline"
+    },
+    {
+      "name": "timeline-playhead",
+      "type": "registry:component",
+      "title": "Timeline Playhead",
+      "description": "A draggable timeline playhead: a vertical line with a top knob, positioned by time (currentTime × pixelsPerSecond × zoom, the same basis as timeline-ruler) and scrubbable. Drag it to seek; it scrolls with the tracks it sits over. Spans whatever container it is placed in. The playback clock and click-to-seek on the tracks are left to the consumer.",
+      "files": [
+        {
+          "path": "registry/ikui/timeline-playhead.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "category": "timeline"
     },
     {
       "name": "image-compare",
