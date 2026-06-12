@@ -13,3 +13,6 @@
 | T-009 | Add "segmented track" example to timeline-element docs | completed | ikui | [P-009](../plan/P-009-segmented-track-example.md) |
 | T-010 | Update timeline-ruler "In a timeline" to use timeline-playhead | completed | ikui | [P-010](../plan/P-010-ruler-demo-use-playhead.md) |
 | T-011 | Unify timeline-ruler "In a timeline" styling with new demos | completed | ikui | [P-011](../plan/P-011-unify-ruler-demo-styling.md) |
+| T-012 | Add "audio trimming" business demo to timeline-element docs | superseded | ikui | [P-012](../plan/P-012-audio-trim-example.md) |
+| T-013 | Add Blocks section (shadcn-style) with audio-trimmer block | completed | ikui | [P-013](../plan/P-013-blocks-section.md) |
+| T-014 | Real trim/export for audio-trimmer block (mediabunny) | completed | ikui | [P-014](../plan/P-014-audio-trimmer-export.md) |
