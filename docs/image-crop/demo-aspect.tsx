@@ -82,8 +82,9 @@ export function Demo() {
           {/* biome-ignore lint/performance/noImgElement: cropping an arbitrary image source, next/image would not fit */}
           <img
             ref={imgRef}
-            src="/image-compare/after.png"
+            src="https://hj-img.zeroaigen.cn/prod/USER/IMAGE/aa585c3201eaf54d0ce696484ab4abfb.jpg"
             alt="Drag to crop"
+            crossOrigin="anonymous"
             onLoad={onImageLoad}
           />
         </ImageCrop>
