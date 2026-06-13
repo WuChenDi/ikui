@@ -119,11 +119,13 @@ export function BlockViewer({
               size="icon-sm"
               className="size-6 rounded-sm"
               title="Open in new tab"
+              nativeButton={false}
+              render={
+                <Link href={src} target="_blank" rel="noopener noreferrer" />
+              }
             >
-              <Link href={src} target="_blank">
-                <Fullscreen />
-                <span className="sr-only">Open in new tab</span>
-              </Link>
+              <Fullscreen />
+              <span className="sr-only">Open in new tab</span>
             </Button>
             <Separator orientation="vertical" className="my-1" />
             <Button
