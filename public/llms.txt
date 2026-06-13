@@ -23,4 +23,4 @@ Install any component with the shadcn CLI, e.g. `pnpx shadcn@latest add https://
 ## Optional
 
 - [Registry Index](https://ik-ui.pages.dev/r/registry.json): The shadcn registry manifest listing every installable ikui item.
-- [GitHub Repository](https://github.com/WuChenDi/ik-ui): Source code, issues, and contributions.
+- [GitHub Repository](https://github.com/WuChenDi/ikui): Source code, issues, and contributions.

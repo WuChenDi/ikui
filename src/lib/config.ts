@@ -9,7 +9,7 @@ export const siteConfig = {
     x: 'https://x.com/wuchendi96',
     telegram: 'https://t.me/wuchendi',
     blog: 'https://wcd.pages.dev/',
-    github: 'https://github.com/WuChenDi/ik-ui',
+    github: 'https://github.com/WuChenDi/ikui',
   },
   keywords: [
     'React',

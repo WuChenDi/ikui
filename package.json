@@ -1,5 +1,5 @@
 {
-  "name": "ik-ui",
+  "name": "ikui",
   "type": "module",
   "version": "0.1.0",
   "private": true,
@@ -9,7 +9,7 @@
   "homepage": "https://github.com/WuChenDi",
   "repository": {
     "type": "git",
-    "url": "https://github.com/WuChenDi/ik-ui.git"
+    "url": "https://github.com/WuChenDi/ikui.git"
   },
   "engines": {
     "node": ">=22"

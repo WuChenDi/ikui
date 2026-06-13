@@ -7,9 +7,9 @@
 </p>
 
 <div align="center">
-  <a href="https://github.com/WuChenDi/ik-ui/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/WuChenDi/ik-ui"></a>
+  <a href="https://github.com/WuChenDi/ikui/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/WuChenDi/ikui"></a>
   <a href="https://x.com/wuchendi96"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/wuchendi96"></a>
-  <a href="https://github.com/WuChenDi/ik-ui/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
+  <a href="https://github.com/WuChenDi/ikui/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
   <a href="https://t.me/wuchendi"><img alt="Telegram" src="https://img.shields.io/badge/Telegram-join-blue.svg"></a>
   <a href="https://wcd.pages.dev/"><img alt="Blog" src="https://img.shields.io/badge/Blog-read-orange.svg"></a>
 </div>
@@ -20,7 +20,7 @@ Visit https://ik-ui.pages.dev/docs to view the documentation.
 
 ## Contributing
 
-Visit our [contributing guide](https://github.com/WuChenDi/ik-ui/blob/main/CONTRIBUTING.md) to learn how to contribute.
+Visit our [contributing guide](https://github.com/WuChenDi/ikui/blob/main/CONTRIBUTING.md) to learn how to contribute.
 
 ## Community
 
@@ -38,4 +38,4 @@ project, re-themed onto [Base UI](https://base-ui.com) primitives. -->
 
 ## License
 
-Licensed under the [MIT license](https://github.com/WuChenDi/ik-ui/blob/main/LICENSE).
+Licensed under the [MIT license](https://github.com/WuChenDi/ikui/blob/main/LICENSE).
