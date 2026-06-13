@@ -4,6 +4,10 @@ export const siteConfig = {
   ogImage: 'https://ik-ui.pages.dev/og',
   description:
     'Beautiful, sophisticated UI components designed for modern React and Tailwind CSS applications.',
+  author: {
+    name: 'wudi',
+    url: 'https://github.com/WuChenDi',
+  },
   links: {
     author: 'https://x.com/wuchendi96',
     x: 'https://x.com/wuchendi96',
