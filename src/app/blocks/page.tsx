@@ -59,8 +59,6 @@ export default async function BlocksPage() {
               name={block.name}
               title={block.title}
               description={block.description}
-              fileName={`components/${block.name}.tsx`}
-              code={block.code}
               highlightedCode={block.highlightedCode}
             />
           ))}
