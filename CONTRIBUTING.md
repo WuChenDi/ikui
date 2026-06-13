@@ -4,25 +4,25 @@ Thank you for your interest in contributing to ikui! We appreciate your support 
 
 **You only need to change 4 files to add a new component.**
 
-Once done, open a pull request from your forked repo to the main repo [here](https://github.com/WuChenDi/ik-ui/compare).
+Once done, open a pull request from your forked repo to the main repo [here](https://github.com/WuChenDi/ikui/compare).
 
 ## Getting Started
 
 ### Fork and Clone the Repository
 
 1. **Fork this repository**
-   Click [here](https://github.com/WuChenDi/ik-ui/fork) to fork the repository.
+   Click [here](https://github.com/WuChenDi/ikui/fork) to fork the repository.
 
 2. **Clone your forked repository to your local machine**
 
    ```bash
-   git clone https://github.com/<YOUR_USERNAME>/ik-ui.git
+   git clone https://github.com/<YOUR_USERNAME>/ikui.git
    ```
 
 3. **Navigate to the project directory**
 
    ```bash
-   cd ik-ui
+   cd ikui
    ```
 
 4. **Create a new branch for your changes**
@@ -212,4 +212,4 @@ import { Demo as DemoSizes } from "./demo-sizes";
 
 ## Ask for Help
 
-For any help or questions, please open a new [GitHub issue](https://github.com/WuChenDi/ik-ui/issues).
+For any help or questions, please open a new [GitHub issue](https://github.com/WuChenDi/ikui/issues).
