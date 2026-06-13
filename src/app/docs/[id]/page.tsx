@@ -16,7 +16,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { siteConfig } from '@/lib/config'
 import { allDocItems, getDoc, getDocSchema } from '@/lib/doc'
 import { getTableOfContents } from '@/lib/toc'
 import { absoluteUrl, buildOgUrl, constructMetadata } from '@/lib/utils'
@@ -36,7 +35,7 @@ export async function generateMetadata({
   const image = buildOgUrl({ title: item.title, description: item.description })
 
   return constructMetadata({
-    title: `${item.title} | ${siteConfig.name}`,
+    title: item.title,
     description: item.description,
     image,
     openGraph: {
