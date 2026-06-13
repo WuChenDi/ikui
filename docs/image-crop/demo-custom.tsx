@@ -22,7 +22,10 @@ export function Demo() {
         handleClassName="size-2.5 rounded-none border border-white bg-black/40 focus:bg-white"
       >
         {/* biome-ignore lint/performance/noImgElement: cropping an arbitrary image source, next/image would not fit */}
-        <img src="/image-compare/after.png" alt="Drag to crop" />
+        <img
+          src="https://hj-img.zeroaigen.cn/prod/USER/IMAGE/aa585c3201eaf54d0ce696484ab4abfb.jpg"
+          alt="Drag to crop"
+        />
       </ImageCrop>
     </div>
   )
