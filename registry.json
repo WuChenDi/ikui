@@ -226,6 +226,24 @@
       "category": "image"
     },
     {
+      "name": "image-cropper",
+      "type": "registry:block",
+      "title": "Image Cropper",
+      "description": "A business composition built on the image-crop primitive: load an image and frame a crop inline, with the selection rendered live as a real image in the preview beside it — that preview is the cropped result. Switch to a circular avatar crop, rotate the source in 90° steps, or lock the box to an aspect-ratio preset; the output is validated against min/max source-pixel bounds (the readout turns red until it fits) and downloads at full resolution.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/image-cropper.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["@ikui/image-crop", "button", "card"],
+      "category": "blocks",
+      "meta": {
+        "iframeHeight": 560
+      }
+    },
+    {
       "name": "particle-image",
       "type": "registry:component",
       "title": "Particle Image",
