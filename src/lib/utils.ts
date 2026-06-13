@@ -35,6 +35,22 @@ export function constructMetadata({
     title,
     description,
     keywords: siteConfig.keywords,
+    applicationName: siteConfig.name,
+    authors: [{ name: siteConfig.author.name, url: siteConfig.author.url }],
+    creator: siteConfig.author.name,
+    publisher: siteConfig.author.name,
+    category: 'technology',
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-snippet': -1,
+        'max-image-preview': 'large',
+        'max-video-preview': -1,
+      },
+    },
     openGraph: {
       title,
       description,
