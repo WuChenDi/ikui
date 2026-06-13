@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "ikui",
   "homepage": "https://ik-ui.pages.dev",
-  "author": "ikui (https://ik-ui.pages.dev)",
+  "author": "wudi <wuchendi96@gmail.com>",
   "items": [
     {
       "name": "copy-button",
