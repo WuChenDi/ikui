@@ -2,8 +2,6 @@
 
 import {
   Check,
-  Copy,
-  FileCode,
   Fullscreen,
   Monitor,
   RotateCw,
@@ -14,6 +12,7 @@ import {
 import Link from 'next/link'
 import * as React from 'react'
 import type { PanelImperativeHandle } from 'react-resizable-panels'
+import { CopyCodeButton } from '@/components/copy-code-button'
 import { Button } from '@/components/ui/button'
 import {
   ResizableHandle,
@@ -34,11 +33,7 @@ interface BlockViewerProps {
   name: string
   title: string
   description: string
-  /** Display path shown in the code header, e.g. `components/audio-trimmer.tsx`. */
-  fileName: string
-  /** Raw source — copied verbatim. */
-  code: string
-  /** Pre-highlighted dual-theme HTML of `code`. */
+  /** Pre-highlighted dual-theme HTML of the block source. */
   highlightedCode: string
   /** Preview height in px. Default: `460`. */
   iframeHeight?: number
@@ -48,8 +43,6 @@ export function BlockViewer({
   name,
   title,
   description,
-  fileName,
-  code,
   highlightedCode,
   iframeHeight = 460,
 }: BlockViewerProps) {
@@ -57,7 +50,6 @@ export function BlockViewer({
   const [iframeKey, setIframeKey] = React.useState(0)
   const resizablePanelRef = React.useRef<PanelImperativeHandle>(null)
   const cli = useCopyToClipboard()
-  const codeCopy = useCopyToClipboard()
 
   const src = `/blocks/view/${name}`
 
@@ -80,16 +72,9 @@ export function BlockViewer({
           value={view}
           onValueChange={(v) => setView(v as 'preview' | 'code')}
         >
-          <TabsList className="bg-muted h-8 rounded-lg p-1">
-            <TabsTrigger
-              value="preview"
-              className="h-6 rounded-sm px-2 text-xs"
-            >
-              Preview
-            </TabsTrigger>
-            <TabsTrigger value="code" className="h-6 rounded-sm px-2 text-xs">
-              Code
-            </TabsTrigger>
+          <TabsList className="bg-transparent">
+            <TabsTrigger value="preview">Preview</TabsTrigger>
+            <TabsTrigger value="code">Code</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -189,30 +174,18 @@ export function BlockViewer({
       </div>
 
       {/* Code — a code card with a filename header (desktop). */}
-      <figure className="group-data-[view=preview]/block-view-wrapper:hidden m-0 hidden min-w-0 flex-col overflow-hidden rounded-xl border md:[height:var(--height)] lg:flex">
-        <figcaption className="bg-muted/40 flex h-11 shrink-0 items-center gap-2 border-b px-4 text-sm">
-          <FileCode className="size-4 opacity-70" />
-          <span className="font-mono text-xs">{fileName}</span>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="ml-auto"
-            title="Copy code"
-            onClick={() => void codeCopy.copyToClipboard(code)}
-          >
-            {codeCopy.isCopied ? (
-              <Check className="text-emerald-500" />
-            ) : (
-              <Copy />
-            )}
-            <span className="sr-only">Copy code</span>
-          </Button>
-        </figcaption>
+      <figure
+        data-code-container="true"
+        className="group-data-[view=preview]/block-view-wrapper:hidden relative m-0 hidden min-w-0 flex-col overflow-hidden rounded-xl border md:[height:var(--height)] lg:flex"
+      >
         <div
-          className="no-scrollbar overflow-auto text-sm [&_pre]:m-0 [&_pre]:rounded-none [&_pre]:bg-transparent [&_pre]:p-4"
+          className="no-scrollbar flex-1 overflow-auto text-sm [&_pre]:m-0 [&_pre]:rounded-none [&_pre]:bg-transparent [&_pre]:p-4"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted, build-time Shiki output
           dangerouslySetInnerHTML={{ __html: highlightedCode }}
         />
+        <div className="absolute top-2.5 right-2.5">
+          <CopyCodeButton />
+        </div>
       </figure>
 
       {/* Mobile fallback — a plain iframe (no resize / code toggle). */}
