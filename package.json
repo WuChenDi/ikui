@@ -15,7 +15,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "nsl run --name \"ikui\" next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "biome check .",

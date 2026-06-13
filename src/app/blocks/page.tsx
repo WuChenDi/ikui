@@ -39,11 +39,15 @@ export default async function BlocksPage() {
           </p>
 
           <div className="mt-2 flex flex-row gap-3">
-            <Button>
-              <Link href="#blocks">Browse Blocks</Link>
+            <Button nativeButton={false} render={<Link href="#blocks" />}>
+              Browse Blocks
             </Button>
-            <Button variant="ghost">
-              <Link href="/docs/components">View Components</Link>
+            <Button
+              variant="ghost"
+              nativeButton={false}
+              render={<Link href="/docs/components" />}
+            >
+              View Components
             </Button>
           </div>
         </header>

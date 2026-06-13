@@ -144,6 +144,7 @@ export function AudioTrimmer({
     setTotal(0)
     setClip(null)
     setTime(0)
+    setPlaying(false)
     didFitRef.current = false
     const audio = new Audio()
     audio.preload = 'metadata'
@@ -476,11 +477,7 @@ export function AudioTrimmer({
         <Stat label="Length" value={formatTime(clip.duration)} />
 
         <div className="ml-auto flex items-center gap-2">
-          <Button
-            render={<label />}
-            nativeButton={false}
-            variant="outline"
-          >
+          <Button render={<label />} nativeButton={false} variant="outline">
             <Upload />
             Load audio
             <input

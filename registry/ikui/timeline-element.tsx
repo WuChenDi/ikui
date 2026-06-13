@@ -114,7 +114,7 @@ export function TimelineElement({
   // Slide the whole element, keeping its duration; clamp within [0, maxEnd].
   const move = React.useCallback(
     (origin: TimelineElementResize, dt: number): TimelineElementResize => {
-      const maxStart = maxEnd - origin.duration
+      const maxStart = Math.max(0, maxEnd - origin.duration)
       const startTime = Math.min(Math.max(0, origin.startTime + dt), maxStart)
       return { startTime, duration: origin.duration }
     },
