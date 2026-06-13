@@ -84,6 +84,9 @@ export function MobileNav({
                   <MobileLink href="/docs/components" onOpenChange={setOpen}>
                     Components
                   </MobileLink>
+                  <MobileLink href="/blocks" onOpenChange={setOpen}>
+                    Blocks
+                  </MobileLink>
                   <MobileLink href="/docs/mcp" onOpenChange={setOpen}>
                     MCP
                   </MobileLink>
