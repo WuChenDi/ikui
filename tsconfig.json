@@ -27,6 +27,7 @@
         "./registry/ikui/timeline-playhead.tsx"
       ],
       "@/components/thumbnail-strip": ["./registry/ikui/thumbnail-strip.tsx"],
+      "@/components/image-crop": ["./registry/ikui/image-crop.tsx"],
       "@/lib/video-thumbnail-cache": [
         "./registry/ikui/video-thumbnail-cache.ts"
       ],
