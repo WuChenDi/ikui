@@ -26,9 +26,13 @@ const dynaPuff = DynaPuff({
   subsets: ['latin'],
 })
 
-export const metadata: Metadata = constructMetadata({
-  title: siteConfig.name,
-})
+export const metadata: Metadata = {
+  ...constructMetadata(),
+  title: {
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
+  },
+}
 
 export const viewport: Viewport = {
   width: 'device-width',
