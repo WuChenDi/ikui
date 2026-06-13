@@ -1,5 +1,6 @@
 'use client'
 
+import type { Easing } from 'motion/react'
 import { motion } from 'motion/react'
 import type { ReactNode } from 'react'
 
@@ -9,7 +10,7 @@ interface AnimatedContentProps {
   direction?: 'vertical' | 'horizontal'
   reverse?: boolean
   duration?: number
-  ease?: string | number[]
+  ease?: Easing
   initialOpacity?: number
   animateOpacity?: boolean
   scale?: number
@@ -18,13 +19,15 @@ interface AnimatedContentProps {
   className?: string
 }
 
+const DEFAULT_EASE: Easing = [0.16, 1, 0.3, 1]
+
 export function AnimatedContent({
   children,
   distance = 100,
   direction = 'vertical',
   reverse = false,
   duration = 0.8,
-  ease = [0.16, 1, 0.3, 1],
+  ease = DEFAULT_EASE,
   initialOpacity = 0,
   animateOpacity = true,
   scale = 1,
