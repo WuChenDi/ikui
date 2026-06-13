@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { AnimatedContent } from '@/components/reactbits/animated-content'
 import { BlurText } from '@/components/reactbits/blur-text'
 import { GradientText } from '@/components/reactbits/gradient-text'
 import { SpotlightCard } from '@/components/reactbits/spotlight-card'
@@ -22,7 +23,7 @@ export function Hero() {
         yGap={36}
       />
 
-      <div className="relative z-10 flex w-full flex-col items-center gap-8 px-4 pt-6 pb-12 md:gap-16 md:pt-14 md:pb-24">
+      <div className="3xl:max-w-screen-2xl relative z-10 mx-auto flex w-full flex-col items-center gap-8 px-4 pt-6 pb-12 md:gap-16 md:pt-14 md:pb-24">
         <div className="flex max-w-[760px] flex-col items-center gap-6 text-center">
           <Link href="/docs/introduction" className="group">
             <GradientText
@@ -63,66 +64,80 @@ export function Hero() {
         </div>
 
         {/* Bento Grid */}
-        <div className="grid w-full max-w-[900px] grid-cols-1 gap-4 md:grid-cols-2">
-          <SpotlightCard className="col-span-1 flex min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
-            <div className="flex flex-1 items-center justify-center">
-              <CopyButtonDemo />
-            </div>
-            <Link
-              href="/docs/copy-button"
-              className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Copy Button
-            </Link>
-          </SpotlightCard>
+        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <AnimatedContent
+            distance={40}
+            duration={0.6}
+            className="md:col-span-2"
+          >
+            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+              <div className="flex w-full flex-1 items-center justify-center">
+                <ThumbnailStripDemo />
+              </div>
+              <Link
+                href="/docs/thumbnail-strip"
+                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Thumbnail Strip
+              </Link>
+            </SpotlightCard>
+          </AnimatedContent>
 
-          <SpotlightCard className="col-span-1 flex min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
-            <div className="flex w-full flex-1 items-center justify-center">
-              <WaveformPlayerDemo />
-            </div>
-            <Link
-              href="/docs/waveform-player"
-              className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Waveform Player
-            </Link>
-          </SpotlightCard>
+          <AnimatedContent distance={40} duration={0.6} delay={0.08}>
+            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+              <div className="flex w-full flex-1 items-center justify-center">
+                <WaveformPlayerDemo />
+              </div>
+              <Link
+                href="/docs/waveform-player"
+                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Waveform Player
+              </Link>
+            </SpotlightCard>
+          </AnimatedContent>
 
-          <SpotlightCard className="col-span-1 flex min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
-            <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
-              <ImageCompareDemo />
-            </div>
-            <Link
-              href="/docs/image-compare"
-              className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Image Compare
-            </Link>
-          </SpotlightCard>
+          <AnimatedContent distance={40} duration={0.6} delay={0.16}>
+            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+              <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
+                <ImageCompareDemo />
+              </div>
+              <Link
+                href="/docs/image-compare"
+                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Image Compare
+              </Link>
+            </SpotlightCard>
+          </AnimatedContent>
 
-          <SpotlightCard className="col-span-1 flex min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
-            <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
-              <ParticleImageDemo />
-            </div>
-            <Link
-              href="/docs/particle-image"
-              className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Particle Image
-            </Link>
-          </SpotlightCard>
+          <AnimatedContent distance={40} duration={0.6} delay={0.24}>
+            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+              <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
+                <ParticleImageDemo />
+              </div>
+              <Link
+                href="/docs/particle-image"
+                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Particle Image
+              </Link>
+            </SpotlightCard>
+          </AnimatedContent>
 
-          <SpotlightCard className="flex min-h-[200px] flex-col p-4 shadow-inner md:col-span-2 md:min-h-[240px]">
-            <div className="flex w-full flex-1 items-center justify-center">
-              <ThumbnailStripDemo />
-            </div>
-            <Link
-              href="/docs/thumbnail-strip"
-              className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Thumbnail Strip
-            </Link>
-          </SpotlightCard>
+          <AnimatedContent distance={40} duration={0.6} delay={0.32}>
+            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+              <div className="flex flex-1 items-center justify-center">
+                <CopyButtonDemo />
+              </div>
+              <Link
+                href="/docs/copy-button"
+                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Copy Button
+              </Link>
+            </SpotlightCard>
+          </AnimatedContent>
         </div>
       </div>
     </section>
