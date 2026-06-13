@@ -10,10 +10,17 @@ export interface Block {
   name: string
   title: string
   description: string
+  /** Preview iframe height in px. Falls back to the BlockViewer default. */
+  iframeHeight?: number
 }
 
 function toBlock(item: RegistryItem): Block {
-  return { name: item.name, title: item.title, description: item.description }
+  return {
+    name: item.name,
+    title: item.title,
+    description: item.description,
+    iframeHeight: item.meta?.iframeHeight,
+  }
 }
 
 /** All `registry:block` items — the business compositions shown under `/blocks`. */

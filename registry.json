@@ -168,6 +168,34 @@
       "category": "blocks"
     },
     {
+      "name": "video-trimmer",
+      "type": "registry:block",
+      "title": "Video Trimmer",
+      "description": "A business composition built from the timeline primitives: trim a video clip with the timeline-element handles over a thumbnail strip, then play back only the trimmed [startTime, startTime + duration] window in the preview. The playhead follows playback, the frames outside the selection dim, and an In / Out / length readout tracks the selection. Export cuts the window to an MP4 via mediabunny.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/video-trimmer.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["lucide-react", "mediabunny"],
+      "registryDependencies": [
+        "@ikui/timeline-ruler",
+        "@ikui/timeline-element",
+        "@ikui/timeline-playhead",
+        "@ikui/thumbnail-strip",
+        "button",
+        "card",
+        "slider",
+        "scroll-area",
+        "skeleton"
+      ],
+      "category": "blocks",
+      "meta": {
+        "iframeHeight": 640
+      }
+    },
+    {
       "name": "image-compare",
       "type": "registry:component",
       "title": "Image Compare",

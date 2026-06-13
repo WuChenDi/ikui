@@ -38,6 +38,8 @@ export interface RegistryItem {
       title: string
       url: string
     }>
+    /** Preview iframe height in px for `registry:block` items. */
+    iframeHeight?: number
   }
 }
 
