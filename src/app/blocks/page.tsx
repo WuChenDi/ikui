@@ -60,6 +60,7 @@ export default async function BlocksPage() {
               title={block.title}
               description={block.description}
               highlightedCode={block.highlightedCode}
+              iframeHeight={block.iframeHeight}
             />
           ))}
         </div>

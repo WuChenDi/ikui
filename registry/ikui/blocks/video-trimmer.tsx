@@ -11,7 +11,7 @@ import {
   ZoomOut,
 } from 'lucide-react'
 import * as React from 'react'
-import { AudioWaveform } from '@/components/audio-waveform'
+import { ThumbnailStrip } from '@/components/thumbnail-strip'
 import type { TimelineElementResize } from '@/components/timeline-element'
 import { TimelineElement } from '@/components/timeline-element'
 import { TimelinePlayhead } from '@/components/timeline-playhead'
@@ -21,9 +21,10 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Slider } from '@/components/ui/slider'
+import { VideoThumbnailCache } from '@/lib/video-thumbnail-cache'
 
-const SAMPLE_AUDIO_URL =
-  'https://hj-video.zeroaigen.cn/prod/USER/AUDIO/f8f39aefee5a61105e18e1a19b501253.mp3'
+const SAMPLE_VIDEO_URL =
+  'https://hj-video.zeroaigen.cn/prod/AI/VIDEO/f4e7fdc9807348eedc1e64a963c7433e.mp4'
 
 const ZOOM_MAX = 10
 // Floor for the slider so you can always zoom out past fit-to-screen and give
@@ -32,16 +33,16 @@ const ZOOM_MAX = 10
 const ZOOM_MIN = 0.5
 const RULER_HEIGHT = 24
 
-export interface AudioTrimmerProps {
-  /** Audio to load, visualize and trim. Falls back to a bundled sample. */
-  audioUrl?: string
+export interface VideoTrimmerProps {
+  /** Video to load, visualize and trim. Falls back to a bundled sample. */
+  videoUrl?: string
   /** Base pixels per second at zoom = 1. Default: `50`. */
   pixelsPerSecond?: number
-  /** Track height in CSS px. Default: `56`. */
+  /** Thumbnail track height in CSS px. Default: `64`. */
   height?: number
   /** Fired with the trimmed selection while dragging the handles. */
   onChange?: (selection: TimelineElementResize) => void
-  /** Fired with the exported WAV blob after a trim. */
+  /** Fired with the exported MP4 blob after a trim. */
   onExport?: (blob: Blob) => void
 }
 
@@ -81,24 +82,26 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 /**
- * Audio trimmer — a business composition built from the timeline primitives.
- * Drag the clip's handles to set in / out points, play back only the trimmed
- * `[startTime, startTime + duration]` window, then **export the cut as a WAV**
- * via mediabunny's `Conversion({ trim })`. Zoom + scroll the timeline; load your
- * own audio with the picker.
+ * Video trimmer — a business composition built from the timeline primitives.
+ * The thumbnail strip visualizes the frames, drag the clip's handles to set
+ * in / out points, play back only the trimmed `[startTime, startTime + duration]`
+ * window in the preview, then **export the cut as an MP4** via mediabunny's
+ * `Conversion({ trim })`. Zoom + scroll the timeline; load your own video with
+ * the picker.
  */
-export function AudioTrimmer({
-  audioUrl = SAMPLE_AUDIO_URL,
+export function VideoTrimmer({
+  videoUrl = SAMPLE_VIDEO_URL,
   pixelsPerSecond = 50,
-  height = 56,
+  height = 64,
   onChange,
   onExport,
-}: AudioTrimmerProps) {
-  // The source: an uploaded file (preferred) or the `audioUrl` prop.
+}: VideoTrimmerProps) {
+  // The source: an uploaded file (preferred) or the `videoUrl` prop.
   const [file, setFile] = React.useState<File | null>(null)
   const [objectUrl, setObjectUrl] = React.useState<string | null>(null)
-  const src = objectUrl ?? audioUrl
+  const src = objectUrl ?? videoUrl
 
+  const [cache, setCache] = React.useState<VideoThumbnailCache | null>(null)
   const [total, setTotal] = React.useState(0)
   const [clip, setClip] = React.useState<TimelineElementResize | null>(null)
   const [time, setTime] = React.useState(0)
@@ -108,7 +111,7 @@ export function AudioTrimmer({
   const [zoom, setZoom] = React.useState(1)
   const [containerWidth, setContainerWidth] = React.useState(0)
 
-  const audioRef = React.useRef<HTMLAudioElement | null>(null)
+  const videoRef = React.useRef<HTMLVideoElement | null>(null)
   const onChangeRef = React.useRef(onChange)
   onChangeRef.current = onChange
   // Auto-fit the zoom once per source, after the width is known.
@@ -136,39 +139,41 @@ export function AudioTrimmer({
     }
   }, [file])
 
-  // Read the duration from metadata and reset the selection to the full clip.
+  // Decode the video into a thumbnail cache and read its duration, then reset
+  // the selection to the full clip.
   React.useEffect(() => {
     setTotal(0)
     setClip(null)
     setTime(0)
     setPlaying(false)
+    setCache(null)
     didFitRef.current = false
-    const audio = new Audio()
-    audio.preload = 'metadata'
-    audio.src = src
-    const onMeta = () => {
-      setTotal(audio.duration)
-      setClip({ startTime: 0, duration: audio.duration })
+    let cancelled = false
+    let created: VideoThumbnailCache | null = null
+    void VideoThumbnailCache.fromUrl(src)
+      .then((c) => {
+        if (cancelled) {
+          c.dispose()
+          return
+        }
+        created = c
+        const meta = c.getMetadata()
+        if (!meta) return
+        setCache(c)
+        setTotal(meta.duration)
+        setClip({ startTime: 0, duration: meta.duration })
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+      created?.dispose()
     }
-    audio.addEventListener('loadedmetadata', onMeta)
-    return () => audio.removeEventListener('loadedmetadata', onMeta)
   }, [src])
 
-  // Playback element.
-  React.useEffect(() => {
-    const audio = new Audio(src)
-    audioRef.current = audio
-    const onTime = () => setTime(audio.currentTime)
-    const onEnded = () => setPlaying(false)
-    audio.addEventListener('timeupdate', onTime)
-    audio.addEventListener('ended', onEnded)
-    return () => {
-      audio.pause()
-      audio.removeEventListener('timeupdate', onTime)
-      audio.removeEventListener('ended', onEnded)
-      audioRef.current = null
-    }
-  }, [src])
+  const handleTimeUpdate = () => {
+    const video = videoRef.current
+    if (video) setTime(video.currentTime)
+  }
 
   // Zoom that fits the whole clip in the available width.
   const fitZoom =
@@ -190,7 +195,7 @@ export function AudioTrimmer({
     onChangeRef.current?.(next)
   }
 
-  // Trim the selected window to a WAV blob with mediabunny, then download it.
+  // Trim the selected window to an MP4 blob with mediabunny, then download it.
   const exportClip = async () => {
     if (!clip) return
     setExporting(true)
@@ -202,7 +207,7 @@ export function AudioTrimmer({
         Conversion,
         BlobSource,
         BufferTarget,
-        WavOutputFormat,
+        Mp4OutputFormat,
         ALL_FORMATS,
       } = await import('mediabunny')
 
@@ -217,7 +222,7 @@ export function AudioTrimmer({
         formats: ALL_FORMATS,
       })
       const output = new Output({
-        format: new WavOutputFormat(),
+        format: new Mp4OutputFormat(),
         target: new BufferTarget(),
       })
       const conversion = await Conversion.init({
@@ -228,16 +233,16 @@ export function AudioTrimmer({
       conversion.onProgress = setProgress
       await conversion.execute()
 
-      const wav = new Blob([output.target.buffer as ArrayBuffer], {
-        type: 'audio/wav',
+      const mp4 = new Blob([output.target.buffer as ArrayBuffer], {
+        type: 'video/mp4',
       })
-      onExport?.(wav)
+      onExport?.(mp4)
 
-      const name = (file?.name ?? 'audio').replace(/\.[^.]+$/, '')
-      const url = URL.createObjectURL(wav)
+      const name = (file?.name ?? 'video').replace(/\.[^.]+$/, '')
+      const url = URL.createObjectURL(mp4)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${name}-trimmed.wav`
+      a.download = `${name}-trimmed.mp4`
       a.click()
       URL.revokeObjectURL(url)
     } finally {
@@ -245,10 +250,13 @@ export function AudioTrimmer({
     }
   }
 
-  if (!total || !clip) {
+  if (!cache || !total || !clip) {
     return (
       <Card className="w-full">
         <CardContent className="flex flex-col gap-3 pt-(--card-spacing)">
+          {/* Preview — the video frame. */}
+          <Skeleton className="mx-auto aspect-video w-full max-w-md" />
+
           {/* Toolbar — play + time on the left, zoom on the right. */}
           <div className="flex items-center gap-3">
             <Skeleton className="size-9 rounded-full" />
@@ -256,7 +264,7 @@ export function AudioTrimmer({
             <Skeleton className="ml-auto h-7 w-44" />
           </div>
 
-          {/* Timeline — ruler over the waveform band. */}
+          {/* Timeline — ruler over the thumbnail strip. */}
           <div className="bg-muted/30 flex flex-col gap-2 rounded-lg p-3">
             <Skeleton className="bg-muted-foreground/15 h-3 w-full" />
             <Skeleton
@@ -296,8 +304,8 @@ export function AudioTrimmer({
   }
 
   const seek = (next: number) => {
-    const audio = audioRef.current
-    if (audio) audio.currentTime = next
+    const video = videoRef.current
+    if (video) video.currentTime = next
     setTime(next)
   }
 
@@ -321,25 +329,37 @@ export function AudioTrimmer({
   }
 
   const togglePlay = () => {
-    const audio = audioRef.current
-    if (!audio) return
+    const video = videoRef.current
+    if (!video) return
     if (playing) {
-      audio.pause()
+      video.pause()
       setPlaying(false)
       return
     }
     // Restart from the top when parked at the end.
     if (time >= total) {
-      audio.currentTime = 0
+      video.currentTime = 0
       setTime(0)
     }
-    void audio.play()
+    void video.play()
     setPlaying(true)
   }
 
   return (
     <Card className="w-full">
       <CardContent className="flex flex-col gap-3 pt-(--card-spacing)">
+        {/* Preview — plays back only the trimmed window. */}
+        <div className="bg-muted/30 mx-auto flex aspect-video w-full max-w-md items-center justify-center overflow-hidden rounded-lg">
+          <video
+            ref={videoRef}
+            src={src}
+            playsInline
+            onTimeUpdate={handleTimeUpdate}
+            onEnded={() => setPlaying(false)}
+            className="h-full w-full object-contain"
+          />
+        </div>
+
         {/* Toolbar — transport on the left, zoom + fit on the right. */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <Button
@@ -423,22 +443,21 @@ export function AudioTrimmer({
                     overflow: 'hidden',
                   }}
                 >
-                  {/* Full waveform — always visible, so you can see what is
-                      being cut away (and whether there is audio there). */}
-                  <AudioWaveform
-                    audioUrl={src}
-                    width={Math.ceil(width)}
-                    height={height}
-                    barColor="rgba(148, 148, 173, 0.55)"
-                    barPlayedColor="rgba(129, 140, 248, 0.95)"
-                    progress={time / total}
+                  {/* Full thumbnail strip — always visible, so you can see what
+                      is being cut away. */}
+                  <ThumbnailStrip
+                    cache={cache}
+                    duration={total}
+                    totalWidth={Math.ceil(width)}
+                    tileWidth={Math.round((height * 16) / 9)}
+                    tileHeight={height}
                   />
 
                   {/* Spotlight — dim everything outside the selection instead of
                       hiding it. The large spread shadow follows the rounded
                       corners, so the dim hugs the selection frame exactly (no
                       square-vs-rounded notch at the corners). Clipped to the
-                      waveform band by the parent's overflow. */}
+                      strip band by the parent's overflow. */}
                   <div
                     style={{
                       position: 'absolute',
@@ -447,13 +466,13 @@ export function AudioTrimmer({
                       left: clip.startTime * pps,
                       width: clip.duration * pps,
                       borderRadius: 8,
-                      boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.2)',
+                      boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.45)',
                       pointerEvents: 'none',
                     }}
                   />
 
                   {/* Selection window — a transparent frame (border + draggable
-                      trim handles only) so the waveform inside stays visible. */}
+                      trim handles only) so the thumbnails inside stay visible. */}
                   <TimelineElement
                     startTime={clip.startTime}
                     duration={clip.duration}
@@ -491,10 +510,10 @@ export function AudioTrimmer({
         <div className="ml-auto flex items-center gap-2">
           <Button render={<label />} nativeButton={false} variant="outline">
             <Upload />
-            Load audio
+            Load video
             <input
               type="file"
-              accept="audio/*"
+              accept="video/*"
               className="hidden"
               onChange={(event) => {
                 const next = event.target.files?.[0]
@@ -525,4 +544,4 @@ export function AudioTrimmer({
   )
 }
 
-export default AudioTrimmer
+export default VideoTrimmer

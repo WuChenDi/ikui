@@ -183,6 +183,8 @@ export function TimelineElement({
     onSelect?.()
     if (!movable) return
     event.preventDefault()
+    // Consume the gesture so it can't double as a parent seek/scrub.
+    event.stopPropagation()
     event.currentTarget.setPointerCapture?.(event.pointerId)
     dragRef.current = {
       side: 'move',
