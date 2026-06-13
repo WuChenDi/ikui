@@ -1,0 +1,80 @@
+Skills give AI assistants like Claude Code project-aware knowledge of ikui. Once installed, your assistant knows how to find, install, compose, and customize ikui's media and timeline components using the correct registry, APIs, and conventions for your project.
+
+For example, you can ask your assistant to:
+
+- _"Add an ikui waveform player."_
+- _"Build a video trimmer that exports the cut to MP4."_
+- _"Drop in the audio trimmer block."_
+- _"Add a before/after image compare slider."_
+- _"Let users crop their avatar."_
+
+The skill reads your project's `components.json` and pulls the **live component manifest** from the `@ikui` registry at load time, so the assistant always sees the current list of components — and resolves `@ikui/<name>` against your real aliases and package runner — with no hardcoded inventory to fall out of date.
+
+## Install
+
+1. Install the skill with the [`skills`](https://github.com/WuChenDi/skills) CLI.
+
+```bash
+npx skills add wuchendi/skills --skill ikui --global
+```
+
+2. Register the `@ikui` registry in your project.
+
+Add the following to your `components.json` so the assistant can resolve `@ikui/<name>`:
+
+```json
+{
+  "registries": {
+    "@ikui": "https://ik-ui.pages.dev/r/{name}.json"
+  }
+}
+```
+
+Once installed, the skill loads automatically when you ask your assistant to work with ikui, or when your project's `components.json` contains the `@ikui` registry. Learn more about skills at [skills.sh](https://skills.sh).
+
+## What's Included
+
+The skill gives your assistant the following knowledge:
+
+### Live Component Manifest
+
+On every interaction it fetches `registry.json` from the registry to get the current components and blocks — names, types, categories, and descriptions. The list is never hardcoded, so it stays accurate as ikui grows.
+
+### Primitives vs Blocks
+
+The single most important routing decision. **Primitives** (`registry:component`) are small, single-purpose parts — a waveform, a thumbnail strip, a timeline ruler/element/playhead, a crop box — for building your own feature. **Blocks** (`registry:block`) are finished business compositions with all the wiring done — `audio-trimmer`, `video-trimmer`, `image-cropper`. The skill reaches for a block when you name an outcome, and drops to primitives when you're assembling something custom.
+
+### Installation via the shadcn CLI
+
+ikui has no CLI of its own — everything installs through the shadcn CLI pointed at `@ikui`. The skill knows how to add by registry id or full URL, preview with `--dry-run`, and let `registryDependencies` (other ikui items and plain shadcn components) and npm `dependencies` resolve transitively.
+
+### Composition Map
+
+How the media and timeline stack fits together: `audio-waveform` → `waveform-player`; `video-thumbnail-cache` → `thumbnail-strip` → `segmented-timeline-strip`; the `timeline-ruler` / `timeline-element` / `timeline-playhead` primitives that share one `time × pixelsPerSecond × zoom` basis; and the image set (`image-compare`, `image-crop`, `particle-image`).
+
+### Conventions
+
+The rules ikui code follows: **Base UI** (`@base-ui/react`) — never Radix; RSC-default Next.js App Router with `"use client"` where needed; Tailwind v4 with semantic tokens and `cn()`; `lucide-react` icons and `motion` animations; imports resolved against your project's real aliases.
+
+## How It Works
+
+1. **Detection** — The skill activates when you ask your assistant to work with ikui, or when your project's `components.json` declares the `@ikui` registry.
+2. **Live manifest** — It fetches `registry.json` and reads your `components.json`, injecting the current component list and your project config into the assistant's context.
+3. **Grain routing** — It decides whether your request wants a finished **block** or the underlying **primitives**, instead of reimplementing parts that already exist.
+4. **Convention enforcement** — Generated code follows ikui's rules: Base UI over Radix, `"use client"` where required, semantic Tailwind tokens, and your project's import aliases.
+
+## Skill vs MCP
+
+They are complementary, not alternatives:
+
+- **[MCP](/docs/mcp)** gives your assistant a live connection to the registry — it can search and add items on demand.
+- **The Skill** gives your assistant ikui-specific judgment — how the pieces compose, which conventions to honor, and whether a request wants a primitive or a block.
+
+Use them together: MCP fetches, the Skill knows how to wire what it fetched.
+
+## Learn More
+
+- [Components](/docs/components) — Browse every component and block in ikui
+- [MCP Server](/docs/mcp) — Connect the registry over MCP for on-demand search and install
+- [WuChenDi/skills](https://github.com/WuChenDi/skills) — The skill source
+- [skills.sh](https://skills.sh) — Learn more about AI skills

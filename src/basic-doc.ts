@@ -16,6 +16,12 @@ export const basicDoc: DocSchema = [
         description: 'Browse all available components in ikui.',
       },
       {
+        title: 'Skills',
+        id: 'skills',
+        description:
+          'An agent skill that teaches AI assistants how to find, install, and compose ikui components and blocks.',
+      },
+      {
         title: 'MCP',
         id: 'mcp',
         description: 'Integrating MCP with ikui lets you control it via AI.',
