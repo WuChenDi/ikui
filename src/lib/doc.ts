@@ -11,9 +11,18 @@ const CATEGORY_LABELS: Record<string, string> = {
   image: 'Image',
   button: 'Buttons',
   form: 'Form',
+  display: 'Display',
 }
 
-const CATEGORY_ORDER = ['audio', 'video', 'timeline', 'image', 'button', 'form']
+const CATEGORY_ORDER = [
+  'audio',
+  'video',
+  'timeline',
+  'image',
+  'button',
+  'form',
+  'display',
+]
 
 function toDocItem(item: RegistryItem): DocItem {
   return {

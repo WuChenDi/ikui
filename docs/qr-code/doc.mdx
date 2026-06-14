@@ -1,0 +1,290 @@
+import { Demo } from './demo'
+import { Demo as DemoVariants } from './demo-variants'
+import { Demo as DemoSizes } from './demo-sizes'
+import { Demo as DemoMargin } from './demo-margin'
+import { Demo as DemoBordered } from './demo-bordered'
+import { Demo as DemoError } from './demo-error'
+import { Demo as DemoIcon } from './demo-icon'
+import { Demo as DemoCanvasType } from './demo-canvas'
+import { Demo as DemoShape } from './demo-shape'
+import { Demo as DemoStatus } from './demo-status'
+import { Demo as DemoDownload } from './demo-download'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A QR code generator with rounded finder patterns and dot-style data modules.
+Foreground and background default to theme tokens, so it adapts to light and
+dark mode out of the box.
+
+## Installation
+
+<InstallationTabs item="qr-code">
+```tsx file=../../registry/ikui/qr-code.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { QRCode } from "@/components/qr-code";
+```
+```tsx
+<QRCode value="https://example.com" />
+<QRCode value="https://example.com" size={140} />
+```
+
+## Examples
+
+### Colors
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoVariants />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-variants.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Sizes
+
+Control the rendered pixel size with `size`.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoSizes />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-sizes.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Quiet zone
+
+`marginSize` adds a quiet zone around the code, measured in modules. `0` (left)
+renders edge-to-edge; `4` (right) follows the spec's recommended margin.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoMargin />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-margin.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Border
+
+Toggle `bordered` to wrap the code in a themed border.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoBordered />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-bordered.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Error correction
+
+Higher `errorLevel` adds redundancy (and modules), so the code survives more
+damage or overlay — L, M, Q, H from left to right.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoError />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-error.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Module shape
+
+`dotType` and `finderType` switch between the rounded dot style (left) and a
+classic square style (right) for higher scanner compatibility.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoShape />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-shape.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Status overlay
+
+`status` overlays the code with `loading`, `expired`, or `scanned` feedback.
+`expired` blurs the code and exposes a refresh action via `onRefresh`.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoStatus />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-status.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Center icon
+
+Drop an image in the center with `icon`. Bump `errorLevel` to `"H"` so the code
+stays scannable behind the logo.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoIcon />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-icon.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Canvas render
+
+Set `type="canvas"` to rasterize to a `<canvas>`. Canvas resolves colors once at
+draw time, so pass explicit `fgColor`/`bgColor` rather than theme tokens.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoCanvasType />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-canvas.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Download
+
+Pass a `ref` to get a `QRCodeHandle` with `download(filename?)` and
+`toDataURL(mimeType?)`. `canvas` exports a PNG, `svg` exports a vector `.svg`.
+Pass explicit `fgColor`/`bgColor` so the exported file keeps its colors outside
+the page.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoDownload />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-download.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+  data={[
+    {
+      name: "value",
+      type: "string",
+      nameDetails: "The text or URL to encode in the QR code"
+    },
+    {
+      name: "type",
+      type: '"svg" | "canvas"',
+      default: "svg",
+      typeDetails: "Render backend. SVG follows theme colors; canvas resolves them once at draw time."
+    },
+    {
+      name: "size",
+      type: "number",
+      default: "268",
+      typeDetails: "QR code size in pixels"
+    },
+    {
+      name: "fgColor",
+      type: "string",
+      default: "var(--foreground)",
+      typeDetails: "Foreground (dark) color. Adapts to theme in dark mode."
+    },
+    {
+      name: "bgColor",
+      type: "string",
+      default: "var(--background)",
+      typeDetails: "Background (light) color. Adapts to theme in dark mode."
+    },
+    {
+      name: "dotType",
+      type: '"dot" | "square"',
+      default: "dot",
+      typeDetails: "Data module shape"
+    },
+    {
+      name: "finderType",
+      type: '"rounded" | "square"',
+      default: "rounded",
+      typeDetails: "Finder (corner) pattern shape"
+    },
+    {
+      name: "icon",
+      type: "string",
+      nameDetails: "Image URL rendered in the center of the QR code (image URLs only)"
+    },
+    {
+      name: "iconSize",
+      type: "number | { width: number; height: number }",
+      default: "size * 0.25",
+      typeDetails: "Center image size in pixels"
+    },
+    {
+      name: "iconPadding",
+      type: "number",
+      default: "size * 0.03",
+      typeDetails: "Padding of the background plate behind the center icon"
+    },
+    {
+      name: "marginSize",
+      type: "number",
+      default: "0",
+      typeDetails: "Quiet-zone margin, measured in modules. 0 means no margin."
+    },
+    {
+      name: "bordered",
+      type: "boolean",
+      default: "false",
+      typeDetails: "Render a border around the QR code"
+    },
+    {
+      name: "status",
+      type: '"active" | "loading" | "expired" | "scanned"',
+      default: "active",
+      typeDetails: "Overlay state. 'expired' blurs the code and shows a refresh action."
+    },
+    {
+      name: "onRefresh",
+      type: "() => void",
+      nameDetails: "Called when the refresh action of the 'expired' overlay is clicked"
+    },
+    {
+      name: "errorLevel",
+      type: '"L" | "M" | "Q" | "H"',
+      default: "M",
+      typeDetails: "Error correction level. L: 7%, M: 15%, Q: 25%, H: 30%"
+    },
+    {
+      name: "className",
+      type: "string",
+      nameDetails: "Additional CSS classes"
+    }
+  ]}
+/>
