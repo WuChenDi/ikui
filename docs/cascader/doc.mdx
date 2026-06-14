@@ -1,0 +1,209 @@
+import { Demo } from './demo'
+import { Demo as ControlledDemo } from './demo-controlled'
+import { Demo as HoverDemo } from './demo-hover'
+import { Demo as DisabledDemo } from './demo-disabled'
+import { Demo as CustomDemo } from './demo-custom'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A column-based cascading dropdown for picking a path through hierarchical data —
+regions, category trees, org charts. Each level opens the next column to its
+right; choosing a leaf commits the full path. The `value` is the array of option
+values from root to leaf. It is uncontrolled by default (`defaultValue`) or fully
+controlled via `value` + `onChange`. On small screens it switches from a popover
+to a bottom drawer automatically.
+
+## Installation
+
+<InstallationTabs item="cascader">
+```tsx file=../../registry/ikui/cascader.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { Cascader, type CascaderOption } from "@/components/cascader";
+```
+```tsx
+const options: CascaderOption[] = [
+  {
+    value: "zhejiang",
+    label: "Zhejiang",
+    children: [{ value: "hangzhou", label: "Hangzhou" }],
+  },
+];
+
+<Cascader
+  options={options}
+  onChange={(value, selected) => console.log(value, selected)}
+/>;
+```
+
+## Examples
+
+### Controlled value
+
+Pass `value` and `onChange` to control the selection. `onChange` reports both the
+value path and the matching `CascaderOption[]`.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ControlledDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-controlled.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Expand on hover
+
+Set `expandTrigger="hover"` to open child columns on mouse-over instead of click.
+A leaf still requires a click to commit.
+
+<DemoCanvas>
+  <DemoPreview>
+    <HoverDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-hover.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Disabled options
+
+Mark any option `disabled` to make it (and its branch) unselectable. Here
+`allowClear` is also turned off, so there is no clear button.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DisabledDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-disabled.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Custom display
+
+Use `displayRender` to control how the selected path renders in the trigger —
+here it shows only the leaf label instead of the full `a / b / c` path.
+
+<DemoCanvas>
+  <DemoPreview>
+    <CustomDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-custom.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+  data={[
+    {
+      name: "options",
+      type: "CascaderOption[]",
+      typeDetails: "The hierarchical option tree"
+    },
+    {
+      name: "value",
+      type: "string[]",
+      typeDetails: "Controlled selected path (option values root → leaf)"
+    },
+    {
+      name: "defaultValue",
+      type: "string[]",
+      typeDetails: "Initial path when uncontrolled"
+    },
+    {
+      name: "onChange",
+      type: "(value: string[], selectedOptions: CascaderOption[]) => void",
+      typeDetails: "Fired when a leaf is selected or the value is cleared"
+    },
+    {
+      name: "placeholder",
+      type: "string",
+      default: '"Please select"',
+      typeDetails: "Trigger text when nothing is selected"
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      default: "false",
+      typeDetails: "Disable the whole control"
+    },
+    {
+      name: "allowClear",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Show a clear (×) button when a value is selected"
+    },
+    {
+      name: "expandTrigger",
+      type: '"click" | "hover"',
+      default: '"click"',
+      typeDetails: "How child columns open"
+    },
+    {
+      name: "displayRender",
+      type: "(labels: string[], selectedOptions: CascaderOption[]) => React.ReactNode",
+      typeDetails: "Custom render of the selected path in the trigger"
+    },
+    {
+      name: "className",
+      type: "string",
+      typeDetails: "Class applied to the trigger"
+    },
+    {
+      name: "popupClassName",
+      type: "string",
+      typeDetails: "Class applied to the popover / drawer panel"
+    }
+  ]}
+/>
+
+### CascaderOption
+
+<PropsTable
+  data={[
+    {
+      name: "value",
+      type: "string",
+      typeDetails: "Unique value within its level"
+    },
+    {
+      name: "label",
+      type: "React.ReactNode",
+      typeDetails: "Rendered label in the column"
+    },
+    {
+      name: "textLabel",
+      type: "string",
+      typeDetails: "Plain-text fallback used in the trigger when label is not a string"
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      typeDetails: "Make this option unselectable"
+    },
+    {
+      name: "children",
+      type: "CascaderOption[]",
+      typeDetails: "Child options — presence makes this a non-leaf node"
+    }
+  ]}
+/>

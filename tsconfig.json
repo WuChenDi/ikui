@@ -20,6 +20,7 @@
     ],
     "paths": {
       "@/docs/*": ["./docs/*"],
+      "@/components/cascader": ["./registry/ikui/cascader.tsx"],
       "@/components/audio-waveform": ["./registry/ikui/audio-waveform.tsx"],
       "@/components/waveform-player": ["./registry/ikui/waveform-player.tsx"],
       "@/components/timeline-ruler": ["./registry/ikui/timeline-ruler.tsx"],
