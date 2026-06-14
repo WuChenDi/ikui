@@ -196,6 +196,30 @@
       }
     },
     {
+      "name": "media-compressor",
+      "type": "registry:block",
+      "title": "Media Compressor",
+      "description": "A business composition over mediabunny's Conversion: load an audio or video file, pick a quality preset and (for video) a target resolution, then re-encode to a smaller MP4 — video as H.264 + AAC, audio-only as AAC. A before/after readout shows the original size, the compressed size, and the percentage saved; the result auto-downloads.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/media-compressor.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["lucide-react", "mediabunny"],
+      "registryDependencies": [
+        "@ikui/waveform-player",
+        "button",
+        "card",
+        "select",
+        "skeleton"
+      ],
+      "category": "blocks",
+      "meta": {
+        "iframeHeight": 560
+      }
+    },
+    {
       "name": "image-compare",
       "type": "registry:component",
       "title": "Image Compare",
