@@ -87,12 +87,6 @@ export function MobileNav({
                   <MobileLink href="/blocks" onOpenChange={setOpen}>
                     Blocks
                   </MobileLink>
-                  <MobileLink href="/docs/skills" onOpenChange={setOpen}>
-                    Skills
-                  </MobileLink>
-                  <MobileLink href="/docs/mcp" onOpenChange={setOpen}>
-                    MCP
-                  </MobileLink>
                 </div>
               </div>
               {docSchema.map((section) => (
