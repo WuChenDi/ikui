@@ -1,5 +1,6 @@
 import { Demo } from './demo'
 import { Demo as AspectDemo } from './demo-aspect'
+import { Demo as CircularDemo } from './demo-circular'
 import { Demo as CustomDemo } from './demo-custom'
 
 <DemoCanvas>
@@ -61,6 +62,23 @@ and `onComplete` feeds the pixel crop into a `<canvas>` preview.
   </DemoPreview>
   <DemoCode>
     ```tsx file=./demo-aspect.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Circular crop
+
+Set `circularCrop` to render the selection as a circle — pair it with `aspect={1}`
+to keep it round (it warps to an oval otherwise). The mask is the only thing that
+changes; the crop is still a rectangle, so clip the `<canvas>` to an ellipse to
+get an avatar with transparent corners.
+
+<DemoCanvas>
+  <DemoPreview>
+    <CircularDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-circular.tsx
     ```
   </DemoCode>
 </DemoCanvas>
