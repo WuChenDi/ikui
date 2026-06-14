@@ -299,11 +299,15 @@ export function Cascader({
       </span>
       <div className="flex shrink-0 items-center gap-1">
         {allowClear && displayValue && !disabled && (
-          <X
-            className="h-4 w-4 cursor-pointer opacity-50 hover:opacity-100"
+          <button
+            type="button"
+            className="flex items-center justify-center rounded-sm opacity-50 outline-none transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring"
             onClick={handleClear}
+            onKeyDown={(e) => e.stopPropagation()}
             aria-label="Clear selection"
-          />
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
         )}
         <ChevronDown className="h-4 w-4 opacity-50" aria-hidden="true" />
       </div>
