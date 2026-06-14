@@ -258,7 +258,11 @@ export const QRCode = React.forwardRef<QRCodeHandle, QRCodeProps>(
         color: string,
       ) => {
         ctx.beginPath()
-        ctx.roundRect(x, y, w, h, r)
+        if (r > 0 && ctx.roundRect) {
+          ctx.roundRect(x, y, w, h, r)
+        } else {
+          ctx.rect(x, y, w, h)
+        }
         ctx.fillStyle = color
         ctx.fill()
       }
@@ -319,7 +323,11 @@ export const QRCode = React.forwardRef<QRCodeHandle, QRCodeProps>(
         )
         ctx.save()
         ctx.beginPath()
-        ctx.roundRect(ix, iy, iconDims.w, iconDims.h, iconRadius * 0.7)
+        if (ctx.roundRect) {
+          ctx.roundRect(ix, iy, iconDims.w, iconDims.h, iconRadius * 0.7)
+        } else {
+          ctx.rect(ix, iy, iconDims.w, iconDims.h)
+        }
         ctx.clip()
         drawCover(ctx, img, ix, iy, iconDims.w, iconDims.h)
         ctx.restore()
@@ -361,6 +369,7 @@ export const QRCode = React.forwardRef<QRCodeHandle, QRCodeProps>(
       ) : (
         <svg
           ref={svgRef}
+          role="img"
           width={size}
           height={size}
           viewBox={`0 0 ${size} ${size}`}
@@ -473,14 +482,16 @@ export const QRCode = React.forwardRef<QRCodeHandle, QRCodeProps>(
             {status === 'expired' && (
               <>
                 <span>QR code expired</span>
-                <button
-                  type="button"
-                  onClick={onRefresh}
-                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-medium text-foreground transition-colors hover:bg-accent"
-                >
-                  <RefreshCw className="size-4" />
-                  Refresh
-                </button>
+                {onRefresh && (
+                  <button
+                    type="button"
+                    onClick={onRefresh}
+                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-medium text-foreground transition-colors hover:bg-accent"
+                  >
+                    <RefreshCw className="size-4" />
+                    Refresh
+                  </button>
+                )}
               </>
             )}
             {status === 'scanned' && (
@@ -492,3 +503,5 @@ export const QRCode = React.forwardRef<QRCodeHandle, QRCodeProps>(
     )
   },
 )
+
+QRCode.displayName = 'QRCode'
