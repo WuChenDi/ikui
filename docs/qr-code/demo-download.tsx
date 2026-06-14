@@ -36,7 +36,7 @@ export function Demo() {
         variant="outline"
         onClick={() => qrRef.current?.download()}
       >
-        <Download className="size-4" />
+        <Download className="size-4" aria-hidden />
         Download {mode === 'canvas' ? 'PNG' : 'SVG'}
       </Button>
     </div>
