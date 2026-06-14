@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, ChevronRight, X } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, X } from 'lucide-react'
 import * as React from 'react'
 import {
   Drawer,
@@ -325,7 +325,7 @@ export function Cascader({
           role="group"
           aria-label={`Level ${columnIndex + 1}`}
           className={cn(
-            'max-h-[300px] min-w-[120px] shrink-0 overflow-auto py-1',
+            'max-h-[300px] min-w-[130px] shrink-0 overflow-auto p-1',
             columnIndex !== columns.length - 1 && 'border-r border-border',
           )}
         >
@@ -353,12 +353,12 @@ export function Cascader({
                 aria-expanded={hasChildren ? isExpanded : undefined}
                 tabIndex={isFocused && open ? 0 : -1}
                 className={cn(
-                  'flex cursor-pointer items-center justify-between px-3 py-1.5 text-sm',
+                  'flex cursor-pointer items-center justify-between gap-1.5 rounded-md px-2 py-1.5 text-sm outline-hidden select-none',
                   'hover:bg-accent hover:text-accent-foreground',
-                  'focus:bg-accent focus:text-accent-foreground focus:outline-none',
-                  isSelected && 'bg-accent text-accent-foreground',
-                  isExpanded && 'bg-accent/50',
-                  option.disabled && 'cursor-not-allowed opacity-50',
+                  'focus:bg-accent focus:text-accent-foreground',
+                  (isSelected || isExpanded) &&
+                    'bg-accent text-accent-foreground',
+                  option.disabled && 'pointer-events-none opacity-50',
                 )}
                 onClick={() => handleSelect(option, columnIndex)}
                 onKeyDown={(e) =>
@@ -377,9 +377,12 @@ export function Cascader({
                 <span className="truncate">{option.label}</span>
                 {hasChildren && (
                   <ChevronRight
-                    className="ml-2 h-4 w-4 shrink-0 opacity-50"
+                    className="h-4 w-4 shrink-0 opacity-50"
                     aria-hidden="true"
                   />
+                )}
+                {!hasChildren && isSelected && (
+                  <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
                 )}
               </div>
             )
