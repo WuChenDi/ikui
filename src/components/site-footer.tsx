@@ -1,4 +1,4 @@
-import { Blocks, BookText, Bot, Sparkles } from 'lucide-react'
+import { Blocks, BookText, Box } from 'lucide-react'
 import Link from 'next/link'
 import { siteConfig } from '@/lib/config'
 import { GitHubIcon } from './icons/github'
@@ -12,8 +12,7 @@ const linkColumns = [
     links: [
       { label: 'Docs', href: '/docs/introduction', icon: BookText },
       { label: 'Components', href: '/docs/components', icon: Blocks },
-      { label: 'Skills', href: '/docs/skills', icon: Bot },
-      { label: 'MCP', href: '/docs/mcp', icon: Sparkles },
+      { label: 'Blocks', href: '/blocks', icon: Box },
     ],
   },
   {
