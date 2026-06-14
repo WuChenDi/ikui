@@ -16,3 +16,4 @@
 | T-012 | Add "audio trimming" business demo to timeline-element docs | superseded | ikui | [P-012](../plan/P-012-audio-trim-example.md) |
 | T-013 | Add Blocks section (shadcn-style) with audio-trimmer block | completed | ikui | [P-013](../plan/P-013-blocks-section.md) |
 | T-014 | Real trim/export for audio-trimmer block (mediabunny) | completed | ikui | [P-014](../plan/P-014-audio-trimmer-export.md) |
+| T-015 | Add media-compressor block (audio/video, mediabunny) | completed | ikui | [P-015](../plan/P-015-add-media-compressor.md) |
