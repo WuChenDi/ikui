@@ -5,6 +5,21 @@
   "author": "wudi <wuchendi96@gmail.com>",
   "items": [
     {
+      "name": "qr-code",
+      "type": "registry:component",
+      "title": "QR Code",
+      "description": "QR code generator with rounded finder patterns and dot-style data modules.",
+      "files": [
+        {
+          "path": "registry/ikui/qr-code.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["qrcode", "lucide-react"],
+      "registryDependencies": [],
+      "category": "display"
+    },
+    {
       "name": "copy-button",
       "type": "registry:component",
       "title": "Copy Button",
