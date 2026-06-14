@@ -20,6 +20,21 @@
       "category": "button"
     },
     {
+      "name": "cascader",
+      "type": "registry:component",
+      "title": "Cascader",
+      "description": "A column-based cascading dropdown for selecting a path through hierarchical data (region → city → district, category trees). Desktop popover / mobile drawer, keyboard navigable, controlled or uncontrolled, with clear and custom display rendering.",
+      "files": [
+        {
+          "path": "registry/ikui/cascader.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["popover", "drawer", "use-mobile"],
+      "category": "form"
+    },
+    {
       "name": "audio-waveform",
       "type": "registry:component",
       "title": "Audio Waveform",

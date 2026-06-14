@@ -17,3 +17,4 @@
 | T-013 | Add Blocks section (shadcn-style) with audio-trimmer block | completed | ikui | [P-013](../plan/P-013-blocks-section.md) |
 | T-014 | Real trim/export for audio-trimmer block (mediabunny) | completed | ikui | [P-014](../plan/P-014-audio-trimmer-export.md) |
 | T-015 | Add media-compressor block (audio/video, mediabunny) | completed | ikui | [P-015](../plan/P-015-add-media-compressor.md) |
+| T-016 | Add cascader component (Base UI port of cascader-shadcn) | completed | ikui | [P-016](../plan/P-016-add-cascader.md) |

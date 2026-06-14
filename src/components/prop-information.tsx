@@ -13,15 +13,17 @@ interface PropInformationProps {
 export function PropInformation({ content }: PropInformationProps) {
   return (
     <Popover>
-      <PopoverTrigger>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-md p-1 transition-colors hover:bg-accent"
-          aria-label="More information"
-        >
-          <InfoIcon className="size-4 text-muted-foreground" />
-        </button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-md p-1 transition-colors hover:bg-accent"
+            aria-label="More information"
+          >
+            <InfoIcon className="size-4 text-muted-foreground" />
+          </button>
+        }
+      />
       <PopoverContent
         side="top"
         className="w-auto max-w-96 py-1.5 px-3 text-sm leading-[18px] text-muted-foreground"
