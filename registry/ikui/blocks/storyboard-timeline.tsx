@@ -94,7 +94,7 @@ function zoomToSlider(zoom: number, min: number, max: number): number {
 }
 
 export interface StoryboardTimelineProps {
-  /** Shots to lay out end-to-end — videos and/or still images. Falls back to bundled samples. */
+  /** Shots to lay out end-to-end — videos and/or still images. Defaults to a built-in sample set (remote demo videos + a local still). */
   sources?: StoryboardSource[]
   /** Base pixels per second at zoom = 1. Default: `50`. */
   pixelsPerSecond?: number
@@ -134,48 +134,64 @@ export function StoryboardTimeline({
     let cancelled = false
     let acquired: Item[] = []
 
-    void Promise.all(
-      sources.map(async (source, i): Promise<Item> => {
-        const id = `${i}-${source.url}`
-        if (source.kind === 'image') {
+    const disposeVideos = (items: Item[]) => {
+      for (const it of items) if (it.kind === 'video') it.cache.dispose()
+    }
+
+    void (async () => {
+      const results = await Promise.allSettled(
+        sources.map(async (source, i): Promise<Item> => {
+          const id = `${i}-${source.url}`
+          if (source.kind === 'image') {
+            return {
+              kind: 'image',
+              id,
+              url: source.url,
+              duration: source.duration ?? DEFAULT_IMAGE_DURATION,
+            }
+          }
+          const cache = await VideoThumbnailCache.fromUrl(source.url)
+          const meta = cache.getMetadata()
+          if (!meta) throw new Error('metadata missing after init')
           return {
-            kind: 'image',
+            kind: 'video',
             id,
             url: source.url,
-            duration: source.duration ?? DEFAULT_IMAGE_DURATION,
+            cache,
+            duration: meta.duration,
           }
-        }
-        const cache = await VideoThumbnailCache.fromUrl(source.url)
-        const meta = cache.getMetadata()
-        if (!meta) throw new Error('metadata missing after init')
-        return {
-          kind: 'video',
-          id,
-          url: source.url,
-          cache,
-          duration: meta.duration,
-        }
-      }),
-    )
-      .then((items) => {
-        if (cancelled) {
-          for (const it of items) if (it.kind === 'video') it.cache.dispose()
-          return
-        }
-        acquired = items
-        setState({ kind: 'ready', items })
-      })
-      .catch((err: unknown) => {
+        }),
+      )
+
+      // Caches that decoded before any rejection still hold ImageBitmaps —
+      // dispose them so a partial failure (or unmount) doesn't leak.
+      const items = results
+        .filter(
+          (r): r is PromiseFulfilledResult<Item> => r.status === 'fulfilled',
+        )
+        .map((r) => r.value)
+      const rejected = results.find(
+        (r): r is PromiseRejectedResult => r.status === 'rejected',
+      )
+
+      if (cancelled || rejected) {
+        disposeVideos(items)
         if (cancelled) return
+        const reason = rejected?.reason
         setState({
           kind: 'error',
-          message: err instanceof Error ? err.message : String(err),
+          message: reason instanceof Error ? reason.message : String(reason),
         })
-      })
+        return
+      }
+
+      acquired = items
+      setState({ kind: 'ready', items })
+    })()
 
     return () => {
       cancelled = true
-      for (const it of acquired) if (it.kind === 'video') it.cache.dispose()
+      disposeVideos(acquired)
     }
   }, [sources])
 
@@ -218,7 +234,7 @@ export function StoryboardTimeline({
   React.useEffect(() => {
     if (state.kind !== 'ready') return
     const active = state.items[currentIndex]
-    if (active.kind !== 'video') return
+    if (!active || active.kind !== 'video') return
     const video = videoRef.current
     if (!video) return
 
@@ -258,7 +274,7 @@ export function StoryboardTimeline({
   React.useEffect(() => {
     if (state.kind !== 'ready') return
     const active = state.items[currentIndex]
-    if (!playing || active.kind !== 'image') return
+    if (!active || !playing || active.kind !== 'image') return
     const localEnd = starts[currentIndex] + active.duration
     let raf = 0
     let last = performance.now()
@@ -287,6 +303,7 @@ export function StoryboardTimeline({
   const togglePlay = () => {
     if (state.kind !== 'ready') return
     const active = state.items[currentIndex]
+    if (!active) return
     if (active.kind === 'video') {
       const video = videoRef.current
       if (!video) return
@@ -364,6 +381,16 @@ export function StoryboardTimeline({
           <p className="text-destructive text-sm">
             Failed to load shots: {state.message}
           </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (state.items.length === 0) {
+    return (
+      <Card className="w-full">
+        <CardContent>
+          <p className="text-muted-foreground text-sm">No shots to display.</p>
         </CardContent>
       </Card>
     )
