@@ -32,7 +32,10 @@ const SAMPLE_SOURCES: StoryboardSource[] = [
     kind: 'video',
     url: 'https://hj-video.zeroaigen.cn/prod/AI/VIDEO/53e46f7949f0d57b77b0cfe47ecf0301.mp4',
   },
-  { kind: 'image', url: '/image-compare/before.png' },
+  {
+    kind: 'image',
+    url: 'https://hj-img.zeroaigen.cn/prod/USER/IMAGE/bb281336e56e4ef166493e6bb6b83f46.png',
+  },
   {
     kind: 'video',
     url: 'https://hj-video.zeroaigen.cn/prod/AI/VIDEO/f4e7fdc9807348eedc1e64a963c7433e.mp4',
