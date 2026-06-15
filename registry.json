@@ -311,6 +311,34 @@
       "dependencies": [],
       "registryDependencies": [],
       "category": "image"
+    },
+    {
+      "name": "storyboard-timeline",
+      "type": "registry:block",
+      "title": "Storyboard Timeline",
+      "description": "A business composition built from the timeline primitives: lays out a mix of video and image shots end-to-end on a single absolute time axis, each shot wrapped in its own card (header label, duration, type tag) over a shared timeline-ruler, with a draggable timeline-playhead that follows playback across shots. Videos play in the preview and are driven by the media clock; image stills advance on an rAF clock for their set duration. Zoom widens the strips and ruler while the timeline scrolls; the preview swaps source at shot boundaries.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/storyboard-timeline.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": [
+        "@ikui/timeline-ruler",
+        "@ikui/timeline-playhead",
+        "@ikui/thumbnail-strip",
+        "@ikui/video-thumbnail-cache",
+        "button",
+        "card",
+        "slider",
+        "scroll-area",
+        "skeleton"
+      ],
+      "category": "blocks",
+      "meta": {
+        "iframeHeight": 560
+      }
     }
   ]
 }
