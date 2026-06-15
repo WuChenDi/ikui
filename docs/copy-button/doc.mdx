@@ -1,5 +1,6 @@
 import { Demo } from './demo'
 import { Demo as DemoCustom } from './demo-custom'
+import { Demo as DemoLabel } from './demo-label'
 
 <DemoCanvas>
   <DemoPreview>
@@ -41,20 +42,68 @@ import { CopyButton } from "@/components/copy-button";
   </DemoCode>
 </DemoCanvas>
 
+### With label
+
+<DemoCanvas>
+  <DemoPreview>
+    <DemoLabel />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-label.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
 ## Props
 
 <PropsTable
     data={[
       {
         name: "value",
-        type: "string",
-        nameDetails: "The text content to copy to clipboard"
+        type: "string | (() => string | Promise<string>)",
+        nameDetails: "Text to copy, or a (possibly async) function resolving to it on click"
       },
       {
         name: "size",
         type: "SizeVariant",
         default: "default",
         typeDetails: "Button size. Options: sm, default, lg"
+      },
+      {
+        name: "timeout",
+        type: "number",
+        default: "1500",
+        nameDetails: "How long the copied state stays before resetting, in ms"
+      },
+      {
+        name: "copyIcon",
+        type: "ReactNode",
+        nameDetails: "Icon shown in the idle state"
+      },
+      {
+        name: "copiedIcon",
+        type: "ReactNode",
+        nameDetails: "Icon shown after a successful copy"
+      },
+      {
+        name: "onCopy",
+        type: "(value: string) => void",
+        nameDetails: "Called with the copied text after it is written to the clipboard"
+      },
+      {
+        name: "onCopyError",
+        type: "(error: unknown) => void",
+        nameDetails: "Called when reading the value or writing to the clipboard fails"
+      },
+      {
+        name: "children",
+        type: "ReactNode",
+        nameDetails: "Optional label rendered next to the icon, turning this into a text button"
+      },
+      {
+        name: "copiedChildren",
+        type: "ReactNode",
+        nameDetails: "Label shown after a successful copy. Falls back to children when omitted"
       },
       {
         name: "className",
