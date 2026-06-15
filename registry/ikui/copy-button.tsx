@@ -7,7 +7,10 @@ import { cn } from '@/lib/utils'
 type SizeVariant = 'sm' | 'default' | 'lg'
 
 interface CopyButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  extends Omit<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    'value' | 'onCopy'
+  > {
   /** Text to copy, or a (possibly async) function resolving to it on click. */
   value?: string | (() => string | Promise<string>)
   size?: SizeVariant
