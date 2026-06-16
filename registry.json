@@ -283,7 +283,7 @@
       "name": "image-grid",
       "type": "registry:component",
       "title": "Image Grid",
-      "description": "An adaptive photo grid that lays out 1 to 9 images WeChat-moments style: 1–8 use hand-tuned collage layouts on a 6×6 grid (every cell stays a healthy size) and 9 fills a uniform 3×3 grid, with the container always staying square. Responsive, dependency-free, with optional keyboard-accessible per-cell click and custom rendering for lightbox integration.",
+      "description": "An adaptive photo grid that lays out 1 to 9 images in WeChat-moments style: 1–8 use hand-tuned collage layouts on a 6×6 grid (every cell stays a healthy size) and 9 fills a uniform 3×3 grid, with the container always staying square. Responsive, dependency-free, with optional keyboard-accessible per-cell click and custom rendering for lightbox integration.",
       "files": [
         {
           "path": "registry/ikui/image-grid.tsx",
