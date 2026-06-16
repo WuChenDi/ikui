@@ -1,0 +1,131 @@
+import { Demo } from './demo'
+import { Demo as AdaptiveDemo } from './demo-adaptive'
+import { Demo as GridDemo } from './demo-grid'
+import { Demo as ClickDemo } from './demo-click'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+An adaptive photo grid, laid out the way social apps stack image attachments.
+The layout is driven entirely by how many images you pass: one to eight form
+hand-tuned **mosaic** collages on a 6×6 grid and nine fills a uniform **3×3**
+grid. Every layout tiles a square container so no cell collapses into a thin
+strip. Only the first nine images are rendered — the nine-grid cap.
+
+It is a pure layout primitive: zero dependencies, all styling is plain
+Tailwind, and the only dynamic values (the grid template and per-cell spans)
+are applied inline. Images are cropped to fill their cell with `object-cover`.
+Interaction stays out of the component — pass `onImageClick` for a tap target,
+or `renderImage` to wrap each cell yourself (e.g. in a lightbox trigger).
+
+## Installation
+
+<InstallationTabs item="image-grid">
+```tsx file=../../registry/ikui/image-grid.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { ImageGrid } from "@/components/image-grid";
+```
+```tsx
+<ImageGrid
+  images={[
+    { src: "/a.jpg", alt: "" },
+    { src: "/b.jpg", alt: "" },
+    { src: "/c.jpg", alt: "" },
+  ]}
+/>;
+```
+
+## Examples
+
+### Adaptive layouts
+
+The same component, the same images — only the count changes. One to eight build
+mosaic collages; nine fills the uniform 3×3 grid. Tap a number to see each
+layout.
+
+<DemoCanvas>
+  <DemoPreview>
+    <AdaptiveDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-adaptive.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Uniform grid
+
+Nine images fill a uniform three-column grid of square cells. `gap` controls
+the spacing between cells.
+
+<DemoCanvas>
+  <DemoPreview>
+    <GridDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-grid.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Clickable cells
+
+Pass `onImageClick` to make each cell a tap target — it receives the cell
+index. Each cell then renders as a real, keyboard-operable `<button>`
+(focusable, activated with Enter/Space) with a `cursor-pointer`; what happens on
+click (open a lightbox, select, delete) is up to you.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ClickDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-click.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+    data={[
+      {
+        name: "images",
+        type: "{ src: string; alt?: string }[]",
+        typeDetails: "The images to lay out. Only the first 9 are rendered. Required"
+      },
+      {
+        name: "gap",
+        type: "number",
+        default: "4",
+        typeDetails: "Gap between cells, in pixels"
+      },
+      {
+        name: "onImageClick",
+        type: "(index: number) => void",
+        typeDetails: "Called with the cell index when a cell is clicked. Renders each cell as a keyboard-accessible button with a pointer cursor"
+      },
+      {
+        name: "renderImage",
+        type: "(image, index) => ReactNode",
+        typeDetails: "Render a cell's content yourself (e.g. wrap it in a lightbox trigger). Should fill the cell with h-full w-full object-cover"
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Classes merged onto the grid container"
+      }
+    ]}
+  />
