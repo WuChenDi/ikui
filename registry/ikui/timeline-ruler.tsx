@@ -238,11 +238,11 @@ export function TimelineRuler({
     const left = time * pps
     if (shouldShowLabel(time, labelIntervalSeconds)) {
       const label = formatRulerLabel(time, fps)
-      // Label text is laid out rightward from the tick, so a label near the end
+      // A label normally extends rightward from its tick, so one near the end
       // would spill its text past `contentWidth` and get clipped by the track's
-      // overflow. When the estimated text width won't fit, right-anchor it to
-      // the content's right edge so the final timestamp stays fully readable —
-      // without widening `contentWidth` (kept aligned with the tracks below).
+      // overflow. When the estimated text width won't fit, flip it to extend
+      // leftward from the same tick — the anchor stays at the label's real time
+      // (unlike right-edge pinning), and the text grows into the gap before it.
       const estTextWidth = label.length * 6.5
       const overflowsRight = left + estTextWidth > contentWidth
       ticks.push(
@@ -251,9 +251,10 @@ export function TimelineRuler({
           style={{
             position: 'absolute',
             bottom: 0,
-            ...(overflowsRight
-              ? { right: 0 }
-              : { left, transform: 'translateX(1px)' }),
+            left,
+            transform: overflowsRight
+              ? 'translateX(calc(-100% - 1px))'
+              : 'translateX(1px)',
             fontSize: 10,
             lineHeight: 1,
             color: tickColor,
