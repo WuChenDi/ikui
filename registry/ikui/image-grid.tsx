@@ -19,6 +19,8 @@ export interface ImageGridProps {
   /**
    * Render a cell's content yourself (e.g. to wrap it in a lightbox trigger).
    * The returned node should fill its cell — `h-full w-full object-cover`.
+   * Mutually exclusive with `onImageClick`: when that is set the cell is already
+   * a `<button>`, so returning an interactive element here would nest controls.
    */
   renderImage?: (image: ImageGridItem, index: number) => ReactNode
 }
@@ -137,6 +139,11 @@ export function ImageGrid(props: ImageGridProps) {
             // biome-ignore lint/suspicious/noArrayIndexKey: images are positional and have no stable id
             key={index}
             type={isClickable ? 'button' : undefined}
+            // Give a clickable cell an accessible name when the image itself
+            // carries none (decorative alt=""), so it isn't an unlabeled button.
+            aria-label={
+              isClickable && !image.alt ? `Image ${index + 1}` : undefined
+            }
             className={cn(
               'block h-full w-full overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
               isClickable &&
