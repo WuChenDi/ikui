@@ -138,3 +138,20 @@ Do not skip phases or bypass the task files for non-trivial work.
 - `/docs/:slug.md` is rewritten to `/docs/:slug/md` (raw markdown export route).
 - Remote-visible Git metadata (commits, PRs) must be English and must not mention
   AI agents/assistants.
+- **Timeline primitives — right-edge overflow.** The time-scaled content box is
+  exactly `contentWidth = duration × pixelsPerSecond × zoom`, and that width must
+  stay exact because the tracks/waveform below it (and any consumer) lay out
+  against the same value — widening it to make room desyncs them. Children are
+  positioned `left = time × pps` and extend **rightward** from that anchor, so
+  anything landing on the right edge (`time === duration`) spills past the box and
+  gets clipped or pokes out of the card. Each timeline primitive handles this
+  internally rather than padding `contentWidth`:
+  - `timeline-ruler`: the final tick line (1px) right-anchors (`right: 0`) when
+    it sits on the edge; a label right-anchors when its estimated text width would
+    overflow (`left + textWidth > contentWidth`) — labels render rightward, so the
+    test is text width, not anchor position.
+  - `timeline-playhead`: the 2px line clamps to `[0, contentWidth − 2]` and the
+    12px knob (centred on the line) clamps its centre to `[6, contentWidth − 6]`
+    via an extra `translateX`, so both ends hug the edge instead of overhanging.
+  When adding any timeline child that draws at the extremes, keep `contentWidth`
+  exact and inset/edge-anchor the element itself.

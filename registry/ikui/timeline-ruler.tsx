@@ -237,34 +237,47 @@ export function TimelineRuler({
     if (time > duration) break
     const left = time * pps
     if (shouldShowLabel(time, labelIntervalSeconds)) {
+      const label = formatRulerLabel(time, fps)
+      // Label text is laid out rightward from the tick, so a label near the end
+      // would spill its text past `contentWidth` and get clipped by the track's
+      // overflow. When the estimated text width won't fit, right-anchor it to
+      // the content's right edge so the final timestamp stays fully readable —
+      // without widening `contentWidth` (kept aligned with the tracks below).
+      const estTextWidth = label.length * 6.5
+      const overflowsRight = left + estTextWidth > contentWidth
       ticks.push(
         <span
           key={i}
           style={{
             position: 'absolute',
             bottom: 0,
-            left,
+            ...(overflowsRight
+              ? { right: 0 }
+              : { left, transform: 'translateX(1px)' }),
             fontSize: 10,
             lineHeight: 1,
             color: tickColor,
             opacity: 0.85,
             fontVariantNumeric: 'tabular-nums',
             userSelect: 'none',
-            transform: 'translateX(1px)',
             fontFamily: 'system-ui, sans-serif',
+            whiteSpace: 'nowrap',
           }}
         >
-          {formatRulerLabel(time, fps)}
+          {label}
         </span>,
       )
     } else {
+      // The final tick can land on the content's right edge, where its 1px body
+      // would spill a pixel past the timeline; anchor it to `right: 0` instead.
+      const atEnd = left >= contentWidth - 1
       ticks.push(
         <span
           key={i}
           style={{
             position: 'absolute',
             bottom: 2,
-            left,
+            ...(atEnd ? { right: 0 } : { left }),
             width: 1,
             height: 6,
             backgroundColor: tickColor,
