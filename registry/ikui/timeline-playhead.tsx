@@ -33,6 +33,23 @@ export function TimelinePlayhead({
   style,
 }: TimelinePlayheadProps) {
   const pps = pixelsPerSecond * zoom
+  const contentWidth = Math.max(0, duration) * pps
+  const LINE_WIDTH = 2
+  const KNOB_SIZE = 12
+  // The line sits at `currentTime`, but at the extremes (0 and `duration`) its
+  // 2px body — and the wider 12px knob centred on it — would spill past the
+  // content box and out of the card. Keep the line inside, then nudge the knob
+  // so it stays flush within either edge instead of overhanging.
+  const lineLeft = Math.min(
+    Math.max(0, currentTime * pps),
+    Math.max(0, contentWidth - LINE_WIDTH),
+  )
+  const lineCenter = lineLeft + LINE_WIDTH / 2
+  const knobCenter = Math.min(
+    Math.max(lineCenter, KNOB_SIZE / 2),
+    Math.max(KNOB_SIZE / 2, contentWidth - KNOB_SIZE / 2),
+  )
+  const knobOffset = knobCenter - lineCenter
   const ref = React.useRef<HTMLDivElement>(null)
   const onSeekRef = React.useRef(onSeek)
   onSeekRef.current = onSeek
@@ -92,8 +109,8 @@ export function TimelinePlayhead({
         position: 'absolute',
         top: 0,
         bottom: 0,
-        left: currentTime * pps,
-        width: 2,
+        left: lineLeft,
+        width: LINE_WIDTH,
         background: color,
         cursor: 'col-resize',
         touchAction: 'none',
@@ -106,9 +123,9 @@ export function TimelinePlayhead({
           position: 'absolute',
           top: 0,
           left: '50%',
-          transform: 'translateX(-50%)',
-          width: 12,
-          height: 12,
+          transform: `translateX(calc(-50% + ${knobOffset}px))`,
+          width: KNOB_SIZE,
+          height: KNOB_SIZE,
           borderRadius: 9999,
           background: color,
         }}
