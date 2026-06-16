@@ -18,3 +18,4 @@
 | T-014 | Real trim/export for audio-trimmer block (mediabunny) | completed | ikui | [P-014](../plan/P-014-audio-trimmer-export.md) |
 | T-015 | Add media-compressor block (audio/video, mediabunny) | completed | ikui | [P-015](../plan/P-015-add-media-compressor.md) |
 | T-016 | Add cascader component (Base UI port of cascader-shadcn) | completed | ikui | [P-016](../plan/P-016-add-cascader.md) |
+| T-017 | Add image-grid component (adaptive 1-9 photo grid) | completed | ikui | [P-017](../plan/P-017-add-image-grid.md) |
