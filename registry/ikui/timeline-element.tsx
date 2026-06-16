@@ -89,10 +89,14 @@ export function TimelineElement({
       dt: number,
     ): TimelineElementResize => {
       if (side === 'left') {
-        // left edge moves startTime and duration inversely
-        const clamped = Math.min(
-          origin.duration - minDuration,
-          Math.max(-origin.startTime, dt),
+        // left edge moves startTime and duration inversely.
+        // `-origin.startTime` is the hard track boundary (start can't go below
+        // 0) and must take precedence: when the clip is already shorter than
+        // minDuration, `origin.duration - minDuration` is negative and would
+        // otherwise drag startTime past 0, inflating duration up to minDuration.
+        const clamped = Math.max(
+          -origin.startTime,
+          Math.min(origin.duration - minDuration, dt),
         )
         return {
           startTime: origin.startTime + clamped,
