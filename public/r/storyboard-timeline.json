@@ -27,5 +27,8 @@
   "meta": {
     "iframeHeight": 560
   },
+  "categories": [
+    "video"
+  ],
   "type": "registry:block"
 }

@@ -19,7 +19,10 @@
     }
   ],
   "meta": {
-    "iframeHeight": 560
+    "iframeHeight": 580
   },
+  "categories": [
+    "image"
+  ],
   "type": "registry:block"
 }

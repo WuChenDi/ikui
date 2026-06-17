@@ -27,6 +27,8 @@ export interface RegistryItem {
   title: string
   description: string
   category?: string
+  /** Block gallery categories (shadcn-standard). Drives `/blocks/[category]`. */
+  categories?: string[]
   files: Array<{
     path: string
     type: string
