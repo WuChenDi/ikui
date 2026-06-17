@@ -64,7 +64,12 @@ export async function getBlocks(): Promise<Block[]> {
     const i = BLOCK_ORDER.indexOf(name)
     return i === -1 ? BLOCK_ORDER.length : i
   }
-  return blocks.sort((a, b) => rank(a.name) - rank(b.name))
+  // Sort by pinned rank, falling back to the original registry index so
+  // unlisted blocks keep registry order regardless of sort stability.
+  return blocks
+    .map((block, i) => ({ block, i }))
+    .sort((a, b) => rank(a.block.name) - rank(b.block.name) || a.i - b.i)
+    .map((entry) => entry.block)
 }
 
 /** Blocks tagged with the given category slug. */

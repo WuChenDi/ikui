@@ -364,7 +364,7 @@
       "name": "video-frame-extractor",
       "type": "registry:block",
       "title": "Video Frame Extractor",
-      "description": "A business composition over mediabunny's VideoSampleSink: load a video, then pull native-resolution stills off a zoomable timeline — a ruler aligned to the real duration with a continuous filmstrip split into evenly spaced frame cells. The zoom slider sets the timeline density, so the number of extractable frames follows the zoom instead of a fixed count; each cell saves its frame on hover, or grab them all at once. PNG or JPEG.",
+      "description": "A business composition over mediabunny's VideoSampleSink: load a video, then pull native-resolution stills off a zoomable timeline — a ruler aligned to the real duration with a continuous filmstrip split into evenly spaced frame cells. The zoom slider sets the timeline density, so the number of extractable frames follows the zoom instead of a fixed count; each cell reveals a download button on hover to save its frame, or grab them all at once. PNG or JPEG.",
       "files": [
         {
           "path": "registry/ikui/blocks/video-frame-extractor.tsx",
