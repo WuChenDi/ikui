@@ -64,7 +64,7 @@ export default async function BlockCategoryPage({
           </p>
         </header>
 
-        <BlocksNav active={category} />
+        <BlocksNav active={meta.slug} />
 
         <div className="mt-12 flex flex-col gap-16">
           {items.map((block) => (

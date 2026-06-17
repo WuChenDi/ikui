@@ -85,8 +85,8 @@ export interface VideoFrameExtractorProps {
  * duration; beneath it a continuous filmstrip (mediabunny-decoded thumbnails)
  * is split into evenly spaced frame cells. The zoom slider sets how dense the
  * timeline is, so **the number of extractable frames follows the zoom** instead
- * of a fixed count. Each cell saves its frame at native resolution on hover, or
- * grab them all at once.
+ * of a fixed count. Each cell reveals a download button on hover that saves its
+ * frame at native resolution, or grab them all at once.
  */
 export function VideoFrameExtractor({
   videoUrl = SAMPLE_VIDEO_URL,
@@ -226,19 +226,23 @@ export function VideoFrameExtractor({
       const quality = format === 'jpeg' ? 0.92 : undefined
       const out: Blob[] = []
       let done = 0
+      // Advance progress per requested timestamp, even when a slot decodes to
+      // null or the canvas context is unavailable, so it always reaches 100%.
       for await (const sample of sink.samplesAtTimestamps(times)) {
-        if (!sample) continue
         try {
-          const canvas = new OffscreenCanvas(
-            sample.codedWidth,
-            sample.codedHeight,
-          )
-          const ctx = canvas.getContext('2d')
-          if (!ctx) continue
-          sample.draw(ctx, 0, 0, sample.codedWidth, sample.codedHeight)
-          out.push(await canvas.convertToBlob({ type: mime, quality }))
+          if (sample) {
+            const canvas = new OffscreenCanvas(
+              sample.codedWidth,
+              sample.codedHeight,
+            )
+            const ctx = canvas.getContext('2d')
+            if (ctx) {
+              sample.draw(ctx, 0, 0, sample.codedWidth, sample.codedHeight)
+              out.push(await canvas.convertToBlob({ type: mime, quality }))
+            }
+          }
         } finally {
-          sample.close()
+          sample?.close()
         }
         done += 1
         onStep?.(done)
@@ -402,7 +406,8 @@ export function VideoFrameExtractor({
         </div>
 
         {/* Timeline — ruler aligned to the real duration, a continuous filmstrip
-            beneath it, and evenly spaced frame cells that each save on hover. */}
+            beneath it, and evenly spaced frame cells; each reveals a download
+            button on hover. */}
         <div className="bg-muted/30 rounded-lg p-3">
           <div ref={measureRef}>
             <ScrollArea

@@ -1,9 +1,10 @@
 import Link from 'next/link'
+import type { BlockCategory } from '@/lib/blocks'
 import { blockCategories } from '@/lib/blocks'
 import { cn } from '@/lib/utils'
 
 /** Tab strip for the Blocks gallery: `All | Video | Image | Audio`. */
-export function BlocksNav({ active }: { active: 'all' | string }) {
+export function BlocksNav({ active }: { active: 'all' | BlockCategory }) {
   const tabs = [
     { slug: 'all', label: 'All', href: '/blocks' },
     ...blockCategories.map((c) => ({

@@ -41,18 +41,25 @@ export full-resolution stills).
 
 ## Result
 
-Shipped the `video-frame-extractor` block.
+Shipped the `video-frame-extractor` block. The final UX moved from the initial
+fixed-count grid to a **zoomable timeline**, so frame density follows the zoom.
 
 - `registry/ikui/blocks/video-frame-extractor.tsx` — self-contained
-  `VideoFrameExtractor` (`export default`): loads a video (file or sample),
-  probes duration/size off an off-screen `<video>`, then on Extract decodes N
-  evenly-spaced frames (slice midpoints) at **native resolution** via dynamic-
-  imported mediabunny `VideoSampleSink` → `OffscreenCanvas.convertToBlob`. Frames
-  preview in a responsive grid with per-frame + "Download all" saving; PNG/JPEG
-  select; object URLs revoked on re-extract, source switch, and unmount.
+  `VideoFrameExtractor` (`export default`): loads a video (file or sample) and
+  builds a `VideoThumbnailCache` for the preview filmstrip. A `timeline-ruler`
+  aligned to the real duration sits over a continuous `thumbnail-strip`, split
+  into evenly spaced frame cells; a zoom slider (auto-fit on load) sets the
+  timeline density, so **the number of extractable frames follows the zoom**
+  instead of a fixed count (capped at `MAX_FRAMES`). Each cell reveals a
+  download button on hover; "Download all" grabs every frame. Stills are decoded
+  on demand at **native resolution** via a fresh dynamic-imported mediabunny
+  `VideoSampleSink` → `OffscreenCanvas.convertToBlob` (kept off the downscaled
+  preview cache); PNG/JPEG select; the cache is disposed on source switch and
+  unmount.
 - `registry.json` — added the `registry:block` item (deps `lucide-react`,
-  `mediabunny`; registryDependencies `button`/`card`/`select`/`skeleton`;
-  `meta.iframeHeight` 640). `pnpm registry:build` emitted
-  `public/r/video-frame-extractor.json` (content inlined).
-- Verified: `pnpm lint` clean (only the pre-existing biome.json deprecation
-  info); `pnpm build` green, `/blocks/view/video-frame-extractor` prerendered.
+  `mediabunny`; registryDependencies `@ikui/thumbnail-strip`,
+  `@ikui/timeline-ruler`, `@ikui/video-thumbnail-cache`, `button`, `card`,
+  `select`, `scroll-area`, `slider`, `skeleton`; `meta.iframeHeight`).
+  `pnpm registry:build` emitted `public/r/video-frame-extractor.json`.
+- Verified: `pnpm lint` clean; `pnpm build` green,
+  `/blocks/view/video-frame-extractor` prerendered.
