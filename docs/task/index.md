@@ -19,3 +19,5 @@
 | T-015 | Add media-compressor block (audio/video, mediabunny) | completed | ikui | [P-015](../plan/P-015-add-media-compressor.md) |
 | T-016 | Add cascader component (Base UI port of cascader-shadcn) | completed | ikui | [P-016](../plan/P-016-add-cascader.md) |
 | T-017 | Add image-grid component (adaptive 1-9 photo grid) | completed | ikui | [P-017](../plan/P-017-add-image-grid.md) |
+| T-018 | Add video-frame-extractor block (extract stills, mediabunny) | completed | ikui | [P-018](../plan/P-018-add-video-frame-extractor.md) |
+| T-019 | Categorize the Blocks gallery (shadcn-style category routes) | completed | ikui | [P-019](../plan/P-019-blocks-categories.md) |

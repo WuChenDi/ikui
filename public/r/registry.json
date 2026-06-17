@@ -195,7 +195,8 @@
         "scroll-area",
         "skeleton"
       ],
-      "category": "blocks"
+      "category": "blocks",
+      "categories": ["audio"]
     },
     {
       "name": "video-trimmer",
@@ -221,6 +222,7 @@
         "skeleton"
       ],
       "category": "blocks",
+      "categories": ["video"],
       "meta": {
         "iframeHeight": 640
       }
@@ -245,6 +247,7 @@
         "skeleton"
       ],
       "category": "blocks",
+      "categories": ["video", "audio"],
       "meta": {
         "iframeHeight": 560
       }
@@ -308,8 +311,9 @@
       "dependencies": ["lucide-react"],
       "registryDependencies": ["@ikui/image-crop", "button", "card"],
       "category": "blocks",
+      "categories": ["image"],
       "meta": {
-        "iframeHeight": 560
+        "iframeHeight": 580
       }
     },
     {
@@ -351,8 +355,38 @@
         "skeleton"
       ],
       "category": "blocks",
+      "categories": ["video"],
       "meta": {
         "iframeHeight": 560
+      }
+    },
+    {
+      "name": "video-frame-extractor",
+      "type": "registry:block",
+      "title": "Video Frame Extractor",
+      "description": "A business composition over mediabunny's VideoSampleSink: load a video, then pull native-resolution stills off a zoomable timeline — a ruler aligned to the real duration with a continuous filmstrip split into evenly spaced frame cells. The zoom slider sets the timeline density, so the number of extractable frames follows the zoom instead of a fixed count; each cell saves its frame on hover, or grab them all at once. PNG or JPEG.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/video-frame-extractor.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["lucide-react", "mediabunny"],
+      "registryDependencies": [
+        "@ikui/timeline-ruler",
+        "@ikui/thumbnail-strip",
+        "@ikui/video-thumbnail-cache",
+        "button",
+        "card",
+        "select",
+        "slider",
+        "scroll-area",
+        "skeleton"
+      ],
+      "category": "blocks",
+      "categories": ["video"],
+      "meta": {
+        "iframeHeight": 640
       }
     }
   ]

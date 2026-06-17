@@ -25,5 +25,8 @@
       "type": "registry:block"
     }
   ],
+  "categories": [
+    "audio"
+  ],
   "type": "registry:block"
 }
