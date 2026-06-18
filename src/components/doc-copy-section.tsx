@@ -1,7 +1,6 @@
 'use client'
 
-import { Bot, Check, ChevronDown, Copy } from 'lucide-react'
-import { useState } from 'react'
+import { Bot, ChevronDown } from 'lucide-react'
 import { ClaudeIcon } from '@/components/icons/claude'
 import { MarkdownIcon } from '@/components/icons/markdown'
 import { V0Icon } from '@/components/icons/v0'
@@ -13,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+import { CopyButton } from '@/registry/ikui/copy-button'
 
 interface DocCopySectionProps {
   content: string
@@ -28,18 +27,6 @@ Help me understand how to use it. Be ready to explain concepts, give examples, o
 }
 
 export function DocCopySection({ content, url }: DocCopySectionProps) {
-  const [copied, setCopied] = useState(false)
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(content)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    } catch (err) {
-      console.error('Failed to copy text: ', err)
-    }
-  }
-
   let pathname = '/docs'
   try {
     pathname = new URL(url).pathname
@@ -97,31 +84,14 @@ export function DocCopySection({ content, url }: DocCopySectionProps) {
 
   return (
     <ButtonGroup className="hidden md:inline-flex">
-      <Button variant="secondary" size="sm" onClick={handleCopy}>
-        <div className="relative size-4">
-          <div
-            className={cn(
-              'absolute inset-0 transition-all duration-200 flex items-center justify-center',
-              copied
-                ? 'scale-100 opacity-100 blur-none'
-                : 'scale-70 opacity-0 blur-[2px]',
-            )}
-          >
-            <Check className="size-4 text-emerald-500" />
-          </div>
-          <div
-            className={cn(
-              'absolute inset-0 transition-all duration-200 flex items-center justify-center',
-              copied
-                ? 'scale-0 opacity-0 blur-[2px]'
-                : 'scale-100 opacity-100 blur-none',
-            )}
-          >
-            <Copy className="size-4 text-muted-foreground dark:text-[#b5b5b5]" />
-          </div>
-        </div>
-        <span>Copy this page</span>
-      </Button>
+      <CopyButton
+        data-slot="button"
+        value={content}
+        size="sm"
+        className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-xs font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 h-7 bg-secondary px-2.5 text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]"
+      >
+        Copy this page
+      </CopyButton>
 
       <DropdownMenu>
         <DropdownMenuTrigger

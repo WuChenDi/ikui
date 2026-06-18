@@ -26,24 +26,19 @@ export default function SiteHeader({ docSchema }: { docSchema?: DocSchema }) {
             </Link>
           </div>
           <nav className="hidden md:flex items-center gap-4 md:gap-6 text-sm">
-            <Link
-              href="/docs/introduction"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Docs
-            </Link>
-            <Link
-              href="/docs/components"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Components
-            </Link>
-            <Link
-              href="/blocks"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Blocks
-            </Link>
+            {[
+              { href: '/docs/introduction', label: 'Docs' },
+              { href: '/docs/components', label: 'Components' },
+              { href: '/blocks', label: 'Blocks' },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
         <div className="flex gap-2 lg:gap-3 items-center">

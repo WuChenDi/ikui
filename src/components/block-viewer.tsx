@@ -12,7 +12,6 @@ import {
 import Link from 'next/link'
 import * as React from 'react'
 import type { PanelImperativeHandle } from 'react-resizable-panels'
-import { CopyCodeButton } from '@/components/copy-code-button'
 import { Button } from '@/components/ui/button'
 import {
   ResizableHandle,
@@ -21,7 +20,7 @@ import {
 } from '@/components/ui/resizable'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
+import { CopyButton } from '@/registry/ikui/copy-button'
 
 const DEVICES = [
   { value: '100%', label: 'Desktop', Icon: Monitor },
@@ -49,7 +48,7 @@ export function BlockViewer({
   const [view, setView] = React.useState<'preview' | 'code'>('preview')
   const [iframeKey, setIframeKey] = React.useState(0)
   const resizablePanelRef = React.useRef<PanelImperativeHandle>(null)
-  const cli = useCopyToClipboard()
+  const copyCodeRef = React.useRef<HTMLButtonElement>(null)
 
   const src = `/blocks/view/${name}`
 
@@ -127,17 +126,14 @@ export function BlockViewer({
 
           <Separator orientation="vertical" className="mx-1 my-2" />
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1"
-            onClick={() =>
-              void cli.copyToClipboard(`npx shadcn@latest add @ikui/${name}`)
-            }
+          <CopyButton
+            value={`npx shadcn@latest add @ikui/${name}`}
+            copyIcon={<Terminal className="size-4" />}
+            copiedIcon={<Check className="size-4" />}
+            className="h-8 rounded-lg border border-border bg-background px-2.5 text-xs text-foreground hover:bg-muted dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
           >
-            {cli.isCopied ? <Check /> : <Terminal />}
-            <span>npx shadcn add @ikui/{name}</span>
-          </Button>
+            npx shadcn add @ikui/{name}
+          </CopyButton>
         </div>
       </div>
 
@@ -184,7 +180,17 @@ export function BlockViewer({
           dangerouslySetInnerHTML={{ __html: highlightedCode }}
         />
         <div className="absolute top-2.5 right-2.5">
-          <CopyCodeButton />
+          <CopyButton
+            ref={copyCodeRef}
+            size="sm"
+            value={() => {
+              const container = copyCodeRef.current?.closest(
+                '[data-code-container]',
+              )
+              return container?.querySelector('pre')?.textContent ?? ''
+            }}
+            className="opacity-70"
+          />
         </div>
       </figure>
 

@@ -1,12 +1,10 @@
 'use client'
 
-import { Check, Copy } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { CodeBlockCommand } from '@/components/code-block-command'
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { siteConfig } from '@/lib/config'
+import { CopyButton } from '@/registry/ikui/copy-button'
 
 interface InstallationTabsProps {
   item: string
@@ -20,8 +18,6 @@ const registriesConfig = `{
 }`
 
 function RegistryConfigBlock() {
-  const { isCopied, copyToClipboard } = useCopyToClipboard()
-
   return (
     <div className="relative overflow-hidden rounded-md border bg-muted/30">
       <div className="relative flex items-center gap-2 border-b px-4 py-2.5 bg-background/50">
@@ -31,19 +27,11 @@ function RegistryConfigBlock() {
         >
           components.json
         </span>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute right-2 size-7 opacity-70 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
-          onClick={() => void copyToClipboard(registriesConfig)}
-        >
-          <span className="sr-only">Copy</span>
-          {isCopied ? (
-            <Check className="size-3.5 text-emerald-600" strokeWidth={2} />
-          ) : (
-            <Copy className="size-3.5" strokeWidth={2} />
-          )}
-        </Button>
+        <CopyButton
+          value={registriesConfig}
+          size="sm"
+          className="absolute right-2 opacity-70"
+        />
       </div>
       <pre className="px-4 py-3 overflow-x-auto bg-background dark:bg-[#0F0F0F] not-prose">
         <code className="font-mono text-sm text-[#032F62] dark:text-[#9ECBFF]">

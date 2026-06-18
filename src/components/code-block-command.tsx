@@ -1,12 +1,11 @@
 'use client'
 
-import { Check, Copy, Terminal } from 'lucide-react'
-import { useCallback, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
+import { Terminal } from 'lucide-react'
+import { useMemo } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfig } from '@/hooks/use-config'
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
+import { CopyButton } from '@/registry/ikui/copy-button'
 
 interface CodeBlockCommandProps {
   item: string
@@ -20,7 +19,6 @@ export function CodeBlockCommand({
   mcp = false,
 }: CodeBlockCommandProps) {
   const [config, setConfig] = useConfig()
-  const { isCopied, copyToClipboard } = useCopyToClipboard()
 
   const commands = useMemo(() => {
     if (mcp) {
@@ -38,13 +36,6 @@ export function CodeBlockCommand({
       bun: `bunx --bun shadcn@latest add @ikui/${item}`,
     }
   }, [item, mcp])
-
-  const copyCommand = useCallback(() => {
-    const command = commands[config.packageManager]
-    if (command) {
-      void copyToClipboard(command)
-    }
-  }, [config.packageManager, commands, copyToClipboard])
 
   return (
     <div
@@ -74,19 +65,11 @@ export function CodeBlockCommand({
             <TabsTrigger value="yarn">yarn</TabsTrigger>
             <TabsTrigger value="bun">bun</TabsTrigger>
           </TabsList>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="absolute right-2 size-7 opacity-70 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
-            onClick={copyCommand}
-          >
-            <span className="sr-only">Copy</span>
-            {isCopied ? (
-              <Check className="size-3.5 text-emerald-600" strokeWidth={2} />
-            ) : (
-              <Copy className="size-3.5" strokeWidth={2} />
-            )}
-          </Button>
+          <CopyButton
+            value={() => commands[config.packageManager]}
+            size="sm"
+            className="absolute right-2 opacity-70"
+          />
         </div>
         <div className="bg-background">
           {Object.entries(commands).map(([key, command]) => (

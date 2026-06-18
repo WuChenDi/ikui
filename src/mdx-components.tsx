@@ -1,9 +1,20 @@
 import type { MDXComponents } from 'mdx/types'
-import { CopyCodeButton } from './components/copy-code-button'
+import type { ReactNode } from 'react'
+import { isValidElement } from 'react'
+import { CopyButton } from '@/registry/ikui/copy-button'
 import { DemoCanvas, DemoCode, DemoPreview } from './components/demo-canvas'
 import { InstallationTabs } from './components/installation-tabs'
 import { PropsTable } from './components/props-table'
-import { RegistryItemHeader } from './components/registry-item-header'
+
+function getNodeText(node: ReactNode): string {
+  if (typeof node === 'string') return node
+  if (typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(getNodeText).join('')
+  if (isValidElement(node)) {
+    return getNodeText((node.props as { children?: ReactNode }).children)
+  }
+  return ''
+}
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -11,7 +22,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     DemoCanvas,
     DemoPreview,
     DemoCode,
-    RegistryItemHeader,
     InstallationTabs,
     PropsTable,
     h2: ({ children, ...props }) => {
@@ -45,7 +55,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     },
     pre: ({ children, ...props }) => {
       return (
-        <div className="relative" data-code-container="true">
+        <div className="relative">
           <pre
             style={props.style}
             className={`max-h-80 overflow-x-auto font-mono border ${
@@ -55,7 +65,11 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
             {children}
           </pre>
           <div className="absolute top-2.5 right-2.5">
-            <CopyCodeButton />
+            <CopyButton
+              size="sm"
+              value={getNodeText(children)}
+              className="opacity-70"
+            />
           </div>
         </div>
       )
