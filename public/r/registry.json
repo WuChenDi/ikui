@@ -5,6 +5,21 @@
   "author": "wudi <wuchendi96@gmail.com>",
   "items": [
     {
+      "name": "chart",
+      "type": "registry:component",
+      "title": "Chart",
+      "description": "Recharts-based chart primitives (container, tooltip, legend) with theme-aware colors. Compose bar, area, line, pie, radar, and radial charts from a single config.",
+      "files": [
+        {
+          "path": "registry/ikui/chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": [],
+      "category": "display"
+    },
+    {
       "name": "qr-code",
       "type": "registry:component",
       "title": "QR Code",
@@ -38,7 +53,7 @@
       "name": "cascader",
       "type": "registry:component",
       "title": "Cascader",
-      "description": "A column-based cascading dropdown for selecting a path through hierarchical data (region → city → district, category trees). Desktop popover / mobile drawer, keyboard navigable, controlled or uncontrolled, with clear and custom display rendering.",
+      "description": "A column-based cascading dropdown for selecting a path through hierarchical data (region \u2192 city \u2192 district, category trees). Desktop popover / mobile drawer, keyboard navigable, controlled or uncontrolled, with clear and custom display rendering.",
       "files": [
         {
           "path": "registry/ikui/cascader.tsx",
@@ -53,7 +68,7 @@
       "name": "audio-waveform",
       "type": "registry:component",
       "title": "Audio Waveform",
-      "description": "A static, width-explicit waveform for timelines. Decodes audio (URL / Blob / AudioBuffer) into normalized peaks — or takes precomputed peaks — and renders mirrored canvas bars at any pixel width, with optional played-progress coloring. Backs the waveform-player.",
+      "description": "A static, width-explicit waveform for timelines. Decodes audio (URL / Blob / AudioBuffer) into normalized peaks \u2014 or takes precomputed peaks \u2014 and renders mirrored canvas bars at any pixel width, with optional played-progress coloring. Backs the waveform-player.",
       "files": [
         {
           "path": "registry/ikui/audio-waveform.tsx",
@@ -131,7 +146,7 @@
       "name": "timeline-ruler",
       "type": "registry:component",
       "title": "Timeline Ruler",
-      "description": "A pure, zoom-aware, horizontally-scrollable time ruler: adaptive tick density and MM:SS / frame labels, with viewport virtualization. Just the scale — playhead, seeking, and tracks are left to the consumer.",
+      "description": "A pure, zoom-aware, horizontally-scrollable time ruler: adaptive tick density and MM:SS / frame labels, with viewport virtualization. Just the scale \u2014 playhead, seeking, and tracks are left to the consumer.",
       "files": [
         {
           "path": "registry/ikui/timeline-ruler.tsx",
@@ -146,7 +161,7 @@
       "name": "timeline-element",
       "type": "registry:component",
       "title": "Timeline Element",
-      "description": "A positioned, trimmable timeline clip: places itself on a track by time (startTime/duration × pixelsPerSecond × zoom, the same basis as timeline-ruler) and renders any content inside — an audio waveform, a thumbnail strip, a label. Selectable, with left/right trim handles that emit the new geometry. The track, playhead, and seeking are left to the consumer.",
+      "description": "A positioned, trimmable timeline clip: places itself on a track by time (startTime/duration \u00d7 pixelsPerSecond \u00d7 zoom, the same basis as timeline-ruler) and renders any content inside \u2014 an audio waveform, a thumbnail strip, a label. Selectable, with left/right trim handles that emit the new geometry. The track, playhead, and seeking are left to the consumer.",
       "files": [
         {
           "path": "registry/ikui/timeline-element.tsx",
@@ -161,7 +176,7 @@
       "name": "timeline-playhead",
       "type": "registry:component",
       "title": "Timeline Playhead",
-      "description": "A draggable timeline playhead: a vertical line with a top knob, positioned by time (currentTime × pixelsPerSecond × zoom, the same basis as timeline-ruler) and scrubbable. Drag it to seek; it scrolls with the tracks it sits over. Spans whatever container it is placed in. The playback clock and click-to-seek on the tracks are left to the consumer.",
+      "description": "A draggable timeline playhead: a vertical line with a top knob, positioned by time (currentTime \u00d7 pixelsPerSecond \u00d7 zoom, the same basis as timeline-ruler) and scrubbable. Drag it to seek; it scrolls with the tracks it sits over. Spans whatever container it is placed in. The playback clock and click-to-seek on the tracks are left to the consumer.",
       "files": [
         {
           "path": "registry/ikui/timeline-playhead.tsx",
@@ -231,7 +246,7 @@
       "name": "media-compressor",
       "type": "registry:block",
       "title": "Media Compressor",
-      "description": "A business composition over mediabunny's Conversion: load an audio or video file, pick a quality preset and (for video) a target resolution, then re-encode to a smaller MP4 — video as H.264 + AAC, audio-only as AAC. A before/after readout shows the original size, the compressed size, and the percentage saved; the result auto-downloads.",
+      "description": "A business composition over mediabunny's Conversion: load an audio or video file, pick a quality preset and (for video) a target resolution, then re-encode to a smaller MP4 \u2014 video as H.264 + AAC, audio-only as AAC. A before/after readout shows the original size, the compressed size, and the percentage saved; the result auto-downloads.",
       "files": [
         {
           "path": "registry/ikui/blocks/media-compressor.tsx",
@@ -286,7 +301,7 @@
       "name": "image-grid",
       "type": "registry:component",
       "title": "Image Grid",
-      "description": "An adaptive photo grid that lays out 1 to 9 images in WeChat-moments style: 1–8 use hand-tuned collage layouts on a 6×6 grid (every cell stays a healthy size) and 9 fills a uniform 3×3 grid, with the container always staying square. Responsive, dependency-free, with optional keyboard-accessible per-cell click and custom rendering for lightbox integration.",
+      "description": "An adaptive photo grid that lays out 1 to 9 images in WeChat-moments style: 1\u20138 use hand-tuned collage layouts on a 6\u00d76 grid (every cell stays a healthy size) and 9 fills a uniform 3\u00d73 grid, with the container always staying square. Responsive, dependency-free, with optional keyboard-accessible per-cell click and custom rendering for lightbox integration.",
       "files": [
         {
           "path": "registry/ikui/image-grid.tsx",
@@ -301,7 +316,7 @@
       "name": "image-cropper",
       "type": "registry:block",
       "title": "Image Cropper",
-      "description": "A business composition built on the image-crop primitive: load an image and frame a crop inline, with the selection rendered live as a real image in the preview beside it — that preview is the cropped result. Switch to a circular avatar crop, rotate the source in 90° steps, or lock the box to an aspect-ratio preset; the output is validated against min/max source-pixel bounds (the readout turns red until it fits) and downloads at full resolution.",
+      "description": "A business composition built on the image-crop primitive: load an image and frame a crop inline, with the selection rendered live as a real image in the preview beside it \u2014 that preview is the cropped result. Switch to a circular avatar crop, rotate the source in 90\u00b0 steps, or lock the box to an aspect-ratio preset; the output is validated against min/max source-pixel bounds (the readout turns red until it fits) and downloads at full resolution.",
       "files": [
         {
           "path": "registry/ikui/blocks/image-cropper.tsx",
@@ -364,7 +379,7 @@
       "name": "video-frame-extractor",
       "type": "registry:block",
       "title": "Video Frame Extractor",
-      "description": "A business composition over mediabunny's VideoSampleSink: load a video, then pull native-resolution stills off a zoomable timeline — a ruler aligned to the real duration with a continuous filmstrip split into evenly spaced frame cells. The zoom slider sets the timeline density, so the number of extractable frames follows the zoom instead of a fixed count; each cell reveals a download button on hover to save its frame, or grab them all at once. PNG or JPEG.",
+      "description": "A business composition over mediabunny's VideoSampleSink: load a video, then pull native-resolution stills off a zoomable timeline \u2014 a ruler aligned to the real duration with a continuous filmstrip split into evenly spaced frame cells. The zoom slider sets the timeline density, so the number of extractable frames follows the zoom instead of a fixed count; each cell reveals a download button on hover to save its frame, or grab them all at once. PNG or JPEG.",
       "files": [
         {
           "path": "registry/ikui/blocks/video-frame-extractor.tsx",
@@ -387,6 +402,462 @@
       "categories": ["video"],
       "meta": {
         "iframeHeight": 640
+      }
+    },
+    {
+      "name": "chart-multi-bar",
+      "type": "registry:block",
+      "title": "Multi-dataset Bar Chart",
+      "description": "A grouped bar chart comparing two datasets across months.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-multi-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-diagonal-stripe-bar",
+      "type": "registry:block",
+      "title": "Diagonal Stripe Bar Chart",
+      "description": "A bar chart filled with a diagonal stripe SVG pattern.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-diagonal-stripe-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-dotted-pattern-bar",
+      "type": "registry:block",
+      "title": "Dotted Pattern Bar Chart",
+      "description": "A bar chart filled with a dotted SVG pattern.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-dotted-pattern-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-striped-solid-bar",
+      "type": "registry:block",
+      "title": "Striped and Solid Bar Chart",
+      "description": "A bar chart pairing striped and solid bars.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-striped-solid-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-gradient-3d-bar",
+      "type": "registry:block",
+      "title": "3D Gradient Bar Chart",
+      "description": "A bar chart with a faux-3D gradient fill.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-gradient-3d-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-gradient-bar",
+      "type": "registry:block",
+      "title": "Gradient Bar Chart",
+      "description": "A bar chart with a vertical gradient fill.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-gradient-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-isometric-bar",
+      "type": "registry:block",
+      "title": "3D Isometric Bar Chart",
+      "description": "A bar chart rendered with an isometric 3D look.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-isometric-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-dotted-solid-bar",
+      "type": "registry:block",
+      "title": "Dotted and Solid Bar Chart",
+      "description": "A bar chart pairing dotted-pattern and solid bars.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-dotted-solid-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-duotone-bar",
+      "type": "registry:block",
+      "title": "Duotone Gradient Bar Chart",
+      "description": "A bar chart with a two-tone gradient fill.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-duotone-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-animated-bar",
+      "type": "registry:block",
+      "title": "Animated Monochrome Bar Chart",
+      "description": "A monochrome bar chart that expands the hovered bar and reveals its value, animated with motion.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-animated-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react", "motion"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-vertical-bar",
+      "type": "registry:block",
+      "title": "Vertical Bar Chart",
+      "description": "A horizontal (vertical-layout) bar chart.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-vertical-bar.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-gradient-area",
+      "type": "registry:block",
+      "title": "Gradient Area Chart",
+      "description": "A gradient area chart with a stripe-pattern overlay.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-gradient-area.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-stacked-area-dashed",
+      "type": "registry:block",
+      "title": "Stacked Area Chart with Dashed Strokes",
+      "description": "A stacked area chart with dashed series strokes.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-stacked-area-dashed.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-step-area",
+      "type": "registry:block",
+      "title": "Step Area Chart",
+      "description": "A step area chart with a dotted-pattern fill.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-step-area.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-area-glow-dots",
+      "type": "registry:block",
+      "title": "Area Chart with Glow Dots",
+      "description": "An area chart with glowing dot markers.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-area-glow-dots.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-forecast-line",
+      "type": "registry:block",
+      "title": "Forecast Line Chart",
+      "description": "A forecast line chart with a stripe-pattern zone.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-forecast-line.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["@ikui/chart", "card"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-stacked-area-crosshatch",
+      "type": "registry:block",
+      "title": "Stacked Area Chart with Crosshatch",
+      "description": "A stacked area chart with a crosshatch-pattern fill.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-stacked-area-crosshatch.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts", "lucide-react"],
+      "registryDependencies": ["@ikui/chart", "card", "badge"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 460
+      }
+    },
+    {
+      "name": "chart-donut-total",
+      "type": "registry:block",
+      "title": "Donut Chart with Center Total",
+      "description": "A donut chart showing the aggregate total in the center.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-donut-total.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["@ikui/chart", "card"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 520
+      }
+    },
+    {
+      "name": "chart-donut-stats",
+      "type": "registry:block",
+      "title": "Donut Chart with Center Stats",
+      "description": "A donut chart with summary statistics in the center.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-donut-stats.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["@ikui/chart", "card"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 520
+      }
+    },
+    {
+      "name": "chart-pie-stripe",
+      "type": "registry:block",
+      "title": "Pie Chart with Stripe Patterns",
+      "description": "A bug-priority pie chart with per-slice stripe patterns.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-pie-stripe.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["@ikui/chart", "card"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 520
+      }
+    },
+    {
+      "name": "chart-active-donut",
+      "type": "registry:block",
+      "title": "Active Segment Donut",
+      "description": "A donut chart with one enlarged active segment and a center label.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-active-donut.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["@ikui/chart", "card"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 520
+      }
+    },
+    {
+      "name": "chart-radar-gradient",
+      "type": "registry:block",
+      "title": "Radar Chart with Gradient Fill",
+      "description": "A radar chart with a gradient fill.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-radar-gradient.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["@ikui/chart", "card"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 520
+      }
+    },
+    {
+      "name": "chart-radar-glow",
+      "type": "registry:block",
+      "title": "Filled Radar with Glow",
+      "description": "A filled radar chart with a glowing stroke.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-radar-glow.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["@ikui/chart", "card"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 520
+      }
+    },
+    {
+      "name": "chart-radial-lighthouse",
+      "type": "registry:block",
+      "title": "Lighthouse Scores Radial",
+      "description": "A radial bar chart of Lighthouse scores with labels.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/chart-radial-lighthouse.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["@ikui/chart", "card"],
+      "category": "blocks",
+      "categories": ["chart"],
+      "meta": {
+        "iframeHeight": 520
       }
     }
   ]
