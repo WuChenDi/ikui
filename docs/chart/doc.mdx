@@ -1,0 +1,52 @@
+import { Demo } from './demo'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+Recharts-based chart primitives with theme-aware colors. `ChartContainer`
+provides the responsive wrapper and maps your `ChartConfig` to CSS color
+variables (`--color-<key>`); `ChartTooltip`, `ChartTooltipContent`,
+`ChartLegend`, and `ChartLegendContent` cover the surrounding chrome. Compose
+the chart body itself from Recharts elements (Bar, Area, Line, Pie, Radar, …).
+
+For ready-made compositions — gradient bars, donuts, radars, and more — browse
+the [Chart blocks](/blocks/chart).
+
+## Installation
+
+<InstallationTabs item="chart">
+```tsx file=../../registry/ikui/chart.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/chart";
+import { Bar, BarChart, XAxis } from "recharts";
+```
+```tsx
+const chartConfig = {
+  desktop: { label: "Desktop", color: "var(--chart-1)" },
+} satisfies ChartConfig;
+
+<ChartContainer config={chartConfig}>
+  <BarChart data={chartData}>
+    <XAxis dataKey="month" />
+    <ChartTooltip content={<ChartTooltipContent />} />
+    <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+  </BarChart>
+</ChartContainer>
+```
