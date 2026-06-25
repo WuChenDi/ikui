@@ -1,0 +1,182 @@
+import { Demo } from './demo'
+import { Demo as DemoReveal } from './demo-reveal'
+import { Demo as DemoCustom } from './demo-custom'
+import { Demo as DemoColor } from './demo-color'
+import { Demo as DemoStatic } from './demo-static'
+
+<DemoCanvas>
+  <DemoPreview className="p-6 md:p-10">
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A dependency-free interactive line chart drawn with a single SVG path. The line
+and fill live in a fixed `640×220` viewBox and scale to the container; the
+cursor, dot, and tooltip are HTML overlays positioned by percentage, so they
+track the data while staying a constant on-screen size. Hovering (or dragging on
+touch) snaps to the nearest data point, and the Y axis auto-scales to the data
+range.
+
+## Installation
+
+<InstallationTabs item="spark-chart">
+```tsx file=../../registry/ikui/spark-chart.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { SparkChart } from "@/components/spark-chart";
+```
+```tsx
+const data = [12, 18, 15, 24, 22, 30, 28, 35, 42, 38, 48, 56];
+
+<SparkChart data={data} />
+```
+
+## Examples
+
+### Reveal effect
+
+Color the line only up to the cursor — grey before it, the series color after —
+by setting `reveal`.
+
+<DemoCanvas>
+  <DemoPreview className="p-6 md:p-10">
+    <DemoReveal />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-reveal.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Custom tooltip format
+
+`formatValue` receives the value and its index, so the tooltip can render
+currency, units, or any custom node.
+
+<DemoCanvas>
+  <DemoPreview className="p-6 md:p-10">
+    <DemoCustom />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-custom.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Custom color
+
+Pass any CSS color to `color`; the line, dot, and tooltip swatch follow it.
+
+<DemoCanvas>
+  <DemoPreview className="p-6 md:p-10">
+    <DemoColor />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-color.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Without animation
+
+Set `animated={false}` to snap the cursor, dot, and tooltip instantly instead
+of easing between points.
+
+<DemoCanvas>
+  <DemoPreview className="p-6 md:p-10">
+    <DemoStatic />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-static.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+  data={[
+    {
+      name: "data",
+      type: "number[]",
+      nameDetails: "Numeric values to plot, left to right"
+    },
+    {
+      name: "labels",
+      type: "string[]",
+      nameDetails: "Optional label per point (tooltip + X axis)"
+    },
+    {
+      name: "name",
+      type: "string",
+      nameDetails: "Series name shown in the tooltip"
+    },
+    {
+      name: "color",
+      type: "string",
+      default: "\"#0090fd\"",
+      nameDetails: "Line, dot, and swatch color (any CSS color)"
+    },
+    {
+      name: "width",
+      type: "number",
+      default: "640",
+      nameDetails: "Maximum width in px (keeps a 640:220 ratio)"
+    },
+    {
+      name: "formatValue",
+      type: "(value: number, index: number) => React.ReactNode",
+      default: "v => v.toLocaleString()",
+      nameDetails: "Format the tooltip value"
+    },
+    {
+      name: "showXAxis",
+      type: "boolean",
+      default: "true",
+      nameDetails: "Show tick labels along the bottom"
+    },
+    {
+      name: "tickCount",
+      type: "number",
+      default: "6",
+      nameDetails: "Target number of ticks on the X axis"
+    },
+    {
+      name: "reveal",
+      type: "boolean",
+      default: "false",
+      nameDetails: "Grey the line until the cursor passes over it"
+    },
+    {
+      name: "showFill",
+      type: "boolean",
+      default: "true",
+      nameDetails: "Show the gradient fill under the line"
+    },
+    {
+      name: "showDot",
+      type: "boolean",
+      default: "true",
+      nameDetails: "Show the dot at the active point"
+    },
+    {
+      name: "animated",
+      type: "boolean",
+      default: "true",
+      nameDetails: "Animate the cursor, dot, and tooltip on hover"
+    },
+    {
+      name: "className",
+      type: "string",
+      nameDetails: "Extra classes on the root element"
+    }
+  ]}
+/>
