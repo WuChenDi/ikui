@@ -173,8 +173,8 @@ export async function generateLlmMarkdownFiles(): Promise<void> {
 /**
  * Concatenate every processed doc into a single `public/llms-full.txt`, the
  * "entire guide in one file" companion to the `llms.txt` index. Sections are
- * ordered to match the docs sidebar: the basic-doc pages first, then registry
- * components in registry order, then any remaining docs alphabetically.
+ * ordered basic-doc pages first (Overview section order), then registry
+ * components in registry.json order, then any remaining docs alphabetically.
  */
 async function writeLlmsFullFile(
   markdownById: Map<string, string>,
