@@ -29,7 +29,7 @@ const chartConfig = {
   score: { label: 'Proficiency', color: 'var(--chart-1)' },
 } satisfies ChartConfig
 
-export default function ChartRadarGradient() {
+export function Demo() {
   return (
     <Card className="w-full max-w-xs">
       <CardHeader className="items-center pb-0">
