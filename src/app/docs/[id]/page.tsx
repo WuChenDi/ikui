@@ -82,7 +82,7 @@ export default async function DocPage({
 
   const schema = await getDocSchema()
   const overviewSection = schema.find((section) => section.title === 'Overview')
-  const isGettingStarted =
+  const isOverview =
     overviewSection?.items.some((item) => item.id === id) ?? false
 
   let toc: { title?: string; url: string; depth: number }[] = []
@@ -109,7 +109,7 @@ export default async function DocPage({
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-                {isGettingStarted ? (
+                {isOverview ? (
                   <BreadcrumbItem>
                     <BreadcrumbPage>{item.title}</BreadcrumbPage>
                   </BreadcrumbItem>
