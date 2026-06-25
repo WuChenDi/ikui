@@ -20,6 +20,21 @@
       "category": "display"
     },
     {
+      "name": "spark-chart",
+      "type": "registry:component",
+      "title": "Spark Chart",
+      "description": "Dependency-free interactive line chart with a cursor-tracked tooltip, snap-to-point hover, reveal effect, and built-in X-axis labels.",
+      "files": [
+        {
+          "path": "registry/ikui/spark-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "category": "display"
+    },
+    {
       "name": "qr-code",
       "type": "registry:component",
       "title": "QR Code",
