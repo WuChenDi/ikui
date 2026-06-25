@@ -1,9 +1,7 @@
 'use client'
 
-import { TrendingUp } from 'lucide-react'
 import type { CSSProperties } from 'react'
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
-import { Badge } from '@/components/ui/badge'
+import { Area, CartesianGrid, ComposedChart, Line, XAxis } from 'recharts'
 
 import {
   Card,
@@ -15,68 +13,61 @@ import {
 import type { ChartConfig } from '@/registry/ikui/chart'
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/registry/ikui/chart'
 
 const chartData = [
-  { month: 'January', visitors: 2400 },
-  { month: 'February', visitors: 2850 },
-  { month: 'March', visitors: 2600 },
-  { month: 'April', visitors: 3100 },
-  { month: 'May', visitors: 2900 },
-  { month: 'June', visitors: 3400 },
+  { month: 'January', forecast: 2600, forecastArea: 2600 },
+  { month: 'February', forecast: 4200, forecastArea: 4200 },
+  { month: 'March', forecast: 2400, forecastArea: 2400 },
+  { month: 'April', forecast: 5000, forecastArea: 5000 },
+  { month: 'May', forecast: 2800, forecastArea: 2800 },
+  { month: 'June', forecast: 5800, forecastArea: 5800 },
+  { month: 'July', forecast: 3200, forecastArea: 3200 },
+  { month: 'August', forecast: 6200, forecastArea: 6200 },
+  { month: 'September', forecast: 3800, forecastArea: 3800 },
 ]
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors',
-    color: 'var(--chart-1)',
-  },
+  forecast: { label: 'Forecast', color: 'var(--chart-4)' },
+  forecastArea: { label: 'Forecast', color: 'var(--chart-4)' },
 } satisfies ChartConfig
 
-export default function ChartGradientArea() {
+export function Demo() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>
-          Website Traffic
-          <Badge variant="success" className="ml-2">
-            <TrendingUp aria-hidden="true" />
-            +24.5%
-          </Badge>
-        </CardTitle>
-        <CardDescription>Monthly unique visitor trends</CardDescription>
+        <CardTitle>Sales Forecast</CardTitle>
+        <CardDescription>
+          Projected sales performance with trends
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <AreaChart
+          <ComposedChart
             accessibilityLayer
             data={chartData}
             margin={{ top: 20, right: 0, bottom: 0, left: 0 }}
           >
             <defs>
-              <linearGradient id="chart13-gradient" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-visitors)"
-                  stopOpacity={0.5}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-visitors)"
-                  stopOpacity={0.05}
-                />
-              </linearGradient>
               <pattern
-                id="chart13-stripe"
+                id="chart17-forecast-stripe"
                 patternUnits="userSpaceOnUse"
                 width="6"
                 height="6"
               >
+                <rect
+                  width="6"
+                  height="6"
+                  fill="var(--color-forecast)"
+                  opacity="0.04"
+                />
                 <path
                   d="M0,6 L6,0"
-                  stroke="var(--color-visitors)"
+                  stroke="var(--color-forecast)"
                   strokeWidth="0.8"
                   opacity="0.15"
                 />
@@ -91,7 +82,6 @@ export default function ChartGradientArea() {
               tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
-              cursor={false}
               content={
                 <ChartTooltipContent
                   indicator="dot"
@@ -105,7 +95,7 @@ export default function ChartGradientArea() {
                     <div className="flex w-full items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5">
                         <div
-                          className="h-2.5 w-2.5 shrink-0 rounded-xs bg-(--color-bg)"
+                          className="rounded-xs h-2.5 w-2.5 shrink-0 bg-(--color-bg)"
                           style={
                             {
                               '--color-bg': `var(--color-${name})`,
@@ -118,21 +108,34 @@ export default function ChartGradientArea() {
                         </span>
                       </div>
                       <span className="text-foreground font-semibold tabular-nums">
-                        {Number(value).toLocaleString()}
+                        {value != null
+                          ? `$${Number(value).toLocaleString()}`
+                          : '—'}
                       </span>
                     </div>
                   )}
                 />
               }
             />
+            <ChartLegend content={<ChartLegendContent />} />
             <Area
-              dataKey="visitors"
+              dataKey="forecastArea"
               type="natural"
-              fill="url(#chart13-gradient)"
-              stroke="var(--color-visitors)"
-              strokeWidth={2}
+              fill="url(#chart17-forecast-stripe)"
+              stroke="none"
+              connectNulls
+              legendType="none"
+              tooltipType="none"
             />
-          </AreaChart>
+            <Line
+              dataKey="forecast"
+              type="natural"
+              stroke="var(--color-forecast)"
+              strokeWidth={2.5}
+              dot={false}
+              connectNulls
+            />
+          </ComposedChart>
         </ChartContainer>
       </CardContent>
     </Card>

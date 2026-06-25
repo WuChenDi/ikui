@@ -1,8 +1,8 @@
 'use client'
 
 import { TrendingUp } from 'lucide-react'
-import type { CSSProperties, SVGProps } from 'react'
-import { Bar, BarChart, XAxis } from 'recharts'
+import type { CSSProperties } from 'react'
+import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
 import { Badge } from '@/components/ui/badge'
 
 import {
@@ -20,102 +20,48 @@ import {
 } from '@/registry/ikui/chart'
 
 const chartData = [
-  { month: 'Jan', desktop: 120 },
-  { month: 'Feb', desktop: 250 },
-  { month: 'Mar', desktop: 200 },
-  { month: 'Apr', desktop: 170 },
-  { month: 'May', desktop: 209 },
-  { month: 'Jun', desktop: 210 },
-  { month: 'Jul', desktop: 150 },
-  { month: 'Aug', desktop: 230 },
-  { month: 'Sep', desktop: 180 },
-  { month: 'Oct', desktop: 190 },
-  { month: 'Nov', desktop: 200 },
-  { month: 'Dec', desktop: 120 },
+  { month: 'January', desktop: 120, mobile: 80 },
+  { month: 'February', desktop: 250, mobile: 200 },
+  { month: 'March', desktop: 230, mobile: 120 },
+  { month: 'April', desktop: 70, mobile: 190 },
+  { month: 'May', desktop: 209, mobile: 130 },
+  { month: 'June', desktop: 210, mobile: 140 },
 ]
 
 const chartConfig = {
   desktop: {
     label: 'Desktop',
-    color: 'var(--chart-3)',
+    color: 'var(--chart-1)',
+  },
+  mobile: {
+    label: 'Mobile',
+    color: 'var(--chart-2)',
   },
 } satisfies ChartConfig
 
-const CustomGradientBar = (
-  props: SVGProps<SVGRectElement> & {
-    dataKey?: string
-    payload?: any
-    index?: number
-  },
-) => {
-  const { fill, x, y, width, height, dataKey } = props
-  const barX = x as number
-  const barY = y as number
-  const barWidth = width as number
-  const barHeight = height as number
-
-  return (
-    <>
-      <defs>
-        <linearGradient
-          id={`gradient-bar-pattern-${dataKey}`}
-          x1="0"
-          y1="0"
-          x2="0"
-          y2="1"
-        >
-          <stop offset="0%" stopColor={fill} stopOpacity={0.7} />
-          <stop offset="50%" stopColor={fill} stopOpacity={0.4} />
-          <stop offset="100%" stopColor={fill} stopOpacity={0.2} />
-        </linearGradient>
-      </defs>
-      <rect
-        x={barX}
-        y={barY}
-        width={barWidth}
-        height={barHeight}
-        stroke="none"
-        fill={`url(#gradient-bar-pattern-${dataKey})`}
-        rx="6"
-        ry="6"
-      />
-    </>
-  )
-}
-
-export default function ChartGradientBar() {
+export function Demo() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>
-          Engagement Metrics
-          <Badge variant="success" className="ml-2">
+          Market Share
+          <Badge variant="warning" className="ml-2">
             <TrendingUp aria-hidden="true" />
-            +2.4%
+            +12%
           </Badge>
         </CardTitle>
-        <CardDescription>
-          User interaction and click-through rates
-        </CardDescription>
+        <CardDescription>Departmental performance comparison</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-              right: 12,
-              bottom: 12,
-              left: 12,
-            }}
-            barCategoryGap="15%"
-          >
+          <BarChart accessibilityLayer data={chartData}>
+            <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
               tickLine={false}
+              tickMargin={10}
               axisLine={false}
-              tickMargin={8}
+              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
               cursor={false}
@@ -156,11 +102,8 @@ export default function ChartGradientBar() {
                 />
               }
             />
-            <Bar
-              dataKey="desktop"
-              fill="var(--color-desktop)"
-              shape={<CustomGradientBar />}
-            />
+            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
           </BarChart>
         </ChartContainer>
       </CardContent>

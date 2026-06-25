@@ -32,7 +32,7 @@ const chartConfig = {
   api: { label: 'API', color: 'var(--chart-1)' },
 } satisfies ChartConfig
 
-export default function ChartRadialLighthouse() {
+export function Demo() {
   return (
     <Card className="w-full max-w-xs">
       <CardHeader className="items-center pb-0">

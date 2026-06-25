@@ -1,4 +1,10 @@
 import { Demo } from './demo'
+import { Demo as MultiBarDemo } from './demo-multi-bar'
+import { Demo as GradientAreaDemo } from './demo-gradient-area'
+import { Demo as ForecastLineDemo } from './demo-forecast-line'
+import { Demo as ActiveDonutDemo } from './demo-active-donut'
+import { Demo as RadarGradientDemo } from './demo-radar-gradient'
+import { Demo as RadialLighthouseDemo } from './demo-radial-lighthouse'
 
 <DemoCanvas>
   <DemoPreview>
@@ -15,9 +21,6 @@ provides the responsive wrapper and maps your `ChartConfig` to CSS color
 variables (`--color-<key>`); `ChartTooltip`, `ChartTooltipContent`,
 `ChartLegend`, and `ChartLegendContent` cover the surrounding chrome. Compose
 the chart body itself from Recharts elements (Bar, Area, Line, Pie, Radar, …).
-
-For ready-made compositions — gradient bars, donuts, radars, and more — browse
-the [Chart blocks](/blocks/chart).
 
 ## Installation
 
@@ -50,3 +53,95 @@ const chartConfig = {
   </BarChart>
 </ChartContainer>
 ```
+
+## Examples
+
+### Multiple bars
+
+Plot several series side by side — each `Bar` maps to a `chartConfig` key and
+pulls its color from the matching `--color-<key>` variable.
+
+<DemoCanvas>
+  <DemoPreview>
+    <MultiBarDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-multi-bar.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Gradient area
+
+An `AreaChart` filled with an SVG `linearGradient` referencing the series
+color, for a soft trend surface.
+
+<DemoCanvas>
+  <DemoPreview>
+    <GradientAreaDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-gradient-area.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Line with forecast
+
+A `ComposedChart` layering a `Line` over a patterned `Area` to highlight a
+projected trend, with a legend driven by `ChartLegendContent`.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ForecastLineDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-forecast-line.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Donut with center label
+
+A `PieChart` with `innerRadius` and an active `Sector`, using a `Label` to
+render a total in the middle.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ActiveDonutDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-active-donut.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Radar
+
+A `RadarChart` over a `PolarGrid`, filled with a gradient and a glow filter to
+compare values across categories.
+
+<DemoCanvas>
+  <DemoPreview>
+    <RadarGradientDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-radar-gradient.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Radial bars
+
+A `RadialBarChart` rendering each series as a concentric arc, with gradient
+fills and a legend.
+
+<DemoCanvas>
+  <DemoPreview>
+    <RadialLighthouseDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-radial-lighthouse.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>

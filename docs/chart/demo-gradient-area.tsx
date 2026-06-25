@@ -2,7 +2,7 @@
 
 import { TrendingUp } from 'lucide-react'
 import type { CSSProperties } from 'react'
-import { Bar, BarChart, XAxis } from 'recharts'
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
 import { Badge } from '@/components/ui/badge'
 
 import {
@@ -20,79 +20,75 @@ import {
 } from '@/registry/ikui/chart'
 
 const chartData = [
-  { month: 'Jan', desktop: 340, mobile: 180 },
-  { month: 'Feb', desktop: 870, mobile: 420 },
-  { month: 'Mar', desktop: 510, mobile: 280 },
-  { month: 'Apr', desktop: 620, mobile: 350 },
-  { month: 'May', desktop: 450, mobile: 240 },
-  { month: 'Jun', desktop: 780, mobile: 390 },
+  { month: 'January', visitors: 2400 },
+  { month: 'February', visitors: 2850 },
+  { month: 'March', visitors: 2600 },
+  { month: 'April', visitors: 3100 },
+  { month: 'May', visitors: 2900 },
+  { month: 'June', visitors: 3400 },
 ]
 
 const chartConfig = {
-  desktop: {
-    label: 'Desktop',
-    color: 'var(--chart-2)',
-  },
-  mobile: {
-    label: 'Mobile',
-    color: 'var(--chart-2)',
+  visitors: {
+    label: 'Visitors',
+    color: 'var(--chart-1)',
   },
 } satisfies ChartConfig
 
-export default function ChartDottedSolidBar() {
+export function Demo() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>
-          Customer Retention
+          Website Traffic
           <Badge variant="success" className="ml-2">
             <TrendingUp aria-hidden="true" />
-            +18.4%
+            +24.5%
           </Badge>
         </CardTitle>
-        <CardDescription>Customer loyalty across segments</CardDescription>
+        <CardDescription>Monthly unique visitor trends</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart
+          <AreaChart
             accessibilityLayer
             data={chartData}
-            margin={{
-              top: 20,
-              right: 12,
-              bottom: 12,
-              left: 12,
-            }}
+            margin={{ top: 20, right: 0, bottom: 0, left: 0 }}
           >
             <defs>
-              <pattern
-                id="chart6-elegant-dotted-pattern"
-                x="0"
-                y="0"
-                width="5"
-                height="5"
-                patternUnits="userSpaceOnUse"
-              >
-                <rect
-                  width="5"
-                  height="5"
-                  fill="var(--color-desktop)"
-                  opacity="0.1"
+              <linearGradient id="chart13-gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-visitors)"
+                  stopOpacity={0.5}
                 />
-                <circle
-                  cx="5"
-                  cy="5"
-                  r="1.4"
-                  fill="var(--color-desktop)"
-                  opacity={1}
-                ></circle>
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-visitors)"
+                  stopOpacity={0.05}
+                />
+              </linearGradient>
+              <pattern
+                id="chart13-stripe"
+                patternUnits="userSpaceOnUse"
+                width="6"
+                height="6"
+              >
+                <path
+                  d="M0,6 L6,0"
+                  stroke="var(--color-visitors)"
+                  strokeWidth="0.8"
+                  opacity="0.15"
+                />
               </pattern>
             </defs>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               dataKey="month"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
+              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
               cursor={false}
@@ -100,15 +96,11 @@ export default function ChartDottedSolidBar() {
                 <ChartTooltipContent
                   indicator="dot"
                   className="min-w-40 gap-2.5"
-                  labelFormatter={(value) => {
-                    return (
-                      <div className="border-border/50 mb-0.5 flex flex-col gap-0.5 border-b pb-2">
-                        <span className="text-xs font-medium">
-                          {value} 2024
-                        </span>
-                      </div>
-                    )
-                  }}
+                  labelFormatter={(value) => (
+                    <div className="border-border/50 mb-0.5 border-b pb-2">
+                      <span className="text-xs font-medium">{value} 2024</span>
+                    </div>
+                  )}
                   formatter={(value, name) => (
                     <div className="flex w-full items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5">
@@ -125,7 +117,7 @@ export default function ChartDottedSolidBar() {
                             ?.label || name}
                         </span>
                       </div>
-                      <span className="text-foreground font-semibold">
+                      <span className="text-foreground font-semibold tabular-nums">
                         {Number(value).toLocaleString()}
                       </span>
                     </div>
@@ -133,22 +125,14 @@ export default function ChartDottedSolidBar() {
                 />
               }
             />
-            <Bar
-              dataKey="desktop"
-              fill="url(#chart6-elegant-dotted-pattern)"
-              stroke="var(--color-desktop)"
-              strokeWidth={1}
-              radius={[4, 4, 4, 4]}
-              style={{ color: 'var(--color-desktop)' }}
+            <Area
+              dataKey="visitors"
+              type="natural"
+              fill="url(#chart13-gradient)"
+              stroke="var(--color-visitors)"
+              strokeWidth={2}
             />
-            <Bar
-              dataKey="mobile"
-              fill="var(--color-mobile)"
-              stroke="var(--color-mobile)"
-              strokeWidth={1}
-              radius={[4, 4, 4, 4]}
-            />
-          </BarChart>
+          </AreaChart>
         </ChartContainer>
       </CardContent>
     </Card>

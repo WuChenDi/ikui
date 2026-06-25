@@ -12,7 +12,6 @@ export const blockCategories = [
   { slug: 'video', label: 'Video' },
   { slug: 'image', label: 'Image' },
   { slug: 'audio', label: 'Audio' },
-  { slug: 'chart', label: 'Chart' },
 ] as const
 
 export type BlockCategory = (typeof blockCategories)[number]['slug']
@@ -20,8 +19,8 @@ export type BlockCategory = (typeof blockCategories)[number]['slug']
 /**
  * Gallery display order — registry.json interleaves blocks with components, so
  * the sequence is pinned here instead. Video-heavy compositions lead, then
- * image, then audio, then chart compositions; the plain compressor utility
- * trails the media tools. Unlisted blocks fall to the end in registry order.
+ * image, then audio; the plain compressor utility trails the media tools.
+ * Unlisted blocks fall to the end in registry order.
  */
 const BLOCK_ORDER = [
   'video-frame-extractor',
@@ -30,30 +29,6 @@ const BLOCK_ORDER = [
   'image-cropper',
   'audio-trimmer',
   'media-compressor',
-  'chart-multi-bar',
-  'chart-diagonal-stripe-bar',
-  'chart-dotted-pattern-bar',
-  'chart-striped-solid-bar',
-  'chart-gradient-3d-bar',
-  'chart-gradient-bar',
-  'chart-isometric-bar',
-  'chart-dotted-solid-bar',
-  'chart-duotone-bar',
-  'chart-animated-bar',
-  'chart-vertical-bar',
-  'chart-gradient-area',
-  'chart-stacked-area-dashed',
-  'chart-step-area',
-  'chart-area-glow-dots',
-  'chart-forecast-line',
-  'chart-stacked-area-crosshatch',
-  'chart-donut-total',
-  'chart-donut-stats',
-  'chart-pie-stripe',
-  'chart-active-donut',
-  'chart-radar-gradient',
-  'chart-radar-glow',
-  'chart-radial-lighthouse',
 ]
 
 export interface Block {
