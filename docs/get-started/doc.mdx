@@ -1,0 +1,40 @@
+This guide walks you through the essential steps to seamlessly integrate ikui into your shadcn project.
+
+## Prerequisites
+
+ikui is built on the latest **React 19** and [Tailwind CSS v4](https://tailwindcss.com). Ensure your project is set up with these technologies before proceeding.
+We recommend following the [Official shadcn/ui Installation Guide](https://ui.shadcn.com/docs/installation)
+and [shadcn/create](https://ui.shadcn.com/create) setup to prepare your environment.
+
+## Setup ikui Registry
+
+Add the ikui registry namespace to your `components.json` and set your component library and style.
+Learn more about registry config from [shadcn registry docs](https://ui.shadcn.com/docs/registry).
+
+```json
+{
+  ...
+  "style": "base-nova",
+  ...
+  "registries": {
+    "@ikui": "https://ik-ui.pages.dev/r/{name}.json"
+  }
+}
+```
+
+## Components
+
+You can integrate ikui using the [**shadcn CLI**](https://ui.shadcn.com/docs/cli) for automation or by manual installation for full control.
+Both methods apply to everything in [Docs](/docs/introduction) and the [component catalog](/docs/components), including blocks you install with `@ikui/…`.
+
+```bash
+npx shadcn@latest add @ikui/copy-button
+```
+
+## AI-Enhanced Workflow
+
+ikui is designed from the ground up to be **AI-friendly**, making it easier for language models to understand and modify your UI.
+
+- **MCP**: Connect ikui through [MCP](/docs/mcp) so your IDE can find, install, and compose components for you.
+- **llms.txt**: Access our [llms.txt](/llms.txt) file for a structured map of our documentation and architecture optimized for AI agents.
+- **Copy Markdown**: Every page includes a **Copy Markdown** feature, allowing you to instantly feed documentation or code into your AI-driven development workflows.

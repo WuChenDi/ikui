@@ -48,7 +48,7 @@ export function SearchForm({ docSchema }: { docSchema: DocSchema }) {
 
   const groupedItems = useMemo<PageGroup[]>(() => {
     return docSchema.map((group) => {
-      const isComponentGroup = group.title !== 'Getting Started'
+      const isComponentGroup = group.title !== 'Overview'
       return {
         value: group.title,
         items: group.items.map((item) => ({
