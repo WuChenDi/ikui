@@ -167,3 +167,4 @@ tmp/
 
 # Generated docs markdown (built by next.config from docs/*/doc.mdx)
 /public/docs/
+/public/llms-full.txt

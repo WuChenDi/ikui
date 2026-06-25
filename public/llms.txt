@@ -4,11 +4,13 @@
 
 Install any component with the shadcn CLI, e.g. `pnpx shadcn@latest add https://ik-ui.pages.dev/r/copy-button.json`. To use the `@ikui` namespace, add `"@ikui": "https://ik-ui.pages.dev/r/{name}.json"` to the `registries` field in your `components.json`.
 
-## Getting Started
+## Overview
 
 - [Introduction](https://ik-ui.pages.dev/docs/introduction.md): Build elegant React interfaces with premium, copy-ready Tailwind CSS components.
+- [Get Started](https://ik-ui.pages.dev/docs/get-started.md): A quick guide to adding ikui components to your application.
 - [Components](https://ik-ui.pages.dev/docs/components.md): Browse all available components in ikui.
 - [MCP](https://ik-ui.pages.dev/docs/mcp.md): Integrating MCP with ikui lets you control it via AI.
+- [LLMs](https://ik-ui.pages.dev/docs/llms.md): Feed ikui docs to your AI coding agent: llms.txt, llms-full.txt, and per-page Markdown.
 
 ## Components
 
@@ -23,4 +25,5 @@ Install any component with the shadcn CLI, e.g. `pnpx shadcn@latest add https://
 ## Optional
 
 - [Registry Index](https://ik-ui.pages.dev/r/registry.json): The shadcn registry manifest listing every installable ikui item.
+- [llms-full.txt](https://ik-ui.pages.dev/llms-full.txt): The entire ikui documentation concatenated into a single file.
 - [GitHub Repository](https://github.com/WuChenDi/ikui): Source code, issues, and contributions.

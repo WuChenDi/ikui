@@ -2,13 +2,19 @@ import type { DocSchema } from '@/lib/types'
 
 export const basicDoc: DocSchema = [
   {
-    title: 'Getting Started',
+    title: 'Overview',
     items: [
       {
         title: 'Introduction',
         id: 'introduction',
         description:
           'Build elegant React interfaces with premium, copy-ready Tailwind CSS components.',
+      },
+      {
+        title: 'Get Started',
+        id: 'get-started',
+        description:
+          'A quick guide to adding ikui components to your application.',
       },
       {
         title: 'Components',
@@ -27,10 +33,10 @@ export const basicDoc: DocSchema = [
         description: 'Integrating MCP with ikui lets you control it via AI.',
       },
       {
-        title: 'llms.txt',
+        title: 'LLMs',
         id: 'llms',
-        description: 'Plain-text index of ikui docs, optimized for LLMs.',
-        href: '/llms.txt',
+        description:
+          'Feed ikui docs to your AI coding agent: llms.txt, llms-full.txt, and per-page Markdown.',
       },
     ],
   },

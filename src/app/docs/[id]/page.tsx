@@ -81,11 +81,9 @@ export default async function DocPage({
     currentIndex < allItems.length - 1 ? allItems[currentIndex + 1] : null
 
   const schema = await getDocSchema()
-  const gettingStartedSection = schema.find(
-    (section) => section.title === 'Getting Started',
-  )
+  const overviewSection = schema.find((section) => section.title === 'Overview')
   const isGettingStarted =
-    gettingStartedSection?.items.some((item) => item.id === id) ?? false
+    overviewSection?.items.some((item) => item.id === id) ?? false
 
   let toc: { title?: string; url: string; depth: number }[] = []
   let rawContent = ''

@@ -1,5 +1,6 @@
 import { mkdir, readdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
+import { basicDoc } from '../basic-doc'
 
 /**
  * Turn an authored doc.mdx string into clean Markdown for LLMs / "Copy this page".
@@ -147,6 +148,7 @@ export async function generateLlmMarkdownFiles(): Promise<void> {
   await rm(outDir, { recursive: true, force: true })
   await mkdir(outDir, { recursive: true })
 
+  const markdownById = new Map<string, string>()
   await Promise.all(
     entries
       .filter((entry) => entry.isDirectory())
@@ -160,7 +162,103 @@ export async function generateLlmMarkdownFiles(): Promise<void> {
           return
         }
         const markdown = await processMdxForLLMs(raw, docDir)
+        markdownById.set(entry.name, markdown)
         await writeFile(join(outDir, `${entry.name}.md`), markdown, 'utf-8')
       }),
   )
+
+  await writeLlmsFullFile(markdownById)
+}
+
+/**
+ * Concatenate every processed doc into a single `public/llms-full.txt`, the
+ * "entire guide in one file" companion to the `llms.txt` index. Sections are
+ * ordered to match the docs sidebar: the basic-doc pages first, then registry
+ * components in registry order, then any remaining docs alphabetically.
+ */
+async function writeLlmsFullFile(
+  markdownById: Map<string, string>,
+): Promise<void> {
+  const titles = await collectDocTitles()
+  const ordered = orderDocIds([...markdownById.keys()], titles)
+
+  const header =
+    '# ikui\n\n' +
+    '> ikui is a curated collection of reusable React components, blocks, and ' +
+    'templates for building captivating landing pages and user-focused marketing ' +
+    'materials. Built with React, Tailwind CSS, and Motion, it draws heavy ' +
+    'inspiration from shadcn/ui with a magical twist. Components are copy-ready ' +
+    'and installable via the shadcn CLI.\n\n' +
+    'This file contains the full text of every ikui documentation page, ' +
+    'concatenated for LLM consumption. For a lighter index with links, see ' +
+    '`/llms.txt`.\n'
+
+  const sections = ordered.map((id) => {
+    const title = titles.get(id) ?? toTitleCase(id)
+    return `# ${title}\n\n${markdownById.get(id)?.trim() ?? ''}\n`
+  })
+
+  const content = `${[header, ...sections].join('\n---\n\n')}`
+  await writeFile(
+    join(process.cwd(), 'public', 'llms-full.txt'),
+    content,
+    'utf-8',
+  )
+}
+
+/**
+ * Map doc id → display title from basic-doc and the registry manifest, the two
+ * sources the docs schema is assembled from at runtime.
+ */
+async function collectDocTitles(): Promise<Map<string, string>> {
+  const titles = new Map<string, string>()
+  for (const section of basicDoc) {
+    for (const item of section.items) {
+      titles.set(item.id, item.title)
+    }
+  }
+  try {
+    const raw = await readFile(join(process.cwd(), 'registry.json'), 'utf-8')
+    const registry = JSON.parse(raw) as {
+      items: { name: string; title: string; type: string }[]
+    }
+    for (const item of registry.items) {
+      if (item.type === 'registry:component') {
+        titles.set(item.name, item.title)
+      }
+    }
+  } catch {
+    // No registry manifest; fall back to id-derived titles.
+  }
+  return titles
+}
+
+/**
+ * Order doc ids by basic-doc sequence, then registry component order (captured
+ * in `titles` insertion order), then leftovers alphabetically.
+ */
+function orderDocIds(ids: string[], titles: Map<string, string>): string[] {
+  const available = new Set(ids)
+  const seen = new Set<string>()
+  const ordered: string[] = []
+  for (const id of titles.keys()) {
+    if (available.has(id) && !seen.has(id)) {
+      ordered.push(id)
+      seen.add(id)
+    }
+  }
+  for (const id of [...ids].sort()) {
+    if (!seen.has(id)) {
+      ordered.push(id)
+      seen.add(id)
+    }
+  }
+  return ordered
+}
+
+function toTitleCase(id: string): string {
+  return id
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
 }
