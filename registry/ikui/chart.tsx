@@ -57,7 +57,9 @@ function ChartContainer({
   }
 }) {
   const uniqueId = React.useId()
-  const chartId = `chart-${id ?? uniqueId.replace(/:/g, '')}`
+  // Strip anything outside a safe selector charset so a consumer-provided `id`
+  // can't break or inject into the generated `[data-chart=...]` CSS.
+  const chartId = `chart-${(id ?? uniqueId).replace(/[^a-zA-Z0-9-]/g, '')}`
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -97,7 +99,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
         __html: Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart="${id}"] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color =
