@@ -2,6 +2,25 @@ import { mkdir, readdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
 import { basicDoc } from '../basic-doc'
 
+/** Marketing blurb shared by the `llms.txt` and `llms-full.txt` headers. */
+const SITE_DESCRIPTION =
+  'ikui is a curated collection of reusable React components, blocks, and ' +
+  'templates for building captivating landing pages and user-focused marketing ' +
+  'materials. Built with React, Tailwind CSS, and Motion, it draws heavy ' +
+  'inspiration from shadcn/ui with a magical twist. Components are copy-ready ' +
+  'and installable via the shadcn CLI.'
+
+/** Fallback site base URL when `registry.json` has no `homepage`. */
+const SITE_URL = 'https://ik-ui.pages.dev'
+
+/** Repository link surfaced in the `llms.txt` "Optional" section. */
+const GITHUB_URL = 'https://github.com/WuChenDi/ikui'
+
+interface Registry {
+  homepage?: string
+  items: { name: string; title: string; type: string; description?: string }[]
+}
+
 /**
  * Turn an authored doc.mdx string into clean Markdown for LLMs / "Copy this page".
  *
@@ -167,7 +186,10 @@ export async function generateLlmMarkdownFiles(): Promise<void> {
       }),
   )
 
-  await writeLlmsFullFile(markdownById)
+  const registry = await readRegistry()
+  const titles = collectDocTitles(registry)
+  await writeLlmsFullFile(markdownById, titles)
+  await writeLlmsIndexFile(markdownById, registry)
 }
 
 /**
@@ -178,17 +200,13 @@ export async function generateLlmMarkdownFiles(): Promise<void> {
  */
 async function writeLlmsFullFile(
   markdownById: Map<string, string>,
+  titles: Map<string, string>,
 ): Promise<void> {
-  const titles = await collectDocTitles()
   const ordered = orderDocIds([...markdownById.keys()], titles)
 
   const header =
     '# ikui\n\n' +
-    '> ikui is a curated collection of reusable React components, blocks, and ' +
-    'templates for building captivating landing pages and user-focused marketing ' +
-    'materials. Built with React, Tailwind CSS, and Motion, it draws heavy ' +
-    'inspiration from shadcn/ui with a magical twist. Components are copy-ready ' +
-    'and installable via the shadcn CLI.\n\n' +
+    `> ${SITE_DESCRIPTION}\n\n` +
     'This file contains the full text of every ikui documentation page, ' +
     'concatenated for LLM consumption. For a lighter index with links, see ' +
     '`/llms.txt`.\n'
@@ -207,28 +225,93 @@ async function writeLlmsFullFile(
 }
 
 /**
+ * Build `public/llms.txt`, the link index that points at the per-page `.md`
+ * files and the `llms-full.txt` bundle. Sections, titles, and the base URL are
+ * all derived from `basic-doc`, `registry.json`, and the docs actually emitted,
+ * so the index never drifts from what was generated. Companion to
+ * `writeLlmsFullFile`; runs at build time alongside it.
+ */
+async function writeLlmsIndexFile(
+  markdownById: Map<string, string>,
+  registry: Registry | null,
+): Promise<void> {
+  const base = registry?.homepage ?? SITE_URL
+  const lines: string[] = ['# ikui', '', `> ${SITE_DESCRIPTION}`, '']
+  lines.push(
+    `Install any component with the shadcn CLI, e.g. ` +
+      `\`pnpx shadcn@latest add ${base}/r/copy-button.json\`. To use the ` +
+      `\`@ikui\` namespace, add \`"@ikui": "${base}/r/{name}.json"\` to the ` +
+      `\`registries\` field in your \`components.json\`.`,
+    '',
+  )
+
+  // Overview: the basic-doc sections, limited to pages that were emitted.
+  for (const section of basicDoc) {
+    const items = section.items.filter((item) => markdownById.has(item.id))
+    if (!items.length) {
+      continue
+    }
+    lines.push(`## ${section.title}`, '')
+    for (const item of items) {
+      lines.push(
+        `- [${item.title}](${base}/docs/${item.id}.md): ${item.description}`,
+      )
+    }
+    lines.push('')
+  }
+
+  // Components: registry components that have a documentation page, in
+  // registry.json order.
+  const components = (registry?.items ?? []).filter(
+    (item) => item.type === 'registry:component' && markdownById.has(item.name),
+  )
+  if (components.length) {
+    lines.push('## Components', '')
+    for (const item of components) {
+      lines.push(
+        `- [${item.title}](${base}/docs/${item.name}.md): ${item.description ?? ''}`,
+      )
+    }
+    lines.push('')
+  }
+
+  lines.push(
+    '## Optional',
+    '',
+    `- [Registry Index](${base}/r/registry.json): The shadcn registry manifest listing every installable ikui item.`,
+    `- [llms-full.txt](${base}/llms-full.txt): The entire ikui documentation concatenated into a single file.`,
+    `- [GitHub Repository](${GITHUB_URL}): Source code, issues, and contributions.`,
+  )
+
+  const content = lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n'
+  await writeFile(join(process.cwd(), 'public', 'llms.txt'), content, 'utf-8')
+}
+
+/** Read and parse `registry.json`; returns null when it is absent. */
+async function readRegistry(): Promise<Registry | null> {
+  try {
+    const raw = await readFile(join(process.cwd(), 'registry.json'), 'utf-8')
+    return JSON.parse(raw) as Registry
+  } catch {
+    return null
+  }
+}
+
+/**
  * Map doc id → display title from basic-doc and the registry manifest, the two
  * sources the docs schema is assembled from at runtime.
  */
-async function collectDocTitles(): Promise<Map<string, string>> {
+function collectDocTitles(registry: Registry | null): Map<string, string> {
   const titles = new Map<string, string>()
   for (const section of basicDoc) {
     for (const item of section.items) {
       titles.set(item.id, item.title)
     }
   }
-  try {
-    const raw = await readFile(join(process.cwd(), 'registry.json'), 'utf-8')
-    const registry = JSON.parse(raw) as {
-      items: { name: string; title: string; type: string }[]
+  for (const item of registry?.items ?? []) {
+    if (item.type === 'registry:component') {
+      titles.set(item.name, item.title)
     }
-    for (const item of registry.items) {
-      if (item.type === 'registry:component') {
-        titles.set(item.name, item.title)
-      }
-    }
-  } catch {
-    // No registry manifest; fall back to id-derived titles.
   }
   return titles
 }
