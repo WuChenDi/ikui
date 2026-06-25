@@ -120,8 +120,14 @@ export function SparkChart({
   const points = React.useMemo<Point[]>(() => {
     const n = data.length
     if (n === 0) return []
-    const min = Math.min(...data)
-    const max = Math.max(...data)
+    // Single pass rather than Math.min/max(...data): `data` is unconstrained,
+    // and spreading a large array overflows the call argument limit.
+    let min = data[0]
+    let max = data[0]
+    for (let i = 1; i < n; i++) {
+      if (data[i] < min) min = data[i]
+      if (data[i] > max) max = data[i]
+    }
     const range = max - min || 1
     const innerH = VIEW_H - PAD_TOP - PAD_BOTTOM
     return data.map((value, i) => ({
