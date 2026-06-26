@@ -5,10 +5,10 @@ import { GradientText } from '@/components/reactbits/gradient-text'
 import { SpotlightCard } from '@/components/reactbits/spotlight-card'
 import { Waves } from '@/components/reactbits/waves'
 import { Button } from '@/components/ui/button'
-import { Demo as CopyButtonDemo } from '@/docs/copy-button/demo'
-import { Demo as ImageCompareDemo } from '@/docs/image-compare/demo'
+import { Demo as CascaderDemo } from '@/docs/cascader/demo'
+import { Demo as HeatmapCalendarDemo } from '@/docs/heatmap-calendar/demo'
 import { Demo as ParticleImageDemo } from '@/docs/particle-image/demo'
-import { Demo as ThumbnailStripDemo } from '@/docs/thumbnail-strip/demo'
+import { Demo as SparkChartDemo } from '@/docs/spark-chart/demo'
 import { Demo as WaveformPlayerDemo } from '@/docs/waveform-player/demo'
 
 export function Hero() {
@@ -71,47 +71,19 @@ export function Hero() {
             className="md:col-span-2"
           >
             <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
-              <div className="flex w-full flex-1 items-center justify-center">
-                <ThumbnailStripDemo />
+              <div className="flex w-full min-w-0 flex-1 items-center justify-center overflow-hidden">
+                <HeatmapCalendarDemo />
               </div>
               <Link
-                href="/docs/thumbnail-strip"
+                href="/docs/heatmap-calendar"
                 className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
               >
-                Thumbnail Strip
+                Heatmap Calendar
               </Link>
             </SpotlightCard>
           </AnimatedContent>
 
           <AnimatedContent distance={40} duration={0.6} delay={0.08}>
-            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
-              <div className="flex w-full flex-1 items-center justify-center">
-                <WaveformPlayerDemo />
-              </div>
-              <Link
-                href="/docs/waveform-player"
-                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Waveform Player
-              </Link>
-            </SpotlightCard>
-          </AnimatedContent>
-
-          <AnimatedContent distance={40} duration={0.6} delay={0.16}>
-            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
-              <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
-                <ImageCompareDemo />
-              </div>
-              <Link
-                href="/docs/image-compare"
-                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Image Compare
-              </Link>
-            </SpotlightCard>
-          </AnimatedContent>
-
-          <AnimatedContent distance={40} duration={0.6} delay={0.24}>
             <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
               <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
                 <ParticleImageDemo />
@@ -125,16 +97,72 @@ export function Hero() {
             </SpotlightCard>
           </AnimatedContent>
 
-          <AnimatedContent distance={40} duration={0.6} delay={0.32}>
+          <AnimatedContent distance={40} duration={0.6} delay={0.16}>
             <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
-              <div className="flex flex-1 items-center justify-center">
-                <CopyButtonDemo />
+              <div className="flex w-full min-w-0 flex-1 items-center justify-center overflow-hidden">
+                <SparkChartDemo />
               </div>
               <Link
-                href="/docs/copy-button"
+                href="/docs/spark-chart"
                 className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
               >
-                Copy Button
+                Spark Chart
+              </Link>
+            </SpotlightCard>
+          </AnimatedContent>
+
+          <AnimatedContent distance={40} duration={0.6} delay={0.24}>
+            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+              <div className="flex w-full flex-1 items-center justify-center">
+                <CascaderDemo />
+              </div>
+              <Link
+                href="/docs/cascader"
+                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Cascader
+              </Link>
+            </SpotlightCard>
+          </AnimatedContent>
+
+          <AnimatedContent distance={40} duration={0.6} delay={0.32}>
+            <SpotlightCard className="flex h-full min-h-[200px] flex-col p-4 shadow-inner md:min-h-[240px]">
+              <div className="flex w-full flex-1 items-center justify-center">
+                <WaveformPlayerDemo />
+              </div>
+              <Link
+                href="/docs/waveform-player"
+                className="text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Waveform Player
+              </Link>
+            </SpotlightCard>
+          </AnimatedContent>
+
+          {/* Featured block — a full composition, previewed live in an iframe. */}
+          <AnimatedContent
+            distance={40}
+            duration={0.6}
+            delay={0.4}
+            className="md:col-span-2 lg:col-span-3"
+          >
+            <SpotlightCard className="flex h-full flex-col gap-3 p-4 shadow-inner">
+              <div className="h-[600px] w-full overflow-hidden rounded-md border bg-background">
+                <iframe
+                  src="/blocks/view/storyboard-timeline"
+                  title="Storyboard Timeline block"
+                  loading="lazy"
+                  className="size-full"
+                />
+              </div>
+              <Link
+                href="/blocks#storyboard-timeline"
+                className="flex items-center gap-2 text-sm leading-4 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Storyboard Timeline
+                <span className="rounded-full border px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
+                  Block
+                </span>
               </Link>
             </SpotlightCard>
           </AnimatedContent>
