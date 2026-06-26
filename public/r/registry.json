@@ -394,7 +394,7 @@
       "name": "video-frame-extractor",
       "type": "registry:block",
       "title": "Video Frame Extractor",
-      "description": "A business composition over mediabunny's VideoSampleSink: load a video, then pull native-resolution stills off a zoomable timeline \u2014 a ruler aligned to the real duration with a continuous filmstrip split into evenly spaced frame cells. The zoom slider sets the timeline density, so the number of extractable frames follows the zoom instead of a fixed count; each cell reveals a download button on hover to save its frame, or grab them all at once. PNG or JPEG.",
+      "description": "A business composition over mediabunny's VideoSampleSink: load a video, then grab the still under the playhead at native resolution. A ruler aligned to the real duration sits above a continuous filmstrip carrying a playhead that tracks playback; the `<video>` has no native controls \u2014 play/pause lives outside it \u2014 so wherever it plays (or you drag the playhead) to, one button saves that exact frame. The zoom slider sets the timeline density for fine scrubbing. PNG or JPEG.",
       "files": [
         {
           "path": "registry/ikui/blocks/video-frame-extractor.tsx",
@@ -404,6 +404,7 @@
       "dependencies": ["lucide-react", "mediabunny"],
       "registryDependencies": [
         "@ikui/timeline-ruler",
+        "@ikui/timeline-playhead",
         "@ikui/thumbnail-strip",
         "@ikui/video-thumbnail-cache",
         "button",
