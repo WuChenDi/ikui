@@ -233,6 +233,28 @@ export function MediaCompressor({
   }
 
   if (!meta) {
+    if (error) {
+      return (
+        <Card className="w-full">
+          <CardContent className="flex flex-col items-center gap-4 pt-(--card-spacing)">
+            <p className="text-destructive text-sm">{error}</p>
+            <Button render={<label />} nativeButton={false} variant="outline">
+              <Upload />
+              Load media
+              <input
+                type="file"
+                accept="audio/*,video/*"
+                className="hidden"
+                onChange={(event) => {
+                  const next = event.target.files?.[0]
+                  if (next) setFile(next)
+                }}
+              />
+            </Button>
+          </CardContent>
+        </Card>
+      )
+    }
     return (
       <Card className="w-full">
         <CardContent className="flex flex-col gap-4 pt-(--card-spacing)">
