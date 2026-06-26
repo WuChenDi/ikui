@@ -80,6 +80,21 @@
       "category": "form"
     },
     {
+      "name": "heatmap-calendar",
+      "type": "registry:component",
+      "title": "Heatmap Calendar",
+      "description": "A GitHub-style contribution heatmap. Buckets dated values into color levels across a weeks × weekdays grid, with month/weekday axis labels, a Less→More legend, per-cell tooltips, and custom palettes. Driven purely by data — no card or title scaffolding.",
+      "files": [
+        {
+          "path": "registry/ikui/heatmap-calendar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["date-fns"],
+      "registryDependencies": ["tooltip"],
+      "category": "display"
+    },
+    {
       "name": "audio-waveform",
       "type": "registry:component",
       "title": "Audio Waveform",

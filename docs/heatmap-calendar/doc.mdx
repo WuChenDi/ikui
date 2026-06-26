@@ -1,0 +1,294 @@
+import { Demo } from './demo'
+import { Demo as PaletteDemo } from './demo-palette'
+import { Demo as LegendDemo } from './demo-legend'
+import { Demo as TooltipDemo } from './demo-tooltip'
+import { Demo as CompactDemo } from './demo-compact'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A GitHub-style contribution heatmap. It lays a year (or any `rangeDays`) of dated
+values onto a weeks × weekdays grid, buckets each day's value into a color level,
+and labels the months and weekdays. Days outside the range are dimmed. It is
+driven purely by `data` — there is no card, title, or other scaffolding, so you
+compose it wherever you need it.
+
+## Installation
+
+<InstallationTabs item="heatmap-calendar">
+```tsx file=../../registry/ikui/heatmap-calendar.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { HeatmapCalendar } from "@/components/heatmap-calendar";
+```
+```tsx
+const data = [
+  { date: "2026-05-01", value: 3 },
+  { date: "2026-05-02", value: 7 },
+];
+
+<HeatmapCalendar data={data} />;
+```
+
+Each datum is a `{ date, value }` pair; `date` is a `Date` or a `YYYY-MM-DD`
+string (parsed as a local day). Multiple entries on the same day are summed.
+
+## Examples
+
+### Custom palette
+
+Pass `palette` — an array of CSS colors for levels 0..N — to override the default
+semantic classes. The legend and cells both use it, and the number of colors
+defines the number of levels.
+
+<DemoCanvas>
+  <DemoPreview>
+    <PaletteDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-palette.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Legend placement
+
+Configure the legend with an object. It sits below the grid by default;
+`placement="right"` moves it to the right instead. You can also set `direction`,
+`lessText`/`moreText`, or `showText`.
+
+<DemoCanvas>
+  <DemoPreview>
+    <LegendDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-legend.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Custom tooltip
+
+Use `renderTooltip` to control the content shown on hover. It receives the full
+`HeatmapCell` (date, value, level, label).
+
+<DemoCanvas>
+  <DemoPreview>
+    <TooltipDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-tooltip.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Compact
+
+Trim the range with `rangeDays`, shrink `cellSize`, and turn `axisLabels` and
+`legend` off for a dense inline strip.
+
+<DemoCanvas>
+  <DemoPreview>
+    <CompactDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-compact.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+  data={[
+    {
+      name: "data",
+      type: "HeatmapDatum[]",
+      typeDetails: "Dated values: { date: string | Date; value: number; meta?: unknown }"
+    },
+    {
+      name: "rangeDays",
+      type: "number",
+      default: "365",
+      typeDetails: "Number of days ending at endDate"
+    },
+    {
+      name: "endDate",
+      type: "Date",
+      default: "new Date()",
+      typeDetails: "Last day of the range"
+    },
+    {
+      name: "weekStartsOn",
+      type: "0 | 1",
+      default: "1",
+      typeDetails: "0 = Sunday, 1 = Monday (top grid row)"
+    },
+    {
+      name: "cellSize",
+      type: "number",
+      default: "12",
+      typeDetails: "Cell width/height in px"
+    },
+    {
+      name: "cellGap",
+      type: "number",
+      default: "3",
+      typeDetails: "Gap between cells in px"
+    },
+    {
+      name: "onCellClick",
+      type: "(cell: HeatmapCell) => void",
+      typeDetails: "Fired when an in-range cell is clicked"
+    },
+    {
+      name: "palette",
+      type: "string[]",
+      typeDetails: "CSS colors for levels 0..N; overrides levelClassNames and sets the level count"
+    },
+    {
+      name: "levelClassNames",
+      type: "string[]",
+      typeDetails: "Tailwind classes for levels 0..N when no palette is given"
+    },
+    {
+      name: "getLevel",
+      type: "(value: number) => number",
+      typeDetails: "Map a raw value to a level index. Default: GitHub-ish buckets"
+    },
+    {
+      name: "legend",
+      type: "boolean | LegendConfig",
+      default: "true",
+      typeDetails: "Show/hide or configure the Less→More legend"
+    },
+    {
+      name: "axisLabels",
+      type: "boolean | AxisLabelsConfig",
+      default: "true",
+      typeDetails: "Show/hide or configure month + weekday labels"
+    },
+    {
+      name: "renderLegend",
+      type: "(args) => React.ReactNode",
+      typeDetails: "Full custom legend render, replacing the built-in legend UI"
+    },
+    {
+      name: "renderTooltip",
+      type: "(cell: HeatmapCell) => React.ReactNode",
+      typeDetails: "Custom tooltip content per cell"
+    },
+    {
+      name: "className",
+      type: "string",
+      typeDetails: "Class applied to the outer flex container"
+    }
+  ]}
+/>
+
+### LegendConfig
+
+<PropsTable
+  data={[
+    {
+      name: "show",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Render the legend"
+    },
+    {
+      name: "placement",
+      type: '"right" | "bottom"',
+      default: '"bottom"',
+      typeDetails: "Where the legend sits relative to the grid"
+    },
+    {
+      name: "direction",
+      type: '"row" | "column"',
+      default: '"row"',
+      typeDetails: "Lay the swatches out horizontally or vertically"
+    },
+    {
+      name: "showText",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Show the Less / More labels flanking the swatches"
+    },
+    {
+      name: "lessText",
+      type: "React.ReactNode",
+      default: '"Less"',
+      typeDetails: "Caption on the low end"
+    },
+    {
+      name: "moreText",
+      type: "React.ReactNode",
+      default: '"More"',
+      typeDetails: "Caption on the high end"
+    },
+    {
+      name: "swatchSize",
+      type: "number",
+      typeDetails: "Swatch size in px (defaults to cellSize)"
+    },
+    {
+      name: "swatchGap",
+      type: "number",
+      typeDetails: "Gap between swatches in px (defaults to cellGap)"
+    }
+  ]}
+/>
+
+### AxisLabelsConfig
+
+<PropsTable
+  data={[
+    {
+      name: "show",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Render axis labels at all"
+    },
+    {
+      name: "showWeekdays",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Show weekday labels on the left"
+    },
+    {
+      name: "showMonths",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Show month labels on top"
+    },
+    {
+      name: "weekdayIndices",
+      type: "number[]",
+      default: "[1, 3, 5]",
+      typeDetails: "Which weekday rows (0..6, top→bottom) to label"
+    },
+    {
+      name: "monthFormat",
+      type: '"short" | "long" | "numeric"',
+      default: '"short"',
+      typeDetails: "How month labels are formatted"
+    },
+    {
+      name: "minWeekSpacing",
+      type: "number",
+      default: "3",
+      typeDetails: "Minimum weeks between month labels"
+    }
+  ]}
+/>
