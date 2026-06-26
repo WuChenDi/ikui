@@ -21,3 +21,4 @@
 | T-017 | Add image-grid component (adaptive 1-9 photo grid) | completed | ikui | [P-017](../plan/P-017-add-image-grid.md) |
 | T-018 | Add video-frame-extractor block (extract stills, mediabunny) | completed | ikui | [P-018](../plan/P-018-add-video-frame-extractor.md) |
 | T-019 | Categorize the Blocks gallery (shadcn-style category routes) | completed | ikui | [P-019](../plan/P-019-blocks-categories.md) |
+| T-020 | Add heatmap-calendar component (port of shadcn-heatmap) | completed | ikui | [P-020](../plan/P-020-add-heatmap-calendar.md) |
