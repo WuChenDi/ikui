@@ -61,7 +61,7 @@ export type AxisLabelsConfig = {
   showMonths?: boolean
   /**
    * Which weekday rows to label (0..6 in grid order top->bottom).
-   * Default: [1,3,5] => Mon/Wed/Fri when weekStartsOn=1.
+   * Default: Mon/Wed/Fri — [0,2,4] when weekStartsOn=1, [1,3,5] when =0.
    */
   weekdayIndices?: number[]
   /** Month label format. Default: "short" */
@@ -127,7 +127,11 @@ function toKey(d: Date) {
   return format(d, 'yyyy-MM-dd')
 }
 
-/** Parse a bare `YYYY-MM-DD` (or full ISO) as a *local* day, so it lines up with toKey. */
+/**
+ * Parse a date input to a local Date. A bare `YYYY-MM-DD` becomes that local
+ * day (lining up with toKey); a full ISO timestamp with an offset is converted
+ * to local time as usual, which may land on the adjacent day.
+ */
 function parseDate(input: string | Date) {
   return input instanceof Date ? input : parseISO(input)
 }
@@ -213,7 +217,9 @@ export function HeatmapCalendar({
   const showAxis = axisCfg.show ?? true
   const showWeekdays = axisCfg.showWeekdays ?? true
   const showMonths = axisCfg.showMonths ?? true
-  const weekdayIndices = axisCfg.weekdayIndices ?? [1, 3, 5]
+  // Mon/Wed/Fri regardless of week start (row 0 is weekStartsOn's day).
+  const weekdayIndices =
+    axisCfg.weekdayIndices ?? (weekStartsOn === 1 ? [0, 2, 4] : [1, 3, 5])
   const monthFormat = axisCfg.monthFormat ?? 'short'
   const minWeekSpacing = axisCfg.minWeekSpacing ?? 3
 
@@ -232,8 +238,9 @@ export function HeatmapCalendar({
   }, [data])
 
   const columns: HeatmapCell[][] = React.useMemo(() => {
+    const days = Math.max(1, Math.floor(rangeDays))
     const end = new Date(endTime)
-    const start = addDays(end, -(rangeDays - 1))
+    const start = addDays(end, -(days - 1))
     const firstWeek = startOfWeek(start, { weekStartsOn })
     const totalDays = differenceInCalendarDays(end, firstWeek) + 1
     const weeks = Math.ceil(totalDays / 7)
@@ -323,24 +330,22 @@ export function HeatmapCalendar({
         )}
         style={{ gap: `${swatchGap}px` }}
       >
-        {Array.from({ length: levelCount }).map((_, i) => {
-          const cls = levels[clampLevel(i, levels.length)]
-          const swatchKey = palette?.length
-            ? palette[clampLevel(i, palette.length)]
-            : cls
-          return (
-            <div
-              key={swatchKey}
-              className={cn('rounded-[3px]', !palette?.length && cls)}
-              style={{
-                width: swatchSize,
-                height: swatchSize,
-                ...(bgStyleForLevel(i, palette) ?? {}),
-              }}
-              aria-hidden="true"
-            />
-          )
-        })}
+        {Array.from({ length: levelCount }, (_, level) => ({
+          level,
+          cls: levels[clampLevel(level, levels.length)],
+        })).map(({ level, cls }) => (
+          // key by level (0..N-1) — always unique even if colors/classes repeat.
+          <div
+            key={level}
+            className={cn('rounded-[3px]', !palette?.length && cls)}
+            style={{
+              width: swatchSize,
+              height: swatchSize,
+              ...(bgStyleForLevel(level, palette) ?? {}),
+            }}
+            aria-hidden="true"
+          />
+        ))}
       </div>
 
       {showText ? <span>{moreText}</span> : null}
@@ -363,7 +368,8 @@ export function HeatmapCalendar({
     )
   }
 
-  const weekdayLabelWidth = showAxis && showWeekdays ? 44 : 0
+  // Weekday cell is 40px wide + mr-2 (8px) → month labels must clear 48px.
+  const weekdayLabelWidth = showAxis && showWeekdays ? 48 : 0
 
   const weekdayRows = Array.from({ length: 7 }, (_, rowIdx) => ({
     name: weekdayLabelForIndex(rowIdx, weekStartsOn),
