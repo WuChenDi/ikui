@@ -31,6 +31,9 @@ const ZOOM_MAX = 10
 // it only fits below this — so "Fit" stays reachable. (bycut uses a fixed range.)
 const ZOOM_MIN = 0.5
 const RULER_HEIGHT = 24
+// Matches TimelinePlayhead's knob diameter — the track is padded by half this
+// on each side so the knob stays fully visible at either end.
+const PLAYHEAD_KNOB = 12
 
 export interface AudioTrimmerProps {
   /** Audio to load, visualize and trim. Falls back to a bundled sample. */
@@ -170,10 +173,15 @@ export function AudioTrimmer({
     }
   }, [src])
 
-  // Zoom that fits the whole clip in the available width.
+  // Zoom that fits the whole clip in the available width. Subtract the track
+  // padding (half a knob each side) so the filled timeline lands exactly on the
+  // viewport edge instead of leaving a sliver of scrollable overflow.
   const fitZoom =
     total > 0 && containerWidth > 0
-      ? Math.min(ZOOM_MAX, containerWidth / (total * pixelsPerSecond))
+      ? Math.min(
+          ZOOM_MAX,
+          (containerWidth - PLAYHEAD_KNOB) / (total * pixelsPerSecond),
+        )
       : 1
   const minZoom = Math.min(ZOOM_MIN, fitZoom)
   const maxZoom = Math.max(ZOOM_MAX, fitZoom)
@@ -248,7 +256,7 @@ export function AudioTrimmer({
   if (!total || !clip) {
     return (
       <Card className="w-full">
-        <CardContent className="flex flex-col gap-3 pt-(--card-spacing)">
+        <CardContent className="flex flex-col gap-4 pt-(--card-spacing)">
           {/* Toolbar — play + time on the left, zoom on the right. */}
           <div className="flex items-center gap-3">
             <Skeleton className="size-9 rounded-full" />
@@ -339,9 +347,9 @@ export function AudioTrimmer({
 
   return (
     <Card className="w-full">
-      <CardContent className="flex flex-col gap-3 pt-(--card-spacing)">
+      <CardContent className="flex flex-col gap-4 pt-(--card-spacing)">
         {/* Toolbar — transport on the left, zoom + fit on the right. */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <Button
             type="button"
             size="icon-lg"
@@ -389,7 +397,7 @@ export function AudioTrimmer({
             <Button
               variant="ghost"
               size="icon-sm"
-              title="Fit to screen"
+              title="Fit to width"
               onClick={fit}
             >
               <Maximize2 />
@@ -403,78 +411,98 @@ export function AudioTrimmer({
         {/* Timeline — the hero; scrolls horizontally when zoomed past the view. */}
         <div className="bg-muted/30 rounded-lg p-3">
           <div ref={measureRef}>
-            <ScrollArea style={{ height: RULER_HEIGHT + 8 + height + 16 }}>
+            <ScrollArea
+              style={{ height: RULER_HEIGHT + 8 + height + PLAYHEAD_KNOB + 8 }}
+            >
+              {/* Pad the scroll content by half a knob on every side so the
+                  playhead circle stays fully visible at the start, end and top.
+                  The inner track is the positioning origin shared by the ruler,
+                  waveform and playhead, so they all stay aligned. */}
               <div
-                style={{ position: 'relative', width, cursor: 'pointer' }}
-                onPointerDown={scrubFrom}
+                style={{
+                  width: width + PLAYHEAD_KNOB,
+                  minWidth: '100%',
+                  padding: PLAYHEAD_KNOB / 2,
+                  boxSizing: 'border-box',
+                }}
               >
-                <TimelineRuler
-                  duration={total}
-                  pixelsPerSecond={pixelsPerSecond}
-                  zoom={zoom}
-                  height={RULER_HEIGHT}
-                />
                 <div
-                  className="mt-2"
                   style={{
                     position: 'relative',
                     width,
-                    height,
-                    overflow: 'hidden',
+                    minWidth: '100%',
+                    cursor: 'pointer',
                   }}
+                  onPointerDown={scrubFrom}
                 >
-                  {/* Full waveform — always visible, so you can see what is
-                      being cut away (and whether there is audio there). */}
-                  <AudioWaveform
-                    audioUrl={src}
-                    width={Math.ceil(width)}
-                    height={height}
-                    barColor="rgba(148, 148, 173, 0.55)"
-                    barPlayedColor="rgba(129, 140, 248, 0.95)"
-                    progress={time / total}
+                  <TimelineRuler
+                    duration={total}
+                    pixelsPerSecond={pixelsPerSecond}
+                    zoom={zoom}
+                    height={RULER_HEIGHT}
                   />
+                  <div
+                    className="mt-2"
+                    style={{
+                      position: 'relative',
+                      width,
+                      height,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {/* Full waveform — always visible, so you can see what is
+                      being cut away (and whether there is audio there). */}
+                    <AudioWaveform
+                      audioUrl={src}
+                      width={Math.ceil(width)}
+                      height={height}
+                      barColor="rgba(148, 148, 173, 0.55)"
+                      barPlayedColor="rgba(129, 140, 248, 0.95)"
+                      progress={time / total}
+                    />
 
-                  {/* Spotlight — dim everything outside the selection instead of
+                    {/* Spotlight — dim everything outside the selection instead of
                       hiding it. The large spread shadow follows the rounded
                       corners, so the dim hugs the selection frame exactly (no
                       square-vs-rounded notch at the corners). Clipped to the
                       waveform band by the parent's overflow. */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      bottom: 0,
-                      left: clip.startTime * pps,
-                      width: clip.duration * pps,
-                      borderRadius: 8,
-                      boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.2)',
-                      pointerEvents: 'none',
-                    }}
-                  />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: clip.startTime * pps,
+                        width: clip.duration * pps,
+                        borderRadius: 8,
+                        boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.2)',
+                        pointerEvents: 'none',
+                      }}
+                    />
 
-                  {/* Selection window — a transparent frame (border + draggable
+                    {/* Selection window — a transparent frame (border + draggable
                       trim handles only) so the waveform inside stays visible. */}
-                  <TimelineElement
-                    startTime={clip.startTime}
-                    duration={clip.duration}
+                    <TimelineElement
+                      startTime={clip.startTime}
+                      duration={clip.duration}
+                      pixelsPerSecond={pixelsPerSecond}
+                      zoom={zoom}
+                      height={height}
+                      minDuration={0.5}
+                      maxEnd={total}
+                      selected
+                      movable
+                      color="transparent"
+                      onResize={updateClip}
+                    />
+                  </div>
+                  <TimelinePlayhead
+                    currentTime={time}
+                    duration={total}
                     pixelsPerSecond={pixelsPerSecond}
                     zoom={zoom}
-                    height={height}
-                    minDuration={0.5}
-                    maxEnd={total}
-                    selected
-                    movable
-                    color="transparent"
-                    onResize={updateClip}
+                    onSeek={seek}
                   />
                 </div>
-                <TimelinePlayhead
-                  currentTime={time}
-                  duration={total}
-                  pixelsPerSecond={pixelsPerSecond}
-                  zoom={zoom}
-                  onSeek={seek}
-                />
               </div>
               <ScrollBar orientation="horizontal" />
             </ScrollArea>

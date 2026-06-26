@@ -46,6 +46,9 @@ const RULER_HEIGHT = 24
 const CARD_HEADER_HEIGHT = 22
 const STRIP_HEIGHT = 56
 const CARD_GAP = 10
+// Matches TimelinePlayhead's knob diameter — the track is padded by half this
+// on each side so the knob stays fully visible at either end.
+const PLAYHEAD_KNOB = 12
 const ZOOM_MIN = 0.5
 const ZOOM_MAX = 4
 
@@ -64,11 +67,11 @@ type LoadState =
   | { kind: 'error'; message: string }
   | { kind: 'ready'; items: Item[] }
 
+/** `mm:ss.s` timestamp, e.g. `00:15.5`. */
 function formatTime(seconds: number): string {
-  const total = Math.round(seconds)
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${String(m).padStart(2, '0')}:${s.toFixed(1).padStart(4, '0')}`
 }
 
 /** Absolute time -> item index + item-local time. */
@@ -217,10 +220,15 @@ export function StoryboardTimeline({
   const contentWidth = total * pps
   const { index: currentIndex } = locate(currentTime, durations)
 
-  // Zoom that fits the whole storyboard in the available width.
+  // Zoom that fits the whole storyboard in the available width. Subtract the
+  // track padding (half a knob each side) so the filled timeline lands exactly
+  // on the viewport edge instead of leaving a sliver of scrollable overflow.
   const fitZoom =
     total > 0 && containerWidth > 0
-      ? Math.min(ZOOM_MAX, containerWidth / (total * pixelsPerSecond))
+      ? Math.min(
+          ZOOM_MAX,
+          (containerWidth - PLAYHEAD_KNOB) / (total * pixelsPerSecond),
+        )
       : 1
   const minZoom = Math.min(ZOOM_MIN, fitZoom)
   const maxZoom = Math.max(ZOOM_MAX, fitZoom)
@@ -370,7 +378,7 @@ export function StoryboardTimeline({
   if (state.kind === 'loading') {
     return (
       <Card className="w-full">
-        <CardContent className="flex flex-col gap-3">
+        <CardContent className="flex flex-col gap-4 pt-(--card-spacing)">
           <Skeleton className="h-64 w-full rounded-md" />
           <Skeleton className="h-24 w-full rounded-md" />
         </CardContent>
@@ -380,9 +388,9 @@ export function StoryboardTimeline({
   if (state.kind === 'error') {
     return (
       <Card className="w-full">
-        <CardContent>
+        <CardContent className="pt-(--card-spacing)">
           <p className="text-destructive text-sm">
-            Failed to load shots: {state.message}
+            Could not load the storyboard.
           </p>
         </CardContent>
       </Card>
@@ -392,7 +400,7 @@ export function StoryboardTimeline({
   if (state.items.length === 0) {
     return (
       <Card className="w-full">
-        <CardContent>
+        <CardContent className="pt-(--card-spacing)">
           <p className="text-muted-foreground text-sm">No shots to display.</p>
         </CardContent>
       </Card>
@@ -405,7 +413,7 @@ export function StoryboardTimeline({
 
   return (
     <Card className="w-full">
-      <CardContent className="flex flex-col gap-4">
+      <CardContent className="flex flex-col gap-4 pt-(--card-spacing)">
         {active.kind === 'video' ? (
           <video
             key={currentIndex}
@@ -428,18 +436,21 @@ export function StoryboardTimeline({
           />
         )}
 
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3 text-sm">
           <Button
-            variant="default"
-            size="icon"
+            type="button"
+            size="icon-lg"
             className="rounded-full"
             onClick={togglePlay}
             aria-label={playing ? 'Pause' : 'Play'}
           >
-            {playing ? <Pause /> : <Play />}
+            {playing ? <Pause /> : <Play className="translate-x-px" />}
           </Button>
-          <span className="text-muted-foreground tabular-nums">
-            {formatTime(currentTime)} / {formatTime(total)}
+          <span className="text-muted-foreground text-xs tabular-nums">
+            <span className="text-foreground font-medium">
+              {formatTime(currentTime)}
+            </span>{' '}
+            / {formatTime(total)}
           </span>
           <span className="text-muted-foreground">
             shot {currentIndex + 1} of {state.items.length}
@@ -489,114 +500,131 @@ export function StoryboardTimeline({
         {/* Storyboard timeline — each shot is its own card on a shared ruler. */}
         <div className="bg-muted/30 rounded-lg p-3">
           <div ref={measureRef}>
-            <ScrollArea style={{ height: RULER_HEIGHT + 8 + trackHeight + 16 }}>
+            <ScrollArea
+              style={{
+                height: RULER_HEIGHT + 8 + trackHeight + PLAYHEAD_KNOB + 8,
+              }}
+            >
+              {/* Pad the scroll content by half a knob on every side so the
+                  playhead circle stays fully visible at the start, end and top.
+                  The inner track is the positioning origin shared by the ruler,
+                  cards and playhead, so they all stay aligned. */}
               <div
-                ref={contentRef}
                 style={{
-                  position: 'relative',
-                  width: contentWidth,
+                  width: contentWidth + PLAYHEAD_KNOB,
                   minWidth: '100%',
-                  cursor: 'pointer',
+                  padding: PLAYHEAD_KNOB / 2,
+                  boxSizing: 'border-box',
                 }}
-                onPointerDown={scrubFrom}
               >
-                <TimelineRuler
-                  duration={total}
-                  pixelsPerSecond={pixelsPerSecond}
-                  zoom={zoom}
-                  height={RULER_HEIGHT}
-                />
-
                 <div
-                  className="mt-2"
+                  ref={contentRef}
                   style={{
                     position: 'relative',
                     width: contentWidth,
-                    height: trackHeight,
+                    minWidth: '100%',
+                    cursor: 'pointer',
                   }}
+                  onPointerDown={scrubFrom}
                 >
-                  {state.items.map((item, i) => {
-                    const slotLeft = starts[i] * pps
-                    const slotWidth = item.duration * pps
-                    const cardWidth = Math.max(0, slotWidth - CARD_GAP)
-                    const isActive = i === currentIndex
-                    return (
-                      <div
-                        key={item.id}
-                        className="bg-card overflow-hidden rounded-md border"
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: slotLeft + CARD_GAP / 2,
-                          width: cardWidth,
-                          height: trackHeight,
-                          borderColor: isActive
-                            ? 'var(--primary)'
-                            : 'var(--border)',
-                          boxShadow: isActive
-                            ? '0 0 0 1px var(--primary)'
-                            : undefined,
-                        }}
-                      >
+                  <TimelineRuler
+                    duration={total}
+                    pixelsPerSecond={pixelsPerSecond}
+                    zoom={zoom}
+                    height={RULER_HEIGHT}
+                  />
+
+                  <div
+                    className="mt-2"
+                    style={{
+                      position: 'relative',
+                      width: contentWidth,
+                      height: trackHeight,
+                    }}
+                  >
+                    {state.items.map((item, i) => {
+                      const slotLeft = starts[i] * pps
+                      const slotWidth = item.duration * pps
+                      const cardWidth = Math.max(0, slotWidth - CARD_GAP)
+                      const isActive = i === currentIndex
+                      return (
                         <div
-                          className="text-muted-foreground flex items-center gap-1.5 overflow-hidden whitespace-nowrap px-2 text-[11px]"
+                          key={item.id}
+                          className="bg-card overflow-hidden rounded-md border"
                           style={{
-                            height: CARD_HEADER_HEIGHT,
-                            lineHeight: `${CARD_HEADER_HEIGHT}px`,
+                            position: 'absolute',
+                            top: 0,
+                            left: slotLeft + CARD_GAP / 2,
+                            width: cardWidth,
+                            height: trackHeight,
+                            borderColor: isActive
+                              ? 'var(--primary)'
+                              : 'var(--border)',
+                            boxShadow: isActive
+                              ? '0 0 0 1px var(--primary)'
+                              : undefined,
                           }}
                         >
-                          <span className="text-foreground font-medium">
-                            Shot {i + 1}
-                          </span>
-                          <span className="tabular-nums">
-                            {formatTime(item.duration)}
-                          </span>
-                          <span className="ml-auto inline-flex items-center gap-1">
-                            {item.kind === 'video' ? (
-                              <>
-                                <Film className="size-3" />
-                                video
-                              </>
-                            ) : (
-                              <>
-                                <ImageIcon className="size-3" />
-                                image
-                              </>
-                            )}
-                          </span>
-                        </div>
-                        {item.kind === 'video' ? (
-                          <ThumbnailStrip
-                            cache={item.cache}
-                            duration={item.duration}
-                            totalWidth={cardWidth}
-                            tileWidth={stripTileWidth}
-                            tileHeight={STRIP_HEIGHT}
-                          />
-                        ) : (
                           <div
+                            className="text-muted-foreground flex items-center gap-1.5 overflow-hidden whitespace-nowrap px-2 text-[11px]"
                             style={{
-                              width: cardWidth,
-                              height: STRIP_HEIGHT,
-                              backgroundImage: `url(${item.url})`,
-                              backgroundSize: `${stripTileWidth}px ${STRIP_HEIGHT}px`,
-                              backgroundRepeat: 'repeat-x',
-                              backgroundPosition: 'left center',
+                              height: CARD_HEADER_HEIGHT,
+                              lineHeight: `${CARD_HEADER_HEIGHT}px`,
                             }}
-                          />
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+                          >
+                            <span className="text-foreground font-medium">
+                              Shot {i + 1}
+                            </span>
+                            <span className="tabular-nums">
+                              {formatTime(item.duration)}
+                            </span>
+                            <span className="ml-auto inline-flex items-center gap-1">
+                              {item.kind === 'video' ? (
+                                <>
+                                  <Film className="size-3" />
+                                  video
+                                </>
+                              ) : (
+                                <>
+                                  <ImageIcon className="size-3" />
+                                  image
+                                </>
+                              )}
+                            </span>
+                          </div>
+                          {item.kind === 'video' ? (
+                            <ThumbnailStrip
+                              cache={item.cache}
+                              duration={item.duration}
+                              totalWidth={cardWidth}
+                              tileWidth={stripTileWidth}
+                              tileHeight={STRIP_HEIGHT}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: cardWidth,
+                                height: STRIP_HEIGHT,
+                                backgroundImage: `url(${item.url})`,
+                                backgroundSize: `${stripTileWidth}px ${STRIP_HEIGHT}px`,
+                                backgroundRepeat: 'repeat-x',
+                                backgroundPosition: 'left center',
+                              }}
+                            />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
 
-                <TimelinePlayhead
-                  currentTime={currentTime}
-                  duration={total}
-                  pixelsPerSecond={pixelsPerSecond}
-                  zoom={zoom}
-                  onSeek={seek}
-                />
+                  <TimelinePlayhead
+                    currentTime={currentTime}
+                    duration={total}
+                    pixelsPerSecond={pixelsPerSecond}
+                    zoom={zoom}
+                    onSeek={seek}
+                  />
+                </div>
               </div>
               <ScrollBar orientation="horizontal" />
             </ScrollArea>
