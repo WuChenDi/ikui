@@ -4,12 +4,15 @@ import {
   Download,
   Loader2,
   Maximize2,
+  Pause,
+  Play,
   Upload,
   ZoomIn,
   ZoomOut,
 } from 'lucide-react'
 import * as React from 'react'
 import { ThumbnailStrip } from '@/components/thumbnail-strip'
+import { TimelinePlayhead } from '@/components/timeline-playhead'
 import { TimelineRuler } from '@/components/timeline-ruler'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
@@ -45,15 +48,15 @@ const STRIP_HEIGHT = 72
 const RULER_HEIGHT = 24
 const ZOOM_MIN = 0.5
 const ZOOM_MAX = 4
-// Cap how many stills the strip resolves to, so a long video at high zoom
-// can't ask the decoder for thousands of frames at once.
-const MAX_FRAMES = 60
+// Matches TimelinePlayhead's knob diameter — the track is padded by half this
+// on each side so the knob stays fully visible at either end.
+const PLAYHEAD_KNOB = 12
 
-/** `m:ss.s` timestamp for a frame label. */
+/** `mm:ss.s` timestamp, e.g. `00:15.5`. */
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60)
-  const s = seconds - m * 60
-  return `${m}:${s.toFixed(1).padStart(4, '0')}`
+  const s = seconds % 60
+  return `${String(m).padStart(2, '0')}:${s.toFixed(1).padStart(4, '0')}`
 }
 
 /** Linear slider position (0–1) → exponential zoom, so low values step gently. */
@@ -80,13 +83,13 @@ export interface VideoFrameExtractorProps {
 }
 
 /**
- * Video frame extractor — load a video (or use the sample) and scrub stills off
- * a **zoomable timeline**. A time ruler runs across the top aligned to the real
+ * Video frame extractor — load a video (or use the sample) and grab the still
+ * **under the playhead**. A time ruler runs across the top aligned to the real
  * duration; beneath it a continuous filmstrip (mediabunny-decoded thumbnails)
- * is split into evenly spaced frame cells. The zoom slider sets how dense the
- * timeline is, so **the number of extractable frames follows the zoom** instead
- * of a fixed count. Each cell reveals a download button on hover that saves its
- * frame at native resolution, or grab them all at once.
+ * carries a playhead that tracks playback. Play/pause lives outside the video —
+ * the `<video>` itself has no native controls — so wherever it plays (or you
+ * drag the playhead) to, one button saves that exact frame at native
+ * resolution. The zoom slider sets how dense the timeline is for fine scrubbing.
  */
 export function VideoFrameExtractor({
   videoUrl = SAMPLE_VIDEO_URL,
@@ -98,10 +101,12 @@ export function VideoFrameExtractor({
   const [format, setFormat] = React.useState<Format>(initialFormat)
   const [zoom, setZoom] = React.useState(1)
   const [containerWidth, setContainerWidth] = React.useState(0)
+  const [currentTime, setCurrentTime] = React.useState(0)
+  const [playing, setPlaying] = React.useState(false)
   const [downloading, setDownloading] = React.useState(false)
-  const [progress, setProgress] = React.useState(0)
   const [error, setError] = React.useState<string | null>(null)
 
+  const videoRef = React.useRef<HTMLVideoElement>(null)
   // Auto-fit the zoom once per source, after the width is known.
   const didFitRef = React.useRef(false)
   const resizeObserverRef = React.useRef<ResizeObserver | null>(null)
@@ -119,13 +124,15 @@ export function VideoFrameExtractor({
   // Resolve the source to a Blob (uploaded File or fetched URL), build the
   // thumbnail cache, and read duration + intrinsic size off its metadata. The
   // same blob feeds native-resolution decoding on download. Switching sources
-  // disposes the previous cache and re-arms the auto-fit.
+  // disposes the previous cache, rewinds the playhead, and re-arms the auto-fit.
   React.useEffect(() => {
     let cancelled = false
     let objectUrl: string | null = null
     let cache: VideoThumbnailCache | null = null
     setMeta(null)
     setError(null)
+    setCurrentTime(0)
+    setPlaying(false)
     didFitRef.current = false
     void (async () => {
       try {
@@ -152,9 +159,7 @@ export function VideoFrameExtractor({
     }
   }, [file, videoUrl])
 
-  // Tile geometry + frame layout, all derived from zoom. The filmstrip cells
-  // keep the source aspect; the cell count (and thus extractable frames) is
-  // however many fit across the zoomed timeline, capped.
+  // Tile geometry derived from zoom; the filmstrip cells keep the source aspect.
   const aspect =
     meta && meta.width > 0 && meta.height > 0
       ? meta.width / meta.height
@@ -163,25 +168,16 @@ export function VideoFrameExtractor({
   const pps = pixelsPerSecond * zoom
   const total = meta?.duration ?? 0
   const contentWidth = total * pps
-  const frameCount = Math.min(
-    MAX_FRAMES,
-    Math.max(1, Math.round(contentWidth / tileWidth)),
-  )
-  const slotWidth = frameCount > 0 ? contentWidth / frameCount : 0
-  // Each cell's representative still: the midpoint of its time slice.
-  const frames = React.useMemo(
-    () =>
-      Array.from({ length: frameCount }, (_, i) => ({
-        index: i,
-        time: ((i + 0.5) / frameCount) * total,
-      })),
-    [frameCount, total],
-  )
 
-  // Zoom that fits the whole video in the available width.
+  // Zoom that fits the whole video in the available width. Subtract the track
+  // padding (half a knob each side) so the filled timeline lands exactly on the
+  // viewport edge instead of leaving a sliver of scrollable overflow.
   const fitZoom =
     total > 0 && containerWidth > 0
-      ? Math.min(ZOOM_MAX, containerWidth / (total * pixelsPerSecond))
+      ? Math.min(
+          ZOOM_MAX,
+          (containerWidth - PLAYHEAD_KNOB) / (total * pixelsPerSecond),
+        )
       : 1
   const minZoom = Math.min(ZOOM_MIN, fitZoom)
   const maxZoom = Math.max(ZOOM_MAX, fitZoom)
@@ -194,6 +190,20 @@ export function VideoFrameExtractor({
     didFitRef.current = true
   }, [total, containerWidth, fitZoom])
 
+  // While playing, drive the playhead off a rAF loop so it tracks smoothly
+  // (the `timeupdate` event only fires a few times a second).
+  React.useEffect(() => {
+    if (!playing) return
+    let raf = 0
+    const tick = () => {
+      const video = videoRef.current
+      if (video) setCurrentTime(video.currentTime)
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [playing])
+
   const applySlider = (next: number) => {
     didFitRef.current = true
     setZoom(sliderToZoom(next, minZoom, maxZoom))
@@ -204,14 +214,35 @@ export function VideoFrameExtractor({
     setZoom(fitZoom)
   }
 
-  // Decode the given times at native resolution and hand back stills. A fresh
-  // mediabunny input keeps full-res export off the (downscaled) preview cache.
-  const decodeFrames = React.useCallback(
-    async (
-      blob: Blob,
-      times: number[],
-      onStep?: (done: number) => void,
-    ): Promise<Blob[]> => {
+  // Seek both the playhead and the underlying video (the only way to move the
+  // playhead, since the `<video>` exposes no native scrubber).
+  const seek = (time: number) => {
+    const clamped = Math.min(total, Math.max(0, time))
+    setCurrentTime(clamped)
+    const video = videoRef.current
+    if (video) video.currentTime = clamped
+  }
+
+  // Click the ruler / filmstrip to jump the playhead there. The inner track's
+  // left edge is time 0, so the pointer x maps straight to a time. (Dragging
+  // the playhead knob is handled by TimelinePlayhead itself.)
+  const scrubFrom = (event: React.PointerEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    seek((event.clientX - rect.left) / pps)
+  }
+
+  const togglePlay = () => {
+    const video = videoRef.current
+    if (!video) return
+    if (video.paused) void video.play()
+    else video.pause()
+  }
+
+  // Decode a single timestamp at native resolution and hand back the still. A
+  // fresh mediabunny input keeps full-res export off the (downscaled) preview
+  // cache.
+  const decodeFrame = React.useCallback(
+    async (blob: Blob, time: number): Promise<Blob | null> => {
       const { Input, BlobSource, VideoSampleSink, ALL_FORMATS } = await import(
         'mediabunny'
       )
@@ -222,71 +253,44 @@ export function VideoFrameExtractor({
       const track = await input.getPrimaryVideoTrack()
       if (!track || !(await track.canDecode())) throw new Error('undecodable')
       const sink = new VideoSampleSink(track)
-      const mime = format === 'png' ? 'image/png' : 'image/jpeg'
-      const quality = format === 'jpeg' ? 0.92 : undefined
-      const out: Blob[] = []
-      let done = 0
-      // Advance progress per requested timestamp, even when a slot decodes to
-      // null or the canvas context is unavailable, so it always reaches 100%.
-      for await (const sample of sink.samplesAtTimestamps(times)) {
-        try {
-          if (sample) {
-            const canvas = new OffscreenCanvas(
-              sample.codedWidth,
-              sample.codedHeight,
-            )
-            const ctx = canvas.getContext('2d')
-            if (ctx) {
-              sample.draw(ctx, 0, 0, sample.codedWidth, sample.codedHeight)
-              out.push(await canvas.convertToBlob({ type: mime, quality }))
-            }
-          }
-        } finally {
-          sample?.close()
-        }
-        done += 1
-        onStep?.(done)
+      const sample = await sink.getSample(time)
+      if (!sample) return null
+      try {
+        const canvas = new OffscreenCanvas(
+          sample.codedWidth,
+          sample.codedHeight,
+        )
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return null
+        sample.draw(ctx, 0, 0, sample.codedWidth, sample.codedHeight)
+        const mime = format === 'png' ? 'image/png' : 'image/jpeg'
+        const quality = format === 'jpeg' ? 0.92 : undefined
+        return await canvas.convertToBlob({ type: mime, quality })
+      } finally {
+        sample.close()
       }
-      return out
     },
     [format],
   )
 
   const baseName = (file?.name ?? 'video').replace(/\.[^.]+$/, '')
-  const save = (blob: Blob, index: number) => {
+  const save = (blob: Blob, time: number) => {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${baseName}-frame-${String(index + 1).padStart(2, '0')}.${format}`
+    a.download = `${baseName}-${time.toFixed(1)}s.${format}`
     a.click()
     URL.revokeObjectURL(url)
   }
 
-  const downloadOne = async (time: number, index: number) => {
+  // Grab the frame sitting under the playhead, at native resolution.
+  const downloadFrame = async () => {
     if (!meta || downloading) return
     setDownloading(true)
     setError(null)
     try {
-      const [blob] = await decodeFrames(meta.blob, [time])
-      if (blob) save(blob, index)
-    } catch {
-      setError('Extraction failed — this codec may be unsupported here.')
-    } finally {
-      setDownloading(false)
-    }
-  }
-
-  const downloadAll = async () => {
-    if (!meta || downloading) return
-    setDownloading(true)
-    setProgress(0)
-    setError(null)
-    try {
-      const times = frames.map((f) => f.time)
-      const blobs = await decodeFrames(meta.blob, times, (done) =>
-        setProgress(done / times.length),
-      )
-      blobs.forEach((blob, i) => save(blob, i))
+      const blob = await decodeFrame(meta.blob, currentTime)
+      if (blob) save(blob, currentTime)
     } catch {
       setError('Extraction failed — this codec may be unsupported here.')
     } finally {
@@ -324,6 +328,10 @@ export function VideoFrameExtractor({
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-28 w-full rounded-lg" />
         </CardContent>
+        <CardFooter className="items-center justify-between gap-2">
+          <Skeleton className="h-9 w-28" />
+          <Skeleton className="h-9 w-36" />
+        </CardFooter>
       </Card>
     )
   }
@@ -332,16 +340,36 @@ export function VideoFrameExtractor({
     <Card className="w-full">
       <CardContent className="flex flex-col gap-4 pt-(--card-spacing)">
         <video
+          ref={videoRef}
           src={meta.url}
-          controls
           playsInline
-          muted
           style={{ aspectRatio: aspect }}
           className="bg-muted/30 mx-auto max-h-64 max-w-full rounded-lg"
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={() => setPlaying(false)}
+          onLoadedMetadata={(event) =>
+            setCurrentTime(event.currentTarget.currentTime)
+          }
         />
 
-        {/* Toolbar — output format on the left, zoom controls on the right. */}
+        {/* Toolbar — transport + format on the left, zoom controls on the right. */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <Button
+            type="button"
+            size="icon-lg"
+            className="rounded-full"
+            onClick={togglePlay}
+            aria-label={playing ? 'Pause' : 'Play'}
+          >
+            {playing ? <Pause /> : <Play className="translate-x-px" />}
+          </Button>
+          <span className="text-muted-foreground text-xs tabular-nums">
+            <span className="text-foreground font-medium">
+              {formatTime(currentTime)}
+            </span>{' '}
+            / {formatTime(total)}
+          </span>
           <div className="flex items-center gap-2 text-sm">
             <span className="text-muted-foreground">Format</span>
             <Select
@@ -406,69 +434,69 @@ export function VideoFrameExtractor({
         </div>
 
         {/* Timeline — ruler aligned to the real duration, a continuous filmstrip
-            beneath it, and evenly spaced frame cells; each reveals a download
-            button on hover. */}
+            beneath it, and a playhead that tracks playback. Click anywhere to
+            jump, or drag the playhead to scrub. */}
         <div className="bg-muted/30 rounded-lg p-3">
           <div ref={measureRef}>
             <ScrollArea
-              style={{ height: RULER_HEIGHT + 8 + STRIP_HEIGHT + 16 }}
+              style={{
+                height: RULER_HEIGHT + 8 + STRIP_HEIGHT + PLAYHEAD_KNOB + 8,
+              }}
             >
+              {/* Pad the scroll content by half a knob on every side so the
+                  playhead circle stays fully visible at the start, end and top
+                  instead of being clipped by the viewport. The inner track is
+                  the positioning origin shared by the ruler, strip and
+                  playhead, so they all stay aligned. */}
               <div
                 style={{
-                  position: 'relative',
-                  width: contentWidth,
+                  width: contentWidth + PLAYHEAD_KNOB,
                   minWidth: '100%',
+                  padding: PLAYHEAD_KNOB / 2,
+                  boxSizing: 'border-box',
                 }}
               >
-                <TimelineRuler
-                  duration={total}
-                  pixelsPerSecond={pixelsPerSecond}
-                  zoom={zoom}
-                  height={RULER_HEIGHT}
-                />
-
                 <div
-                  className="bg-background/40 mt-2 overflow-hidden rounded-md border"
                   style={{
                     position: 'relative',
                     width: contentWidth,
-                    height: STRIP_HEIGHT,
+                    minWidth: '100%',
+                    cursor: 'pointer',
                   }}
+                  onPointerDown={scrubFrom}
                 >
-                  <ThumbnailStrip
-                    cache={meta.cache}
+                  <TimelineRuler
                     duration={total}
-                    totalWidth={contentWidth}
-                    tileWidth={tileWidth}
-                    tileHeight={STRIP_HEIGHT}
+                    pixelsPerSecond={pixelsPerSecond}
+                    zoom={zoom}
+                    height={RULER_HEIGHT}
                   />
 
-                  {frames.map((frame) => (
-                    <div
-                      key={frame.time.toFixed(3)}
-                      className="group hover:bg-primary/10 absolute top-0 border-l border-white/30 transition-colors"
-                      style={{
-                        left: frame.index * slotWidth,
-                        width: slotWidth,
-                        height: STRIP_HEIGHT,
-                      }}
-                    >
-                      <span className="bg-background/80 text-foreground pointer-events-none absolute bottom-1 left-1 rounded px-1 py-0.5 text-[10px] font-medium tabular-nums">
-                        {formatTime(frame.time)}
-                      </span>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="secondary"
-                        disabled={downloading}
-                        title="Download frame"
-                        className="absolute right-1 top-1 size-7 opacity-0 transition-opacity group-hover:opacity-100"
-                        onClick={() => downloadOne(frame.time, frame.index)}
-                      >
-                        <Download className="size-3.5" />
-                      </Button>
-                    </div>
-                  ))}
+                  <div
+                    className="bg-background/40 mt-2 overflow-hidden rounded-md border"
+                    style={{
+                      position: 'relative',
+                      width: contentWidth,
+                      height: STRIP_HEIGHT,
+                    }}
+                  >
+                    <ThumbnailStrip
+                      cache={meta.cache}
+                      duration={total}
+                      totalWidth={contentWidth}
+                      tileWidth={tileWidth}
+                      tileHeight={STRIP_HEIGHT}
+                    />
+                  </div>
+
+                  <TimelinePlayhead
+                    currentTime={currentTime}
+                    duration={total}
+                    pixelsPerSecond={pixelsPerSecond}
+                    zoom={zoom}
+                    color="var(--color-primary)"
+                    onSeek={seek}
+                  />
                 </div>
               </div>
               <ScrollBar orientation="horizontal" />
@@ -493,24 +521,10 @@ export function VideoFrameExtractor({
             }}
           />
         </Button>
-        <div className="flex items-center gap-3">
-          <span className="text-muted-foreground text-sm tabular-nums">
-            {frameCount} frame{frameCount === 1 ? '' : 's'}
-          </span>
-          {downloading ? (
-            <span className="text-muted-foreground flex items-center gap-2 text-sm tabular-nums">
-              <Loader2 className="size-4 animate-spin" />
-              {progress > 0
-                ? `Saving… ${Math.round(progress * 100)}%`
-                : 'Decoding…'}
-            </span>
-          ) : (
-            <Button type="button" onClick={downloadAll}>
-              <Download />
-              Download all
-            </Button>
-          )}
-        </div>
+        <Button type="button" disabled={downloading} onClick={downloadFrame}>
+          {downloading ? <Loader2 className="animate-spin" /> : <Download />}
+          Download frame
+        </Button>
       </CardFooter>
     </Card>
   )
