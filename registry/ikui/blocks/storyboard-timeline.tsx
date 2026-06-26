@@ -288,9 +288,13 @@ export function StoryboardTimeline({
     if (!active || !playing || active.kind !== 'image') return
     const localEnd = starts[currentIndex] + active.duration
     let raf = 0
-    let last = performance.now()
+    // Seed `last` from the first frame's timestamp, not performance.now() — the
+    // rAF clock can report a `now` slightly *before* a performance.now() taken
+    // here, which would make the first dt negative and nudge currentTime back
+    // across the shot boundary, bouncing the playhead onto the previous shot.
+    let last: number | null = null
     const tick = (now: number) => {
-      const dt = (now - last) / 1000
+      const dt = last === null ? 0 : (now - last) / 1000
       last = now
       const next = currentTimeRef.current + dt
       if (next >= localEnd) {
