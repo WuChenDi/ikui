@@ -353,7 +353,7 @@ export function VideoFrameExtractor({
           }
         />
 
-        {/* Toolbar — transport + format on the left, zoom controls on the right. */}
+        {/* Toolbar — transport on the left, zoom controls on the right. */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
           <Button
             type="button"
@@ -370,27 +370,6 @@ export function VideoFrameExtractor({
             </span>{' '}
             / {formatTime(total)}
           </span>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Format</span>
-            <Select
-              value={format}
-              disabled={downloading}
-              onValueChange={(value) => setFormat(value as Format)}
-            >
-              <SelectTrigger>
-                <SelectValue>
-                  {(value: Format) => FORMAT_LABEL[value]}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(FORMAT_LABEL) as Format[]).map((f) => (
-                  <SelectItem key={f} value={f}>
-                    {FORMAT_LABEL[f]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           <div className="ml-auto flex items-center gap-1">
             <Button
@@ -507,24 +486,49 @@ export function VideoFrameExtractor({
         {error && <p className="text-destructive text-sm">{error}</p>}
       </CardContent>
 
-      <CardFooter className="items-center justify-between gap-2">
-        <Button render={<label />} nativeButton={false} variant="outline">
-          <Upload />
-          Load video
-          <input
-            type="file"
-            accept="video/*"
-            className="hidden"
-            onChange={(event) => {
-              const next = event.target.files?.[0]
-              if (next) setFile(next)
-            }}
-          />
-        </Button>
-        <Button type="button" disabled={downloading} onClick={downloadFrame}>
-          {downloading ? <Loader2 className="animate-spin" /> : <Download />}
-          Download frame
-        </Button>
+      {/* Footer — output format on the left, source / download on the right. */}
+      <CardFooter className="items-center gap-4">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Format</span>
+          <Select
+            value={format}
+            disabled={downloading}
+            onValueChange={(value) => setFormat(value as Format)}
+          >
+            <SelectTrigger>
+              <SelectValue>
+                {(value: Format) => FORMAT_LABEL[value]}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.keys(FORMAT_LABEL) as Format[]).map((f) => (
+                <SelectItem key={f} value={f}>
+                  {FORMAT_LABEL[f]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          <Button render={<label />} nativeButton={false} variant="outline">
+            <Upload />
+            Load video
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={(event) => {
+                const next = event.target.files?.[0]
+                if (next) setFile(next)
+              }}
+            />
+          </Button>
+          <Button type="button" disabled={downloading} onClick={downloadFrame}>
+            {downloading ? <Loader2 className="animate-spin" /> : <Download />}
+            Download frame
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   )
