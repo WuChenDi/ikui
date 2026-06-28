@@ -1,0 +1,102 @@
+import { Demo } from './demo'
+import { Demo as DisabledDemo } from './demo-disabled'
+import { Demo as ControlledDemo } from './demo-controlled'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A password field with a trailing button that toggles between masked and plain
+text. It is built from the `input-group` primitive, so the toggle sits inside the
+same bordered control as the input. Every native `<input>` prop is forwarded —
+`name`, `value` / `defaultValue`, `onChange`, `placeholder`, `disabled` — so it
+drops into a form like a plain input.
+
+## Installation
+
+<InstallationTabs item="password-input">
+```tsx file=../../registry/ikui/password-input.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { PasswordInput } from "@/components/password-input";
+```
+```tsx
+<PasswordInput name="password" placeholder="Password" />
+```
+
+## Examples
+
+### Controlled
+
+`value` + `onChange` work exactly as on a native input. The toggle only switches
+the rendered `type`; it never changes the value.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ControlledDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-controlled.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Disabled
+
+`disabled` dims the field and also disables the show/hide toggle.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DisabledDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-disabled.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+`PasswordInput` accepts every prop of a native `<input>` element
+(`React.ComponentProps<"input">`) and forwards them to the underlying control.
+
+<PropsTable
+  data={[
+    {
+      name: "value / defaultValue",
+      type: "string",
+      typeDetails: "Controlled or uncontrolled password value"
+    },
+    {
+      name: "onChange",
+      type: "(e: React.ChangeEvent<HTMLInputElement>) => void",
+      typeDetails: "Fired on every keystroke"
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      default: "false",
+      typeDetails: "Disables the input and the show/hide toggle"
+    },
+    {
+      name: "className",
+      type: "string",
+      typeDetails: "Applied to the InputGroup wrapper"
+    },
+    {
+      name: "...props",
+      type: 'React.ComponentProps<"input">',
+      typeDetails: "name, placeholder, autoComplete, etc. — forwarded to the input"
+    }
+  ]}
+/>
