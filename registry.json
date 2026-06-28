@@ -80,6 +80,21 @@
       "category": "form"
     },
     {
+      "name": "password-input",
+      "type": "registry:component",
+      "title": "Password Input",
+      "description": "A password field with a trailing show/hide toggle, composed from the input-group primitive. Spreads native input props (name, value, onChange, placeholder).",
+      "files": [
+        {
+          "path": "registry/ikui/password-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["input-group"],
+      "category": "form"
+    },
+    {
       "name": "heatmap-calendar",
       "type": "registry:component",
       "title": "Heatmap Calendar",
