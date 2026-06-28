@@ -283,7 +283,11 @@ async function writeLlmsIndexFile(
     `- [GitHub Repository](${GITHUB_URL}): Source code, issues, and contributions.`,
   )
 
-  const content = lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n'
+  const content =
+    lines
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trimEnd() + '\n'
   await writeFile(join(process.cwd(), 'public', 'llms.txt'), content, 'utf-8')
 }
 
