@@ -22,3 +22,22 @@
 | T-018 | Add video-frame-extractor block (extract stills, mediabunny) | completed | ikui | [P-018](../plan/P-018-add-video-frame-extractor.md) |
 | T-019 | Categorize the Blocks gallery (shadcn-style category routes) | completed | ikui | [P-019](../plan/P-019-blocks-categories.md) |
 | T-020 | Add heatmap-calendar component (port of shadcn-heatmap) | completed | ikui | [P-020](../plan/P-020-add-heatmap-calendar.md) |
+| T-021 | image-editor block (fabric.js full editor) — canonical | completed | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-022 | Refactor image-editor block (fix mosaic position + clean up) | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-023 | image-editor top bar (dimensions + zoom) | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-024 | image-editor zoom + drag-pan (filerobot alignment) | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-025 | image-editor filter thumbnail strip | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-026 | image-editor: Watermark, Crop, Resize tools | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-027 | image-editor crop reuses the image-crop primitive | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-028 | image-editor: unify selection style + text watermark | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-029 | image-editor: merge Draw and Mosaic into one tab | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-030 | image-editor: tool rail uses ToggleGroup, not Tabs | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-031 | image-editor: right-side controls use ToggleGroup + color fix | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-032 | image-editor Phase 1: correctness fixes (crop history, keyboard, reset) | completed | ikui | [P-032](../plan/P-032-image-editor-correctness-fixes.md) |
+| T-033 | image-editor Phase 2: IA regroup (8→4) + options bar | completed | ikui | [P-033](../plan/P-033-image-editor-ia-regroup.md) |
+| T-034 | image-editor Phase 3: object affordances (floating toolbar, stroke, sync) | completed | ikui | [P-034](../plan/P-034-image-editor-object-affordances.md) |
+| T-035 | image-editor: right panel (resizable options + dnd layers) | completed | ikui | [P-035](../plan/P-035-image-editor-right-panel-layers.md) |
+| T-036 | image-editor: tool-driven model + contextual inspector (breaking redesign) | completed | ikui | [P-036](../plan/P-036-image-editor-tool-driven-redesign.md) |
+| T-037 | image-editor: Select component for fonts + layer-row action menu | completed | ikui | [P-037](../plan/P-037-image-editor-select-and-layer-menu.md) |
+| T-038 | image-editor: rename layers (persisted via toJSON) | completed | ikui | [P-038](../plan/P-038-image-editor-layer-rename.md) |
+| T-039 | image-editor: use Field component for inspector rows | completed | ikui | [P-039](../plan/P-039-image-editor-field-component.md) |
