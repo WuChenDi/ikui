@@ -1958,10 +1958,10 @@ export function ImageEditor({
         <Field orientation="horizontal">
           <FieldLabel className={FIELD_LABEL}>Stroke</FieldLabel>
           <Slider
-            value={sel.strokeWidth}
+            value={[sel.strokeWidth]}
             min={1}
             max={40}
-            onValueChange={(v) => changeStrokeWidth(v as number)}
+            onValueChange={(v) => changeStrokeWidth((v as number[])[0])}
             onValueCommitted={pushHistory}
             aria-label="Stroke width"
           />
@@ -1970,10 +1970,10 @@ export function ImageEditor({
       <Field orientation="horizontal">
         <FieldLabel className={FIELD_LABEL}>Opacity</FieldLabel>
         <Slider
-          value={Math.round(sel.opacity * 100)}
+          value={[Math.round(sel.opacity * 100)]}
           min={10}
           max={100}
-          onValueChange={(v) => changeOpacity((v as number) / 100)}
+          onValueChange={(v) => changeOpacity((v as number[])[0] / 100)}
           onValueCommitted={pushHistory}
           aria-label="Opacity"
         />
@@ -2034,10 +2034,10 @@ export function ImageEditor({
         <Field key={k} orientation="horizontal">
           <FieldLabel className={cn(FIELD_LABEL, 'capitalize')}>{k}</FieldLabel>
           <Slider
-            value={Math.round(adjust[k] * 100)}
+            value={[Math.round(adjust[k] * 100)]}
             min={-100}
             max={100}
-            onValueChange={(v) => onAdjust(k, (v as number) / 100)}
+            onValueChange={(v) => onAdjust(k, (v as number[])[0] / 100)}
             onValueCommitted={pushHistory}
           />
         </Field>
@@ -2134,11 +2134,11 @@ export function ImageEditor({
           <Field orientation="horizontal">
             <FieldLabel className={FIELD_LABEL}>Size</FieldLabel>
             <Slider
-              value={penWidth}
+              value={[penWidth]}
               min={1}
               max={40}
               onValueChange={(v) => {
-                const n = v as number
+                const n = (v as number[])[0]
                 setPenWidth(n)
                 const c = fabricRef.current
                 if (c?.freeDrawingBrush) c.freeDrawingBrush.width = n
@@ -2156,11 +2156,11 @@ export function ImageEditor({
           <Field orientation="horizontal">
             <FieldLabel className={FIELD_LABEL}>Size</FieldLabel>
             <Slider
-              value={mosaicWidth}
+              value={[mosaicWidth]}
               min={8}
               max={80}
               onValueChange={(v) => {
-                const n = v as number
+                const n = (v as number[])[0]
                 setMosaicWidth(n)
                 mosaicRef.current.width = n
               }}
@@ -2169,11 +2169,11 @@ export function ImageEditor({
           <Field orientation="horizontal">
             <FieldLabel className={FIELD_LABEL}>Block</FieldLabel>
             <Slider
-              value={mosaicBlock}
+              value={[mosaicBlock]}
               min={4}
               max={40}
               onValueChange={(v) => {
-                const n = v as number
+                const n = (v as number[])[0]
                 setMosaicBlock(n)
                 mosaicRef.current.block = n
                 mosaicRef.current.pixSrc = null
