@@ -27,6 +27,7 @@ const BLOCK_ORDER = [
   'video-trimmer',
   'storyboard-timeline',
   'image-cropper',
+  'image-editor',
   'audio-trimmer',
   'media-compressor',
 ]

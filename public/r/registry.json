@@ -362,6 +362,43 @@
       }
     },
     {
+      "name": "image-editor",
+      "type": "registry:block",
+      "title": "Image Editor",
+      "description": "A full single-image editor built on fabric.js, wrapped in ikui's Base UI toolbar. Annotate with text, shapes, arrows, and image overlays; free-draw; pixelate a region for a privacy mosaic; tune brightness, contrast, and saturation; apply filter presets; crop (via the image-crop primitive) and resize; rotate, flip, undo, and redo; then export to PNG or JPEG. The fabric canvas is created from a lazily-imported module inside an effect, so the browser-only library never runs during SSR.",
+      "files": [
+        {
+          "path": "registry/ikui/blocks/image-editor.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "dependencies": [
+        "fabric",
+        "lucide-react",
+        "@dnd-kit/core",
+        "@dnd-kit/sortable",
+        "@dnd-kit/utilities"
+      ],
+      "registryDependencies": [
+        "@ikui/image-crop",
+        "alert-dialog",
+        "button",
+        "card",
+        "dropdown-menu",
+        "field",
+        "popover",
+        "resizable",
+        "select",
+        "slider",
+        "toggle-group"
+      ],
+      "category": "blocks",
+      "categories": ["image"],
+      "meta": {
+        "iframeHeight": 700
+      }
+    },
+    {
       "name": "particle-image",
       "type": "registry:component",
       "title": "Particle Image",
