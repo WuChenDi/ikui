@@ -33,11 +33,11 @@
 | T-029 | image-editor: merge Draw and Mosaic into one tab | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
 | T-030 | image-editor: tool rail uses ToggleGroup, not Tabs | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
 | T-031 | image-editor: right-side controls use ToggleGroup + color fix | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
-| T-032 | image-editor Phase 1: correctness fixes (crop history, keyboard, reset) | completed | ikui | [P-032](../plan/P-032-image-editor-correctness-fixes.md) |
-| T-033 | image-editor Phase 2: IA regroup (8→4) + options bar | completed | ikui | [P-033](../plan/P-033-image-editor-ia-regroup.md) |
-| T-034 | image-editor Phase 3: object affordances (floating toolbar, stroke, sync) | completed | ikui | [P-034](../plan/P-034-image-editor-object-affordances.md) |
-| T-035 | image-editor: right panel (resizable options + dnd layers) | completed | ikui | [P-035](../plan/P-035-image-editor-right-panel-layers.md) |
-| T-036 | image-editor: tool-driven model + contextual inspector (breaking redesign) | completed | ikui | [P-036](../plan/P-036-image-editor-tool-driven-redesign.md) |
-| T-037 | image-editor: Select component for fonts + layer-row action menu | completed | ikui | [P-037](../plan/P-037-image-editor-select-and-layer-menu.md) |
-| T-038 | image-editor: rename layers (persisted via toJSON) | completed | ikui | [P-038](../plan/P-038-image-editor-layer-rename.md) |
-| T-039 | image-editor: use Field component for inspector rows | completed | ikui | [P-039](../plan/P-039-image-editor-field-component.md) |
+| T-032 | image-editor Phase 1: correctness fixes (crop history, keyboard, reset) | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-033 | image-editor Phase 2: IA regroup (8→4) + options bar | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-034 | image-editor Phase 3: object affordances (floating toolbar, stroke, sync) | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-035 | image-editor: right panel (resizable options + dnd layers) | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-036 | image-editor: tool-driven model + contextual inspector (breaking redesign) | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-037 | image-editor: Select component for fonts + layer-row action menu | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-038 | image-editor: rename layers (persisted via toJSON) | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
+| T-039 | image-editor: use Field component for inspector rows | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |

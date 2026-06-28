@@ -1,12 +1,12 @@
 # P-021 — image-editor block (canonical)
 
-Status: completed (as-built) · Next section open
+Status: completed (as-built)
 Task: T-021
 
-> Canonical reference for the `image-editor` registry block. Consolidates the
-> original build (T-021) and ten follow-up refinements (T-022…T-031, now
-> superseded — see [History](#history)). This is the single source of truth for
-> the block's design; future work is tracked under [Next](#next).
+> Single source of truth for the `image-editor` registry block. Consolidates the
+> original build and every follow-up refinement (T-022…T-039 — see
+> [History](#history)). The earlier per-phase plan files (P-032…P-039) were
+> folded into this document and removed.
 
 ## Goal
 
@@ -43,138 +43,140 @@ single `fabric.Canvas` over a base image. fabric provides the object engine
 - **Lifecycle**: lazy `import('fabric')` in a mount effect, `canvas.dispose()` on
   unmount, object-URL cleanup. Strict-Mode double-init guarded via a `cancelled`
   flag.
-- **State model**: tonal `Adjust` (brightness/contrast/saturation, fabric's
-  −1..1 range), filter `preset`, `color`, draw/mosaic brush params, `zoom` /
-  `fitScale` / `dims`, `resize` target, crop overlay state. Canvas-side
-  pointer/brush handlers read live values through refs (`mosaicRef`, `panRef`)
-  since they bind once at mount.
+- **State model**: active `tool`, `shapeKind`, tonal `Adjust`
+  (brightness/contrast/saturation, fabric's −1..1 range), filter `preset`,
+  `color`, draw/mosaic brush params, `zoom` / `fitScale` / `dims`, `resize`
+  target, crop overlay state, `sel` (selected-object props for the inspector).
+  Canvas-side pointer/brush handlers bind once at mount and read live values
+  through refs (`toolRef`, `colorRef`, `shapeKindRef`, `mosaicRef`, `panRef`,
+  `activateToolRef`, `creatingRef`).
 
-### Tools (as-built)
+### Layout
 
-Left vertical **ToggleGroup** rail selects one of **five groups** (P-033, with
-Resize later split back out of Geometry). Layout (P-035): a top bar over a
-horizontal **`ResizablePanelGroup`** — the **canvas** panel on the left, a
-**right work area** on the right that is itself a vertical resizable split:
-the active group's **options** on top, a **Layers** panel below.
+`Card` (`w-full`, no max width) → `CardContent` row: a left vertical **tool rail**
+(`ToggleGroup`) → top bar (dims + zoom on the left, undo/redo/reset on the right)
+over a horizontal **`ResizablePanelGroup`** — the **canvas** panel on the left, a
+**right work area** on the right that is itself a vertical resizable split: the
+contextual **inspector** on top, a **Layers** panel below. `CardFooter`: Load /
+Image / Export.
 
-- **Annotate** — `IText` (in-place edit), watermark text, `Rect`, `Ellipse`,
-  arrow (`Line` + `Triangle` head grouped), image overlay, and **Pen**
-  (`PencilBrush`, a toggle — any object add exits it); delete + z-order
-  (bring-forward / send-back). Color picker recolors the pen brush and the
-  selected object live (text → `fill`, shape → `stroke`).
-- **Redact** — the **Mosaic** brush (its own tool; on while the tab is active).
-  Reveals a pixelated copy of the background through a round brush onto a live
-  offscreen layer; `pixSrc` samples original pixels per stroke so it never
-  re-pixelates. One drag = one history frame (committed on `mouse:up`). Size +
-  Block sliders.
-- **Adjust** — the filter thumbnail strip **and** brightness / contrast /
-  saturation sliders in one panel. Nine preset stacks (Original, Invert, B&W,
-  Sepia, Vivid, Clarendon, Gingham, Cool, Warm) as a horizontal strip of live
-  160×120 preview thumbnails; presets compose with the sliders, applied live via
-  `img.filters = [...]; img.applyFilters()`.
-- **Geometry** — **Crop** (explicit button → reuses the ikui `image-crop`
-  primitive: snapshot the canvas to an `<img>`, overlay `ImageCrop` with aspect
-  presets Free / 1:1 / 16:9 / 9:16 / 4:3 / 3:4; Apply re-frames the canvas — shift
-  bg + every object by the crop origin, `setDimensions` to the crop size — or
-  Cancel), **rotate** 90° cw/ccw (baked by redrawing the base element), and
-  **flip** H/V.
-- **Resize** — W/H number inputs with aspect lock; applied on export (its own
-  rail group). The top bar shows a `→ W × H` badge when the target differs from
-  the current dims.
+### Tools (pointer modes)
+
+The left rail selects one tool; `activateTool()` is the single place that tears
+down the tool being left (pen / mosaic / crop) and arms the one being entered
+(pointer behaviour + cursor + `selection` / `skipTargetFind`). Hotkeys
+`V T R P M C H` (suppressed while typing / editing text).
+
+- **Select (V)** — move / scale / rotate, rubber-band, click / double-click.
+- **Text (T)** — click on the canvas to drop an editing `IText` at the pointer.
+- **Shape (R)** — `shapeKind` rect / ellipse / arrow; **drag on the canvas** to
+  size at the pointer (tiny click → default size). Arrow = `Line` + `Triangle`
+  head grouped. A create commits one history frame on `mouse:up`.
+- **Draw (P)** — `PencilBrush`; colour + size.
+- **Redact (M)** — the **Mosaic** brush: reveals a pixelated copy of the
+  background through a round brush onto a live offscreen layer; `pixSrc` samples
+  original pixels per stroke so it never re-pixelates. One drag = one history
+  frame. Size + Block sliders.
+- **Crop (C)** — reuses the ikui `image-crop` primitive: snapshot the canvas to
+  an `<img>`, overlay `ImageCrop` with aspect presets (Free / 1:1 / 16:9 / 9:16 /
+  4:3 / 3:4); Apply re-frames the canvas (shift bg + every object by the crop
+  origin, `setDimensions`) → returns to Select. Rotate / flip live in the Canvas
+  inspector section (they act on the whole image).
+- **Hand (H)** — drag-to-pan when zoomed in.
+
+Watermark text and image overlay are one-click inserts (Text tool option /
+footer **Image** button).
+
+### Contextual inspector
+
+The right-area top panel built on the `Field` component:
+
+- **Object selected** → object properties: colour, font family (`Select`) / size
+  / bold / italic / align (text), stroke width (shape), opacity. Duplicate /
+  reorder / delete live on the layer row, not here.
+- **Nothing selected** (Select / Hand) → **whole-image** section: filter preset
+  strip (wraps to fill width), brightness / contrast / saturation sliders, and
+  rotate-left / rotate-right / flip-H / flip-V.
+- **Tool options** (shape kind, pen size, mosaic size/block, crop aspect +
+  Apply/Cancel) render above the context section.
+
+### Layers panel
+
+Lists `canvas.getObjects()` top-first; rebuilt on object + selection changes and
+after history loads (transient `WeakMap` ids). Row = visibility eye (leftmost),
+drag handle, type icon, name, `···` menu. `@dnd-kit` reorder maps the displayed
+index to `canvas.moveObjectTo`.
+
+- **Rename**: double-click the name (or `···` → Rename) edits inline. The name is
+  stored on `obj.layerName`, registered via
+  `fabric.FabricObject.customProperties = ['layerName']` so `toObject` serializes
+  it and `loadFromJSON` restores it — names survive undo/redo. Empty reverts to
+  the type label.
+- **`···` menu**: Rename / Duplicate / Bring forward / Send back / Delete.
 
 ### Cross-cutting
 
 - **Zoom / pan** (filerobot-aligned): zoom via `canvas.viewportTransform`
   (`zoomToPoint`, 1×…8×), `clampViewport` keeps the image filling the frame.
-  Drag-to-pan on empty canvas when zoomed, or hold **Space** in any tool; wheel
-  zooms toward the pointer. Percent readout = `round(fitScale * zoom * 100)`.
-- **Selection styling**: `InteractiveFabricObject.ownDefaults` set to teal
-  border + round white-bordered handles, matching the `image-crop` primitive.
-- **Floating selection toolbar** (P-034): anchored to the active object; follows
-  move/scale/rotate and reflows on zoom. Type-aware controls (filerobot-style):
-  text → colour / font family / size / bold / italic / align; shape → colour /
-  stroke width; all → opacity, then duplicate / z-order / delete.
-- **Layers panel** (P-035): right-area bottom split; lists objects top-first with
-  drag-to-reorder (`@dnd-kit`, mapped to `canvas.moveObjectTo`), per-row select /
-  visibility / delete; rebuilt on object + selection changes and after history
-  loads. Deps: `@dnd-kit/{core,sortable,utilities}`, registry-dep `resizable`.
-- **History**: stack of `canvas.toJSON()` snapshots + cursor; undo / redo /
-  reset (to frame 0). `restoring` flag suppresses the change listener during a
-  reload; mosaic refs are nulled so the next stroke rebuilds a fresh layer.
-- **Export**: render the whole canvas at source resolution
-  (`multiplier = dims.w / canvas.width`, viewport reset to identity), then scale
-  to the Resize target via an offscreen canvas → PNG / JPEG download +
-  `onExport?(file)`.
+  Drag-to-pan on empty canvas when zoomed, the Hand tool, or hold **Space**;
+  wheel zooms toward the pointer. Percent readout = `round(fitScale * zoom * 100)`.
+- **Selection styling**: `InteractiveFabricObject.ownDefaults` set to teal border
+  + round white-bordered handles, matching the `image-crop` primitive.
+- **History**: stack of `canvas.toJSON()` snapshots + cursor; undo / redo / reset
+  (to frame 0). Each snapshot also stores canvas pixel size + derived
+  `dims`/`fitScale` (`toJSON` omits them), so a cropped/rotated frame round-trips
+  with objects aligned. A `restoring` flag suppresses the change listener during
+  a reload; mosaic refs are nulled so the next stroke rebuilds a fresh layer.
+- **Export**: an **Export** popover holds output W/H (aspect lock) + PNG / JPEG.
+  Render the whole canvas at source resolution (`multiplier = dims.w/canvas.width`,
+  viewport reset to identity), scale to the chosen size via an offscreen canvas →
+  download + `onExport?(file)`.
 
 ## Registry wiring
 
 `registry:block`, `category: blocks`, `categories: ['image']`. Deps `fabric`,
-`lucide-react`; registry-deps `button`, `card`, `slider`, `toggle-group`,
-`@ikui/image-crop`. `public/r/image-editor.json` generated via
-`pnpm registry:build`; `BLOCK_ORDER` places it after `image-cropper`. Blocks have
-no `docs/<name>/` page — they surface via the `/blocks` gallery and the
-`blocks/view/[name]` route that dynamic-imports the default export.
-
-## Known issues
-
-1. ~~**Reset/undo after crop misaligns.**~~ Fixed in [P-032](./P-032-image-editor-correctness-fixes.md):
-   history now captures canvas dimensions + `dims`/`fitScale`.
-2. ~~**No keyboard delete.**~~ Fixed in [P-032](./P-032-image-editor-correctness-fixes.md):
-   Delete/Backspace + Cmd/Ctrl+Z / Shift+Z / Ctrl+Y.
-3. ~~**Resize is export-only / non-WYSIWYG.**~~ Mitigated in
-   [P-034](./P-034-image-editor-object-affordances.md): still export-only by
-   design, but the top bar now shows an explicit `→ W × H` badge.
-4. ~~**Reset icon collides** with Transform "rotate left".~~ Fixed in
-   [P-032](./P-032-image-editor-correctness-fixes.md): reset now uses `History` +
-   a confirm.
-5. ~~**Color picker not synced to selection.**~~ Fixed in
-   [P-034](./P-034-image-editor-object-affordances.md): selecting an object
-   mirrors its colour into the picker.
-6. ~~**Mosaic semantics.** It lives under "Draw" with an `Eraser` icon.~~ Fixed
-   in [P-033](./P-033-image-editor-ia-regroup.md): now its own **Redact** tool
-   with a `Grid3x3` icon.
-
-## Next
-
-A breaking interaction redesign; staged so each phase ships independently. Each
-phase is split into its own plan (P-032…) when picked up — this section is the
-agreed direction.
-
-- **Phase 1 — correctness (no IA change).** ✅ Done —
-  [P-032](./P-032-image-editor-correctness-fixes.md). Fixed Known issues #1 (crop
-  in history), #2 (keyboard Delete/Backspace + Cmd/Ctrl+Z / Shift+Z), #4 (reset
-  icon + confirm).
-- **Phase 2 — IA: 8 tools → 4 groups.** ✅ Done —
-  [P-033](./P-033-image-editor-ia-regroup.md). Annotate (text / shapes / arrow /
-  Pen / image / watermark) · Redact (mosaic) · Adjust (filters + B/C/S) ·
-  Geometry (crop / rotate / flip / resize); options bar moved above the canvas,
-  `order` flip removed.
-- **Phase 3 — object affordances.** ✅ Done —
-  [P-034](./P-034-image-editor-object-affordances.md). Floating selection toolbar
-  (colour, stroke width, z-order, duplicate, delete) anchored to the object;
-  editable stroke width; colour picker synced to selection (#5); explicit
-  `→ W × H` export badge (#3).
-
-Positioning: a **demo block first**, but interaction polished to product
-standard (the registry's value is "copy it and ship it").
+`lucide-react`, `@dnd-kit/{core,sortable,utilities}`; registry-deps
+`@ikui/image-crop`, `alert-dialog`, `button`, `card`, `dropdown-menu`, `field`,
+`popover`, `resizable`, `select`, `slider`, `toggle-group`.
+`public/r/image-editor.json` generated via `pnpm registry:build`; `BLOCK_ORDER`
+places it after `image-cropper`. Blocks have no `docs/<name>/` page — they surface
+via the `/blocks` gallery and the `blocks/view/[name]` route that dynamic-imports
+the default export.
 
 ## History
 
-Folded-in tasks (superseded; code already in the as-built block above):
+Folded-in tasks (superseded; code already reflected above):
 
 - **T-021** — initial fabric.js editor: annotate / draw / mosaic / adjust /
   filters / transform / history / export; left-rail layout.
-- **T-022** — fixed mosaic offset (fabric v7 center-origin default); removed
-  debug code; one mosaic drag = one undo; collapsed mosaic refs.
-- **T-023** — top bar: dimensions + zoom readout; reset/undo/redo/delete.
-- **T-024** — viewportTransform zoom + drag/Space pan (filerobot alignment).
+- **T-022** — fixed mosaic offset (fabric v7 center-origin default); one mosaic
+  drag = one undo; collapsed mosaic refs.
+- **T-023** — top bar: dimensions + zoom readout; reset/undo/redo.
+- **T-024** — viewportTransform zoom + drag/Space pan.
 - **T-025** — Filters as a live thumbnail strip; data-driven presets.
-- **T-026** — Watermark, Crop (hand-built rect), Resize tools; full-res export.
+- **T-026** — Watermark, Crop (hand-built rect), Resize; full-res export.
 - **T-027** — Crop reuses the `image-crop` primitive (aspect presets).
 - **T-028** — unified teal selection styling; text watermark.
 - **T-029** — merged Draw + Mosaic into one tab (mode switch).
 - **T-030** — left rail switched from Tabs to ToggleGroup.
 - **T-031** — right-side controls to ToggleGroup; live color fix.
+- **T-032** — correctness: crop in history, keyboard Delete/Backspace + Cmd/Ctrl+Z
+  / Shift+Z / Ctrl+Y, reset icon + confirm dialog.
+- **T-033** — IA regroup 8 tools → grouped tabs; options bar above the canvas.
+- **T-034** — floating selection toolbar; editable stroke width; colour↔selection
+  sync; export-size badge.
+- **T-035** — right work area: resizable options + Layers panel with dnd reorder.
+- **T-036** — **breaking redesign**: tabs → tool-driven canvas; direct-manipulation
+  insertion; contextual inspector (replaces the floating toolbar + options bar);
+  Resize folded into an Export popover.
+- **T-037** — `Select` component for fonts; object actions moved into the layer
+  row `···` menu.
+- **T-038** — rename layers (`layerName` via `customProperties`, persisted through
+  `toJSON`/history).
+- **T-039** — inspector rows use the `Field` component.
+- Polish — removed the Card max width; filter strip wraps; removed the synthetic
+  "Background" layer row (the whole-image section shows whenever nothing is
+  selected); eye toggle moved to the row's left edge.
 
 ## Verify (as-built)
 
@@ -182,5 +184,6 @@ Folded-in tasks (superseded; code already in the as-built block above):
   `pnpm registry:build` regenerates `public/r/image-editor.json`; `pnpm build`
   exit 0 (prerenders `/blocks/view/image-editor` — confirms the lazy-fabric
   pattern is SSR-safe).
-- Interactive fabric behavior (draw/mosaic/crop/export pixels) is not verified
-  headlessly; a manual browser click-through is recommended.
+- Interactive fabric behavior (draw / shapes / mosaic / crop / rename / export
+  pixels) is not verified headlessly; a manual browser click-through is
+  recommended.
