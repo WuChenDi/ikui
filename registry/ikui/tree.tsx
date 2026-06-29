@@ -30,7 +30,7 @@ export interface TreeProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
   data: TreeDataItem[] | TreeDataItem
   initialSelectedItemId?: string
-  onSelectChange?: (item: TreeDataItem | undefined) => void
+  onSelectChange?: (item: TreeDataItem) => void
   expandAll?: boolean
   chevronPosition?: 'left' | 'right'
   defaultNodeIcon?: React.ComponentType<{ className?: string }>
@@ -129,13 +129,24 @@ function TreeNode({
   )
 
   return (
-    <li role="treeitem" aria-expanded={hasChildren ? open : undefined}>
-      <button
-        type="button"
-        disabled={item.disabled}
+    <li
+      role="treeitem"
+      aria-selected={isSelected}
+      aria-expanded={hasChildren ? open : undefined}
+    >
+      <div
+        role="button"
+        tabIndex={item.disabled ? -1 : 0}
+        aria-disabled={item.disabled || undefined}
         onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleClick()
+          }
+        }}
         className={cn(
-          'group relative flex w-full items-center rounded-md px-2 py-1.5 text-left text-sm outline-hidden transition-colors',
+          'group relative flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-left text-sm outline-hidden transition-colors',
           'hover:bg-accent/70 focus-visible:ring-2 focus-visible:ring-ring/50',
           isSelected && 'bg-accent/70 text-accent-foreground',
           item.disabled && 'pointer-events-none opacity-50',
@@ -170,7 +181,7 @@ function TreeNode({
           </>
         )}
         {chevronPosition === 'right' && chevron}
-      </button>
+      </div>
 
       {hasChildren && (
         <div

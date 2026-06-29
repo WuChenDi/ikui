@@ -98,7 +98,7 @@
       "name": "tree",
       "type": "registry:component",
       "title": "Tree",
-      "description": "A data-driven hierarchical tree view of folders and leaves with selection, expand/collapse, per-node icons, an actions slot, and a custom renderItem. Self-managed expand state, animated open/close, controlled or uncontrolled selection.",
+      "description": "A data-driven hierarchical tree view of folders and leaves with selection, expand/collapse, per-node icons, an actions slot, and a custom renderItem. Self-managed expand state, animated open/close, and uncontrolled selection reported through onSelectChange.",
       "files": [
         {
           "path": "registry/ikui/tree.tsx",
