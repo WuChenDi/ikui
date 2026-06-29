@@ -1,0 +1,226 @@
+import { Demo } from './demo'
+import { Demo as IconsDemo } from './demo-icons'
+import { Demo as SelectedDemo } from './demo-selected'
+import { Demo as ActionsDemo } from './demo-actions'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A data-driven hierarchical tree view. Pass a `data` array of `TreeDataItem`
+nodes — any node with `children` is a folder that expands and collapses, anything
+else is a leaf. The tree manages its own expand state (auto-expanding the
+ancestors of `initialSelectedItemId`, or everything when `expandAll` is set) and
+its own selection, reporting changes through `onSelectChange`. Each node can carry
+its own icons, an `actions` slot, and a `disabled` flag, or you can take over the
+whole row with `renderItem`.
+
+## Installation
+
+<InstallationTabs item="tree">
+```tsx file=../../registry/ikui/tree.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { Tree, type TreeDataItem } from "@/components/tree";
+```
+```tsx
+const data: TreeDataItem[] = [
+  {
+    id: "app",
+    name: "app",
+    children: [
+      { id: "page", name: "page.tsx" },
+      { id: "layout", name: "layout.tsx" },
+    ],
+  },
+  { id: "readme", name: "README.md" },
+];
+
+<Tree
+  data={data}
+  initialSelectedItemId="page"
+  onSelectChange={(item) => console.log(item?.name)}
+/>;
+```
+
+## Examples
+
+### Per-node icons
+
+Set `icon` on a node, plus `openIcon` (shown while a folder is expanded) and
+`selectedIcon` (shown while selected). `defaultNodeIcon` / `defaultLeafIcon` fill
+in any node that doesn't specify its own.
+
+<DemoCanvas>
+  <DemoPreview>
+    <IconsDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-icons.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Tracking selection
+
+`onSelectChange` fires with the clicked `TreeDataItem` (folders included). The
+selected row stays highlighted.
+
+<DemoCanvas>
+  <DemoPreview>
+    <SelectedDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-selected.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Row actions
+
+Give a node an `actions` node to render trailing controls — revealed on hover or
+when the row is selected. Clicks inside `actions` don't select or toggle the row.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ActionsDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-actions.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+  data={[
+    {
+      name: "data",
+      type: "TreeDataItem[] | TreeDataItem",
+      typeDetails: "The node tree to render"
+    },
+    {
+      name: "initialSelectedItemId",
+      type: "string",
+      typeDetails: "Id selected on mount; its ancestors start expanded"
+    },
+    {
+      name: "onSelectChange",
+      type: "(item: TreeDataItem | undefined) => void",
+      typeDetails: "Fired with the node when a row is selected"
+    },
+    {
+      name: "expandAll",
+      type: "boolean",
+      default: "false",
+      typeDetails: "Start with every folder expanded"
+    },
+    {
+      name: "chevronPosition",
+      type: '"left" | "right"',
+      default: '"left"',
+      typeDetails: "Side the expand chevron sits on"
+    },
+    {
+      name: "defaultNodeIcon",
+      type: "React.ComponentType<{ className?: string }>",
+      typeDetails: "Fallback icon for folder nodes"
+    },
+    {
+      name: "defaultLeafIcon",
+      type: "React.ComponentType<{ className?: string }>",
+      typeDetails: "Fallback icon for leaf nodes"
+    },
+    {
+      name: "renderItem",
+      type: "(params: TreeRenderItemParams) => React.ReactNode",
+      typeDetails: "Replace the default row content (icon + name + actions)"
+    },
+    {
+      name: "className",
+      type: "string",
+      typeDetails: "Class applied to the tree container"
+    }
+  ]}
+/>
+
+### TreeDataItem
+
+<PropsTable
+  data={[
+    {
+      name: "id",
+      type: "string",
+      typeDetails: "Unique id across the whole tree"
+    },
+    {
+      name: "name",
+      type: "string",
+      typeDetails: "Label rendered in the row"
+    },
+    {
+      name: "children",
+      type: "TreeDataItem[]",
+      typeDetails: "Child nodes — presence makes this a folder"
+    },
+    {
+      name: "icon",
+      type: "React.ComponentType<{ className?: string }>",
+      typeDetails: "Icon for this node"
+    },
+    {
+      name: "openIcon",
+      type: "React.ComponentType<{ className?: string }>",
+      typeDetails: "Icon shown while the folder is expanded"
+    },
+    {
+      name: "selectedIcon",
+      type: "React.ComponentType<{ className?: string }>",
+      typeDetails: "Icon shown while the node is selected"
+    },
+    {
+      name: "actions",
+      type: "React.ReactNode",
+      typeDetails: "Trailing controls, revealed on hover / selection"
+    },
+    {
+      name: "onClick",
+      type: "() => void",
+      typeDetails: "Called when this node is clicked"
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      typeDetails: "Make the node unselectable and non-interactive"
+    },
+    {
+      name: "className",
+      type: "string",
+      typeDetails: "Class applied to this node's row"
+    }
+  ]}
+/>
+
+### TreeRenderItemParams
+
+<PropsTable
+  data={[
+    { name: "item", type: "TreeDataItem", typeDetails: "The node being rendered" },
+    { name: "level", type: "number", typeDetails: "Depth, starting at 0" },
+    { name: "isLeaf", type: "boolean", typeDetails: "Node has no children" },
+    { name: "isSelected", type: "boolean", typeDetails: "Node is selected" },
+    { name: "isOpen", type: "boolean", typeDetails: "Folder is expanded" },
+    { name: "hasChildren", type: "boolean", typeDetails: "Node has children" }
+  ]}
+/>
