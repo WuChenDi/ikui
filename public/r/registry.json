@@ -95,6 +95,21 @@
       "category": "form"
     },
     {
+      "name": "tree",
+      "type": "registry:component",
+      "title": "Tree",
+      "description": "A data-driven hierarchical tree view of folders and leaves with selection, expand/collapse, per-node icons, an actions slot, and a custom renderItem. Self-managed expand state, animated open/close, controlled or uncontrolled selection.",
+      "files": [
+        {
+          "path": "registry/ikui/tree.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": [],
+      "category": "display"
+    },
+    {
       "name": "heatmap-calendar",
       "type": "registry:component",
       "title": "Heatmap Calendar",
