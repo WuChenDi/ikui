@@ -65,6 +65,34 @@ function collectExpandedIds(
   return ids
 }
 
+interface FlatNode {
+  item: TreeDataItem
+  level: number
+  parentId?: string
+  hasChildren: boolean
+}
+
+/** Depth-first list of the currently visible nodes, in visual order. */
+function flattenVisible(
+  items: TreeDataItem[],
+  expandedIds: Set<string>,
+): FlatNode[] {
+  const out: FlatNode[] = []
+
+  function walk(list: TreeDataItem[], level: number, parentId?: string) {
+    for (const item of list) {
+      const hasChildren = !!item.children?.length
+      out.push({ item, level, parentId, hasChildren })
+      if (hasChildren && expandedIds.has(item.id)) {
+        walk(item.children!, level + 1, item.id)
+      }
+    }
+  }
+
+  walk(items, 0, undefined)
+  return out
+}
+
 function getIcon(
   item: TreeDataItem,
   isOpen: boolean,
@@ -76,31 +104,48 @@ function getIcon(
   return item.icon ?? fallback
 }
 
-interface TreeNodeProps {
-  item: TreeDataItem
-  level: number
+interface TreeContextValue {
   selectedItemId?: string
-  onSelect: (item: TreeDataItem) => void
+  tabbableId?: string
   expandedIds: Set<string>
+  select: (item: TreeDataItem) => void
+  setExpanded: (id: string, open: boolean) => void
+  focusNode: (id: string) => void
   defaultNodeIcon?: React.ComponentType<{ className?: string }>
   defaultLeafIcon?: React.ComponentType<{ className?: string }>
   renderItem?: (params: TreeRenderItemParams) => React.ReactNode
   chevronPosition: 'left' | 'right'
 }
 
-function TreeNode({
-  item,
-  level,
-  selectedItemId,
-  onSelect,
-  expandedIds,
-  defaultNodeIcon,
-  defaultLeafIcon,
-  renderItem,
-  chevronPosition,
-}: TreeNodeProps) {
+const TreeContext = React.createContext<TreeContextValue | null>(null)
+
+function useTreeContext() {
+  const ctx = React.useContext(TreeContext)
+  if (!ctx) throw new Error('TreeNode must be used within a Tree')
+  return ctx
+}
+
+interface TreeNodeProps {
+  item: TreeDataItem
+  level: number
+}
+
+function TreeNode({ item, level }: TreeNodeProps) {
+  const {
+    selectedItemId,
+    tabbableId,
+    expandedIds,
+    select,
+    setExpanded,
+    focusNode,
+    defaultNodeIcon,
+    defaultLeafIcon,
+    renderItem,
+    chevronPosition,
+  } = useTreeContext()
+
   const hasChildren = !!item.children?.length
-  const [open, setOpen] = React.useState(() => expandedIds.has(item.id))
+  const open = hasChildren && expandedIds.has(item.id)
   const isSelected = selectedItemId === item.id
   const Icon = getIcon(
     item,
@@ -111,8 +156,9 @@ function TreeNode({
 
   function handleClick() {
     if (item.disabled) return
-    if (hasChildren) setOpen((v) => !v)
-    onSelect(item)
+    if (hasChildren) setExpanded(item.id, !open)
+    select(item)
+    focusNode(item.id)
     item.onClick?.()
   }
 
@@ -131,23 +177,22 @@ function TreeNode({
   return (
     <li
       role="treeitem"
+      data-tree-id={item.id}
       aria-selected={isSelected}
       aria-expanded={hasChildren ? open : undefined}
+      aria-disabled={item.disabled || undefined}
+      tabIndex={!item.disabled && tabbableId === item.id ? 0 : -1}
+      className={cn(
+        'outline-hidden',
+        'focus-visible:[&>[data-tree-row]]:ring-2 focus-visible:[&>[data-tree-row]]:ring-ring/50',
+      )}
     >
       <div
-        role="button"
-        tabIndex={item.disabled ? -1 : 0}
-        aria-disabled={item.disabled || undefined}
+        data-tree-row
         onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleClick()
-          }
-        }}
         className={cn(
-          'group relative flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-left text-sm outline-hidden transition-colors',
-          'hover:bg-accent/70 focus-visible:ring-2 focus-visible:ring-ring/50',
+          'group relative flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-left text-sm transition-colors',
+          'hover:bg-accent/70',
           isSelected && 'bg-accent/70 text-accent-foreground',
           item.disabled && 'pointer-events-none opacity-50',
           item.className,
@@ -193,18 +238,7 @@ function TreeNode({
           <div className="overflow-hidden">
             <ul className="ml-4 border-l border-border pl-1" role="group">
               {item.children!.map((child) => (
-                <TreeNode
-                  key={child.id}
-                  item={child}
-                  level={level + 1}
-                  selectedItemId={selectedItemId}
-                  onSelect={onSelect}
-                  expandedIds={expandedIds}
-                  defaultNodeIcon={defaultNodeIcon}
-                  defaultLeafIcon={defaultLeafIcon}
-                  renderItem={renderItem}
-                  chevronPosition={chevronPosition}
-                />
+                <TreeNode key={child.id} item={child} level={level + 1} />
               ))}
             </ul>
           </div>
@@ -233,12 +267,38 @@ export function Tree({
   const [selectedItemId, setSelectedItemId] = React.useState(
     initialSelectedItemId,
   )
-  const expandedIds = React.useMemo(
-    () => collectExpandedIds(items, initialSelectedItemId, expandAll),
-    [items, initialSelectedItemId, expandAll],
+  const [expandedIds, setExpandedIds] = React.useState(() =>
+    collectExpandedIds(items, initialSelectedItemId, expandAll),
+  )
+  const [activeId, setActiveId] = React.useState<string | undefined>(
+    initialSelectedItemId,
+  )
+  const rootRef = React.useRef<HTMLDivElement>(null)
+
+  // Re-sync self-managed expansion whenever the driving inputs change, so a new
+  // `initialSelectedItemId`, an `expandAll` toggle, or fresh `data` takes effect
+  // on already-mounted nodes instead of being frozen at first render.
+  React.useEffect(() => {
+    setExpandedIds(collectExpandedIds(items, initialSelectedItemId, expandAll))
+  }, [items, initialSelectedItemId, expandAll])
+
+  const visible = React.useMemo(
+    () => flattenVisible(items, expandedIds),
+    [items, expandedIds],
   )
 
-  const handleSelect = React.useCallback(
+  // Roving tabindex: exactly one node is tabbable. Prefer the active node while
+  // it is still visible, otherwise fall back to the first focusable node.
+  const tabbableId = React.useMemo(() => {
+    if (
+      activeId &&
+      visible.some((v) => v.item.id === activeId && !v.item.disabled)
+    )
+      return activeId
+    return visible.find((v) => !v.item.disabled)?.item.id
+  }, [activeId, visible])
+
+  const select = React.useCallback(
     (item: TreeDataItem) => {
       setSelectedItemId(item.id)
       onSelectChange?.(item)
@@ -246,24 +306,152 @@ export function Tree({
     [onSelectChange],
   )
 
+  const setExpanded = React.useCallback((id: string, open: boolean) => {
+    setExpandedIds((prev) => {
+      if (prev.has(id) === open) return prev
+      const next = new Set(prev)
+      if (open) next.add(id)
+      else next.delete(id)
+      return next
+    })
+  }, [])
+
+  const focusNode = React.useCallback((id: string) => {
+    setActiveId(id)
+    const root = rootRef.current
+    if (!root) return
+    const escaped = typeof CSS !== 'undefined' ? CSS.escape(id) : id
+    root.querySelector<HTMLElement>(`[data-tree-id="${escaped}"]`)?.focus()
+  }, [])
+
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLUListElement>) => {
+      const currentId = activeId ?? tabbableId
+      const idx = visible.findIndex((v) => v.item.id === currentId)
+      if (idx === -1) return
+      const cur = visible[idx]
+
+      const step = (from: number, dir: 1 | -1): FlatNode | undefined => {
+        for (let i = from; i >= 0 && i < visible.length; i += dir) {
+          if (!visible[i].item.disabled) return visible[i]
+        }
+        return undefined
+      }
+
+      switch (e.key) {
+        case 'ArrowDown': {
+          const next = step(idx + 1, 1)
+          if (next) {
+            e.preventDefault()
+            focusNode(next.item.id)
+          }
+          break
+        }
+        case 'ArrowUp': {
+          const prev = step(idx - 1, -1)
+          if (prev) {
+            e.preventDefault()
+            focusNode(prev.item.id)
+          }
+          break
+        }
+        case 'ArrowRight': {
+          if (cur.item.disabled) break
+          e.preventDefault()
+          if (cur.hasChildren && !expandedIds.has(cur.item.id)) {
+            setExpanded(cur.item.id, true)
+          } else if (cur.hasChildren) {
+            const child = visible[idx + 1]
+            if (child && !child.item.disabled) focusNode(child.item.id)
+          }
+          break
+        }
+        case 'ArrowLeft': {
+          if (cur.item.disabled) break
+          e.preventDefault()
+          if (cur.hasChildren && expandedIds.has(cur.item.id)) {
+            setExpanded(cur.item.id, false)
+          } else if (cur.parentId) {
+            focusNode(cur.parentId)
+          }
+          break
+        }
+        case 'Home': {
+          const first = step(0, 1)
+          if (first) {
+            e.preventDefault()
+            focusNode(first.item.id)
+          }
+          break
+        }
+        case 'End': {
+          const last = step(visible.length - 1, -1)
+          if (last) {
+            e.preventDefault()
+            focusNode(last.item.id)
+          }
+          break
+        }
+        case 'Enter':
+        case ' ': {
+          if (cur.item.disabled) break
+          e.preventDefault()
+          if (cur.hasChildren) {
+            setExpanded(cur.item.id, !expandedIds.has(cur.item.id))
+          }
+          select(cur.item)
+          cur.item.onClick?.()
+          break
+        }
+      }
+    },
+    [
+      activeId,
+      tabbableId,
+      visible,
+      expandedIds,
+      focusNode,
+      setExpanded,
+      select,
+    ],
+  )
+
+  const contextValue = React.useMemo<TreeContextValue>(
+    () => ({
+      selectedItemId,
+      tabbableId,
+      expandedIds,
+      select,
+      setExpanded,
+      focusNode,
+      defaultNodeIcon,
+      defaultLeafIcon,
+      renderItem,
+      chevronPosition,
+    }),
+    [
+      selectedItemId,
+      tabbableId,
+      expandedIds,
+      select,
+      setExpanded,
+      focusNode,
+      defaultNodeIcon,
+      defaultLeafIcon,
+      renderItem,
+      chevronPosition,
+    ],
+  )
+
   return (
-    <div className={cn('relative p-2', className)} {...props}>
-      <ul role="tree">
-        {items.map((item) => (
-          <TreeNode
-            key={item.id}
-            item={item}
-            level={0}
-            selectedItemId={selectedItemId}
-            onSelect={handleSelect}
-            expandedIds={expandedIds}
-            defaultNodeIcon={defaultNodeIcon}
-            defaultLeafIcon={defaultLeafIcon}
-            renderItem={renderItem}
-            chevronPosition={chevronPosition}
-          />
-        ))}
-      </ul>
+    <div ref={rootRef} className={cn('relative p-2', className)} {...props}>
+      <TreeContext.Provider value={contextValue}>
+        <ul role="tree" onKeyDown={handleKeyDown}>
+          {items.map((item) => (
+            <TreeNode key={item.id} item={item} level={0} />
+          ))}
+        </ul>
+      </TreeContext.Provider>
     </div>
   )
 }

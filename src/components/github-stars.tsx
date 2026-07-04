@@ -1,28 +1,29 @@
-'use client'
-
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import { siteConfig } from '@/lib/config'
 import { GitHubIcon } from './icons/github'
 import { Button } from './ui/button'
-import { Skeleton } from './ui/skeleton'
 
-export function GithubStars() {
-  const [stars, setStars] = useState<number | null>(null)
+async function getStars(): Promise<number> {
+  const repoPath = siteConfig.links.github.replace('https://github.com/', '')
+  try {
+    const response = await fetch(`https://api.github.com/repos/${repoPath}`, {
+      next: { revalidate: 3600 },
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+      },
+    })
+    if (!response.ok) return 0
+    const data = (await response.json()) as { stargazers_count?: number }
+    return data.stargazers_count ?? 0
+  } catch {
+    return 0
+  }
+}
 
-  useEffect(() => {
-    fetch('/api/github/stars')
-      .then((res) => res.json())
-      .then((data: { stars: number }) => setStars(data.stars))
-      .catch(() => setStars(0))
-  }, [])
+export async function GithubStars() {
+  const stars = await getStars()
 
-  const displayValue =
-    stars === null
-      ? null
-      : stars >= 1000
-        ? `${(stars / 1000).toFixed(1)}k`
-        : stars
+  const displayValue = stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars
 
   return (
     <Button variant="outline">
@@ -33,11 +34,7 @@ export function GithubStars() {
         className="flex items-center gap-2"
       >
         <GitHubIcon className="size-4" />
-        {displayValue === null ? (
-          <Skeleton className="size-4 rounded-sm" />
-        ) : (
-          <span className="tabular-nums">{displayValue}</span>
-        )}
+        <span className="tabular-nums">{displayValue}</span>
         <span className="sr-only">Open Github</span>
       </Link>
     </Button>

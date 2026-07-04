@@ -133,6 +133,18 @@ export function ImageCompare(props: ImageCompareProps) {
   const [containerWidth, setContainerWidth] = useState<number>(0)
   const [containerHeight, setContainerHeight] = useState<number>(0)
 
+  // Mirror the layout/behaviour values the pointer listeners read into a ref
+  // so the listeners stay stable across resizes and prop changes. Without this
+  // the effect below would tear down and reattach the listeners on every
+  // dimension change; instead it only re-runs to (de)activate on image load.
+  const latestRef = useRef({
+    containerWidth,
+    containerHeight,
+    horizontal,
+    hover,
+  })
+  latestRef.current = { containerWidth, containerHeight, horizontal, hover }
+
   // refs to HTML elements. In fill mode the height tracks the parent container
   // rather than being derived from the image ratio.
   const handleContainerResize = useCallback(
@@ -196,10 +208,11 @@ export function ImageCompare(props: ImageCompareProps) {
     setContainerHeight(height)
   }, [containerWidth, imagesLoaded, aspectRatio, fill])
 
-  // Setup pointer (mouse/touch) event listeners. Reset whenever the
-  // container size or any other relevant condition changes. The
-  // onSliderPositionChange callback is read through a ref, so it never
-  // needs to be a dependency here.
+  // Setup pointer (mouse/touch) event listeners. The listeners attach once the
+  // images have loaded and stay attached: the container dimensions, orientation
+  // and hover flag they depend on are all read through `latestRef`, so a resize
+  // or prop change never needs to reattach them. The onSliderPositionChange
+  // callback is likewise read through a ref.
   useEffect(() => {
     // do nothing if refs are not ready, or images haven't loaded yet
     if (!containerRef.current || !imagesLoaded) {
@@ -209,6 +222,8 @@ export function ImageCompare(props: ImageCompareProps) {
     const containerElement = containerRef.current
 
     const stickSliderToPointer = (e: PointerEvent) => {
+      const { containerWidth, containerHeight, horizontal } = latestRef.current
+
       // Get the cursor position from the edge of the container
       const rect = containerElement.getBoundingClientRect()
       const position = horizontal ? e.clientX - rect.left : e.clientY - rect.top
@@ -244,7 +259,7 @@ export function ImageCompare(props: ImageCompareProps) {
 
     const onMove = (e: PointerEvent) => {
       const isTargetElement = containerElement.hasPointerCapture(e.pointerId)
-      if (isTargetElement || hover) {
+      if (isTargetElement || latestRef.current.hover) {
         stickSliderToPointer(e)
       }
     }
@@ -264,14 +279,7 @@ export function ImageCompare(props: ImageCompareProps) {
       containerElement.removeEventListener('pointerup', onFinish)
       containerElement.removeEventListener('pointercancel', onFinish)
     }
-  }, [
-    imagesLoaded,
-    containerHeight,
-    containerWidth,
-    horizontal,
-    hover,
-    containerRef,
-  ])
+  }, [imagesLoaded, containerRef])
 
   // Clip regions for the overlay image and its label, driven by the slider.
   const leftClip = horizontal

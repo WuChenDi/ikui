@@ -26,3 +26,13 @@ export const siteConfig = {
 }
 
 export type SiteConfig = typeof siteConfig
+
+/**
+ * The single canonical site base URL. Prefers the per-deployment
+ * `NEXT_PUBLIC_APP_URL` override (branch/preview builds) and falls back to the
+ * production `siteConfig.url`. Every base-URL derivation in the app routes
+ * through here so the value never drifts between callers.
+ */
+export function getBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL ?? siteConfig.url
+}
