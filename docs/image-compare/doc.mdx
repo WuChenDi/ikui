@@ -166,6 +166,14 @@ matches the images' ratio.
         name: "skeleton",
         type: "ReactNode",
         typeDetails: "Element shown while the images are loading"
+      },
+      {
+        name: "className",
+        type: "string",
+        typeDetails: "Merged onto the comparison container. Remaining div attributes are spread onto it too"
       }
     ]}
   />
+
+`ImageCompare` forwards a `ref` to its outermost container element
+(`HTMLDivElement`), so you can measure or scroll it.

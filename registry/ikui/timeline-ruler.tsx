@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { cn } from '@/lib/utils'
 
 const DEFAULT_PIXELS_PER_SECOND = 50
 const DEFAULT_FPS = 30
@@ -146,7 +147,8 @@ function formatRulerLabel(timeInSeconds: number, fps: number): string {
   return `${frame}f`
 }
 
-export interface TimelineRulerProps {
+export interface TimelineRulerProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   /** Total timeline length in seconds. Determines the scrollable width. */
   duration: number
   /** Base pixels per second at `zoom` = 1. Default: 50. */
@@ -166,8 +168,6 @@ export interface TimelineRulerProps {
    * Omit it to let the ruler own its scroll.
    */
   scrollRef?: React.RefObject<HTMLElement | null>
-  className?: string
-  style?: React.CSSProperties
 }
 
 /** Tracks an element's scrollLeft + clientWidth, reacting to scroll and resize. */
@@ -205,6 +205,7 @@ export function TimelineRuler({
   scrollRef,
   className,
   style,
+  ...rest
 }: TimelineRulerProps) {
   const ownScrollRef = React.useRef<HTMLDivElement>(null)
   // `scrollRef` (external, shared with tracks) takes precedence; otherwise the
@@ -298,7 +299,8 @@ export function TimelineRuler({
         minWidth: '100%',
         ...(embedded ? { color: tickColor, ...style } : null),
       }}
-      className={embedded ? className : undefined}
+      className={embedded ? cn(className) : undefined}
+      {...(embedded ? rest : {})}
     >
       {ticks}
     </div>
@@ -311,7 +313,8 @@ export function TimelineRuler({
   return (
     <div
       ref={ownScrollRef}
-      className={className}
+      {...rest}
+      className={cn(className)}
       style={{
         position: 'relative',
         width: '100%',

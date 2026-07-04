@@ -1,13 +1,15 @@
 'use client'
 
 import * as React from 'react'
+import { cn } from '@/lib/utils'
 
 const PEAKS_PER_SECOND = 120
 const MAX_BUCKETS = 6000
 
 type Status = 'loading' | 'ready' | 'error'
 
-export interface AudioWaveformProps {
+export interface AudioWaveformProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   /** Audio URL to fetch and decode. Provide one of url / blob / audioBuffer / peaks. */
   audioUrl?: string
   /** Audio blob to decode. */
@@ -38,8 +40,6 @@ export interface AudioWaveformProps {
   rounded?: boolean
   /** Called once with the normalized peaks after decoding. */
   onDecoded?: (peaks: number[]) => void
-  className?: string
-  style?: React.CSSProperties
 }
 
 /** Buckets a decoded buffer into normalized absolute-value peaks (`0..1`). */
@@ -90,6 +90,7 @@ export function AudioWaveform({
   onDecoded,
   className,
   style,
+  ...rest
 }: AudioWaveformProps) {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
@@ -223,7 +224,8 @@ export function AudioWaveform({
   return (
     <div
       ref={containerRef}
-      className={className}
+      {...rest}
+      className={cn(className)}
       style={{
         position: 'relative',
         width: widthProp ?? '100%',

@@ -35,7 +35,7 @@ export function Demo() {
       data={data}
       defaultNodeIcon={Folder}
       defaultLeafIcon={File}
-      initialSelectedItemId="page"
+      defaultSelectedId="page"
       className="w-64 rounded-lg border"
     />
   )

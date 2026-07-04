@@ -9,16 +9,16 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group'
 
-function PasswordInput({
-  className,
-  disabled,
-  ...props
-}: React.ComponentProps<'input'>) {
+const PasswordInput = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentProps<'input'>
+>(({ className, disabled, ...props }, ref) => {
   const [visible, setVisible] = React.useState(false)
 
   return (
     <InputGroup className={className}>
       <InputGroupInput
+        ref={ref}
         type={visible ? 'text' : 'password'}
         disabled={disabled}
         {...props}
@@ -37,6 +37,8 @@ function PasswordInput({
       </InputGroupAddon>
     </InputGroup>
   )
-}
+})
+
+PasswordInput.displayName = 'PasswordInput'
 
 export { PasswordInput }

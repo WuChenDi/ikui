@@ -127,5 +127,3 @@ export function TimelinePlayhead({
     </div>
   )
 }
-
-export default TimelinePlayhead

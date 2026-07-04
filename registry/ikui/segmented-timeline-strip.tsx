@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { ThumbnailStrip } from '@/components/thumbnail-strip'
+import { cn } from '@/lib/utils'
 import type { VideoThumbnailCache } from '@/lib/video-thumbnail-cache'
 
 const DEFAULT_HEIGHT = 64
@@ -23,7 +24,8 @@ export interface TimelineSegment {
   label?: string
 }
 
-export interface SegmentedTimelineStripProps {
+export interface SegmentedTimelineStripProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   segments: TimelineSegment[]
   /** Active segment index. Gets the accent border; others get a dim mask. */
   currentIndex?: number
@@ -43,8 +45,6 @@ export interface SegmentedTimelineStripProps {
   placeholderColor?: string
   /** Accent color for the active border and playhead. Default: `"#6366f1"`. */
   accentColor?: string
-  className?: string
-  style?: React.CSSProperties
 }
 
 export function SegmentedTimelineStrip({
@@ -60,6 +60,7 @@ export function SegmentedTimelineStrip({
   accentColor = '#6366f1',
   className,
   style,
+  ...rest
 }: SegmentedTimelineStripProps) {
   const wrapperRef = React.useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = React.useState(0)
@@ -121,7 +122,8 @@ export function SegmentedTimelineStrip({
   return (
     <div
       ref={wrapperRef}
-      className={className}
+      {...rest}
+      className={cn(className)}
       onClick={handleClick}
       style={{
         position: 'relative',
