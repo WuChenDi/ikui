@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { allDocItems, getDoc, getDocSchema } from '@/lib/doc'
+import { getDocMarkdown } from '@/lib/llm'
 import { getTableOfContents } from '@/lib/toc'
 import { absoluteUrl, buildOgUrl, constructMetadata } from '@/lib/utils'
 
@@ -86,14 +87,17 @@ export default async function DocPage({
     overviewSection?.items.some((item) => item.id === id) ?? false
 
   let toc: { title?: string; url: string; depth: number }[] = []
-  let rawContent = ''
   try {
     const docPath = join(process.cwd(), 'docs', id, 'doc.mdx')
-    rawContent = await readFile(docPath, 'utf-8')
+    const rawContent = await readFile(docPath, 'utf-8')
     toc = await getTableOfContents(rawContent)
   } catch (error) {
     console.error('Error reading MDX file for TOC:', error)
   }
+
+  // "Copy this page" serves the processed Markdown (the same content written to
+  // public/docs/<id>.md), not the raw MDX with its wrapper components.
+  const copyContent = await getDocMarkdown(id)
 
   return (
     <div className="container py-8 md:py-12">
@@ -138,7 +142,7 @@ export default async function DocPage({
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <DocCopySection content={rawContent} url={`/docs/${id}`} />
+                <DocCopySection content={copyContent} url={`/docs/${id}`} />
                 <Button variant="secondary" size="icon-sm" disabled={!prevDoc}>
                   {prevDoc ? (
                     <Link href={`/docs/${prevDoc.id}`} title={prevDoc.title}>

@@ -76,10 +76,6 @@ export function TimelineElement({
 
   const currentRef = React.useRef(current)
   currentRef.current = current
-  const onResizeRef = React.useRef(onResize)
-  onResizeRef.current = onResize
-  const onResizeEndRef = React.useRef(onResizeEnd)
-  onResizeEndRef.current = onResizeEnd
 
   // Resolve a trim delta (seconds) on one side into clamped geometry.
   const trim = React.useCallback(
@@ -125,44 +121,43 @@ export function TimelineElement({
     [maxEnd],
   )
 
+  const rootRef = React.useRef<HTMLDivElement>(null)
   const dragRef = React.useRef<{
     side: 'left' | 'right' | 'move'
     startX: number
     origin: TimelineElementResize
   } | null>(null)
 
-  React.useEffect(() => {
-    const onMove = (event: PointerEvent) => {
-      const drag = dragRef.current
-      if (!drag) return
-      const dt = (event.clientX - drag.startX) / pps
-      const next =
-        drag.side === 'move'
-          ? move(drag.origin, dt)
-          : trim(drag.side, drag.origin, dt)
-      setLive(next)
-      onResizeRef.current?.(next)
-    }
-    const onUp = () => {
-      if (!dragRef.current) return
-      dragRef.current = null
-      onResizeEndRef.current?.(currentRef.current)
-      setLive(null)
-    }
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
-    return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-    }
-  }, [pps, trim, move])
+  // Pointer-move/up are handled locally on the root and only matter while a drag
+  // is live (guarded by `dragRef`). A drag captures the pointer to the root, so
+  // these fire for the gesture's duration only — no window listeners kept for the
+  // component's whole lifetime — and tracking continues outside the clip's bounds.
+  const onPointerMove = (event: React.PointerEvent) => {
+    const drag = dragRef.current
+    if (!drag) return
+    const dt = (event.clientX - drag.startX) / pps
+    const next =
+      drag.side === 'move'
+        ? move(drag.origin, dt)
+        : trim(drag.side, drag.origin, dt)
+    setLive(next)
+    onResize?.(next)
+  }
+
+  const endDrag = () => {
+    if (!dragRef.current) return
+    dragRef.current = null
+    onResizeEnd?.(currentRef.current)
+    setLive(null)
+  }
 
   const startTrim = (side: 'left' | 'right') => (event: React.PointerEvent) => {
     event.preventDefault()
     event.stopPropagation()
-    // Capture the pointer so the drag keeps tracking even if it leaves the
-    // 12px handle (fast drags, or the handle moving out from under the cursor).
-    event.currentTarget.setPointerCapture?.(event.pointerId)
+    // Capture the pointer on the root so the drag keeps tracking even if it
+    // leaves the 12px handle (fast drags, or the handle moving out from under
+    // the cursor) and so move/up dispatch to the root for the drag's duration.
+    rootRef.current?.setPointerCapture(event.pointerId)
     dragRef.current = {
       side,
       startX: event.clientX,
@@ -189,7 +184,7 @@ export function TimelineElement({
     event.preventDefault()
     // Consume the gesture so it can't double as a parent seek/scrub.
     event.stopPropagation()
-    event.currentTarget.setPointerCapture?.(event.pointerId)
+    event.currentTarget.setPointerCapture(event.pointerId)
     dragRef.current = {
       side: 'move',
       startX: event.clientX,
@@ -244,7 +239,11 @@ export function TimelineElement({
 
   return (
     <div
+      ref={rootRef}
       onPointerDown={startMove}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
       className={className}
       style={{
         position: 'absolute',

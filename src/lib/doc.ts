@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { basicDoc } from '@/basic-doc'
 import { getRegistry } from './registry'
 import type { DocItem, DocSchema, RegistryItem } from './types'
@@ -43,7 +44,10 @@ function groupByCategory(items: RegistryItem[]) {
   return groups
 }
 
-export const getDocSchema = async () => {
+// `cache` dedupes these across a single request: the docs page calls
+// getDocSchema / allDocItems / getDoc several times per render, and each would
+// otherwise re-read the registry and rebuild the schema.
+export const getDocSchema = cache(async () => {
   const { items } = await getRegistry()
   const components = items.filter((i) => i.type === 'registry:component')
   const byCategory = groupByCategory(components)
@@ -70,14 +74,14 @@ export const getDocSchema = async () => {
   ]
 
   return [...basicDoc, ...componentGroups]
-}
+})
 
-export const allDocItems = async () => {
+export const allDocItems = cache(async () => {
   const schema = await getDocSchema()
   return schema.flatMap((section) => section.items).filter((item) => !item.href)
-}
+})
 
-export const getDoc = async (id: string) => {
+export const getDoc = cache(async (id: string) => {
   const allItems = await allDocItems()
   return allItems.find((item) => item.id === id)
-}
+})

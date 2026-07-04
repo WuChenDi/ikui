@@ -21,7 +21,9 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "clean": "bash ./scripts/clean.sh",
-    "registry:build": "pnpx shadcn build"
+    "registry:paths": "node scripts/gen-tsconfig-paths.mjs",
+    "registry:check": "node scripts/check-registry.mjs",
+    "registry:build": "pnpm registry:paths && pnpx shadcn build"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

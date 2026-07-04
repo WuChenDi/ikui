@@ -25,7 +25,7 @@ export default function PrivacyPolicyPage() {
               <p>
                 ikui (
                 <Link
-                  href="https://ik-ui.pages.dev"
+                  href={siteConfig.url}
                   className="underline underline-offset-4 hover:text-foreground"
                 >
                   ik-ui.pages.dev

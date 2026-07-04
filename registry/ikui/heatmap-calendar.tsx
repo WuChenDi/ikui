@@ -223,6 +223,15 @@ export function HeatmapCalendar({
   const monthFormat = axisCfg.monthFormat ?? 'short'
   const minWeekSpacing = axisCfg.minWeekSpacing ?? 3
 
+  // Single shared tooltip: track the hovered/focused cell and its grid position
+  // instead of mounting one Base UI <Tooltip> per cell (~365 subscribers).
+  const [active, setActive] = React.useState<{
+    cell: HeatmapCell
+    col: number
+    row: number
+  } | null>(null)
+  const [tooltipOpen, setTooltipOpen] = React.useState(false)
+
   // Primitive end-of-day timestamp keeps the columns memo stable across renders.
   const endTime = startOfDay(endDate ?? new Date()).getTime()
 
@@ -435,10 +444,11 @@ export function HeatmapCalendar({
 
             {/* Heatmap grid */}
             <div
-              className="flex"
+              className="relative flex"
               style={{ gap: `${cellGap}px` }}
               role="grid"
               aria-label="Heatmap calendar"
+              onMouseLeave={() => setTooltipOpen(false)}
             >
               {columns.map((col, i) => (
                 <div
@@ -447,45 +457,71 @@ export function HeatmapCalendar({
                   style={{ gap: `${cellGap}px` }}
                   role="rowgroup"
                 >
-                  {col.map((cell) => {
+                  {col.map((cell, d) => {
                     const cls = levels[clampLevel(cell.level, levels.length)]
+                    const activate = () => {
+                      if (cell.disabled) return
+                      setActive({ cell, col: i, row: d })
+                      setTooltipOpen(true)
+                    }
                     return (
-                      <Tooltip key={cell.key}>
-                        <TooltipTrigger
-                          render={
-                            <button
-                              type="button"
-                              disabled={cell.disabled}
-                              onClick={() =>
-                                !cell.disabled && onCellClick?.(cell)
-                              }
-                              className={cn(
-                                'rounded-[3px] outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                                !palette?.length && cls,
-                                cell.disabled &&
-                                  'cursor-default opacity-30 pointer-events-none',
-                              )}
-                              style={{
-                                width: cellSize,
-                                height: cellSize,
-                                ...(bgStyleForLevel(cell.level, palette) ?? {}),
-                              }}
-                              aria-label={
-                                cell.disabled
-                                  ? 'Outside range'
-                                  : `${cell.label}: ${cell.value}`
-                              }
-                            />
-                          }
-                        />
-                        <TooltipContent side="top">
-                          {tooltipNode(cell)}
-                        </TooltipContent>
-                      </Tooltip>
+                      <button
+                        key={cell.key}
+                        type="button"
+                        disabled={cell.disabled}
+                        onClick={() => !cell.disabled && onCellClick?.(cell)}
+                        onMouseEnter={activate}
+                        onFocus={activate}
+                        onBlur={() => setTooltipOpen(false)}
+                        className={cn(
+                          'rounded-[3px] outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                          !palette?.length && cls,
+                          cell.disabled &&
+                            'cursor-default opacity-30 pointer-events-none',
+                        )}
+                        style={{
+                          width: cellSize,
+                          height: cellSize,
+                          ...(bgStyleForLevel(cell.level, palette) ?? {}),
+                        }}
+                        aria-label={
+                          cell.disabled
+                            ? 'Outside range'
+                            : `${cell.label}: ${cell.value}`
+                        }
+                      />
                     )
                   })}
                 </div>
               ))}
+
+              {/*
+                One shared tooltip for the whole grid. The trigger is an empty,
+                pointer-transparent span moved over the active cell; hovering or
+                focusing a cell sets `active` + opens it, so a single Base UI
+                positioner follows the pointer instead of ~365 per-cell popups.
+              */}
+              <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+                <TooltipTrigger
+                  render={<span />}
+                  aria-hidden="true"
+                  tabIndex={-1}
+                  className="pointer-events-none absolute block"
+                  style={
+                    active
+                      ? {
+                          left: active.col * (cellSize + cellGap),
+                          top: active.row * (cellSize + cellGap),
+                          width: cellSize,
+                          height: cellSize,
+                        }
+                      : { left: 0, top: 0, width: 0, height: 0 }
+                  }
+                />
+                <TooltipContent side="top">
+                  {active ? tooltipNode(active.cell) : null}
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </div>

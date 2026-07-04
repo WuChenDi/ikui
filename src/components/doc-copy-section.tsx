@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { siteConfig } from '@/lib/config'
 import { CopyButton } from '@/registry/ikui/copy-button'
 
 interface DocCopySectionProps {
@@ -21,7 +22,7 @@ interface DocCopySectionProps {
 
 function getPromptUrl(baseURL: string, url: string) {
   return `${baseURL}?q=${encodeURIComponent(
-    `I'm looking at this ikui ui documentation: https://ik-ui.pages.dev${url}.
+    `I'm looking at this ikui ui documentation: ${siteConfig.url}${url}.
 Help me understand how to use it. Be ready to explain concepts, give examples, or help debug based on it.`,
   )}`
 }

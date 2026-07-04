@@ -15,14 +15,6 @@ const nextConfig: NextConfig = {
   },
   allowedDevOrigins: ['ikui.a.wd.ds.cc'],
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
-  rewrites: async () => {
-    return [
-      {
-        source: '/docs/:slug.md',
-        destination: '/docs/:slug/md',
-      },
-    ]
-  },
 }
 
 const withMDX = createMDX({
@@ -54,10 +46,10 @@ const withMDX = createMDX({
   },
 })
 
-// Emit public/docs/<id>.md before the build so the .md links resolve to plain
-// static assets (clean, LLM-friendly Markdown). The existing rewrite + .md route
-// are left untouched as a fallback: public static files take precedence over
-// afterFiles rewrites, so the generated files win whenever they exist.
+// Emit public/docs/<id>.md before the build so the `.md` links resolve to plain
+// static assets (clean, LLM-friendly Markdown). These static files are the only
+// mechanism — next-on-pages forces route handlers onto the Edge runtime, which
+// has no filesystem, so a `/docs/:id/md` route could not read the docs anyway.
 //
 // Generate on build and dev, but skip `next start` — the production server only
 // serves the files already emitted during the build.

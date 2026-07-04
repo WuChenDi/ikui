@@ -53,6 +53,20 @@ const data: TreeDataItem[] = [
 />;
 ```
 
+## Keyboard
+
+The tree follows the ARIA tree pattern with a roving tabindex, so it takes a
+single stop in the tab order. Once focused, navigate entirely with the keyboard:
+
+- <kbd>↑</kbd> / <kbd>↓</kbd> — move to the previous / next visible node
+  (disabled nodes are skipped).
+- <kbd>→</kbd> — expand a collapsed folder, or move to its first child when
+  already expanded.
+- <kbd>←</kbd> — collapse an expanded folder, or move to its parent.
+- <kbd>Home</kbd> / <kbd>End</kbd> — jump to the first / last visible node.
+- <kbd>Enter</kbd> / <kbd>Space</kbd> — select the node (and toggle it when it is
+  a folder).
+
 ## Examples
 
 ### Per-node icons

@@ -1,6 +1,15 @@
 import { mkdir, readdir, readFile, rm, writeFile } from 'fs/promises'
 import { join, resolve } from 'path'
 import { basicDoc } from '../basic-doc'
+import { getBaseUrl } from './config'
+import type { Registry } from './types'
+
+// This module runs at build time from `next.config` (before webpack/module
+// resolution is set up), so it must stay self-contained: only relative imports
+// and `fs`. It intentionally does NOT import `./doc` or `./registry` — those
+// resolve `@/` aliases and dynamically import `registry.json`, neither of which
+// works in the config-load context. It reuses the `Registry` *type* from
+// `./types` (erased at build) and reads `registry.json` from disk directly.
 
 /** Marketing blurb shared by the `llms.txt` and `llms-full.txt` headers. */
 const SITE_DESCRIPTION =
@@ -10,16 +19,8 @@ const SITE_DESCRIPTION =
   'inspiration from shadcn/ui with a magical twist. Components are copy-ready ' +
   'and installable via the shadcn CLI.'
 
-/** Fallback site base URL when `registry.json` has no `homepage`. */
-const SITE_URL = 'https://ik-ui.pages.dev'
-
 /** Repository link surfaced in the `llms.txt` "Optional" section. */
 const GITHUB_URL = 'https://github.com/WuChenDi/ikui'
-
-interface Registry {
-  homepage?: string
-  items: { name: string; title: string; type: string; description?: string }[]
-}
 
 /**
  * Turn an authored doc.mdx string into clean Markdown for LLMs / "Copy this page".
@@ -48,6 +49,22 @@ export async function processMdxForLLMs(
   content = propsTableToMarkdown(content)
   content = content.replaceAll('@/registry/ikui/', '@/components/ikui/')
   return content.replace(/\n{3,}/g, '\n\n').trim() + '\n'
+}
+
+/**
+ * The single source of processed Markdown for a doc id.
+ *
+ * Reads `docs/<id>/doc.mdx` and runs it through {@link processMdxForLLMs}. Both
+ * the static `public/docs/<id>.md` generation and the docs page's "Copy this
+ * page" action derive from this one function, so the copied text and the served
+ * `.md` file can never drift. Uses `fs`, so callers must run at build time
+ * (static generation), never on the Edge runtime. Throws if the doc has no
+ * `doc.mdx`.
+ */
+export async function getDocMarkdown(id: string): Promise<string> {
+  const docDir = join(process.cwd(), 'docs', id)
+  const raw = await readFile(join(docDir, 'doc.mdx'), 'utf-8')
+  return processMdxForLLMs(raw, docDir)
 }
 
 /**
@@ -96,43 +113,296 @@ function flattenDemoCanvas(content: string): string {
  *
  * The block's body is the full registry component source; like shadcn we never
  * inline that into the Markdown, only point at the install command.
+ *
+ * The `item` attribute is read via {@link getJsxAttr}, so it tolerates single-
+ * or double-quoted values, `{'expr'}` forms, and any attribute ordering. Blocks
+ * without a resolvable `item` are left untouched.
  */
 function flattenInstallationTabs(content: string): string {
   return content.replace(
-    /<InstallationTabs\s+item="([^"]+)"[^>]*>[\s\S]*?<\/InstallationTabs>/g,
-    (_match, item) =>
-      `\`\`\`bash\nnpx shadcn@latest add @ikui/${item}\n\`\`\`\n`,
+    /<InstallationTabs\b([^>]*)>[\s\S]*?<\/InstallationTabs>/g,
+    (full: string, attrs: string) => {
+      const item = getJsxAttr(attrs, 'item')
+      if (!item) {
+        return full
+      }
+      return `\`\`\`bash\nnpx shadcn@latest add @ikui/${item}\n\`\`\`\n`
+    },
   )
+}
+
+/**
+ * Read a JSX attribute value from an opening-tag attribute string. Handles
+ * `name="x"`, `name='x'`, and `name={'x'}` / `name={"x"}` regardless of the
+ * attribute's position. Returns null when the attribute is absent or its value
+ * is not a plain string literal.
+ */
+function getJsxAttr(attrs: string, name: string): string | null {
+  const re = new RegExp(
+    `\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|\\{\\s*(["'\`])((?:\\\\.|(?!\\3).)*)\\3\\s*\\})`,
+  )
+  const m = attrs.match(re)
+  if (!m) {
+    return null
+  }
+  return m[1] ?? m[2] ?? m[4] ?? null
 }
 
 /**
  * `<PropsTable data={[{ name, type, default, nameDetails, typeDetails }, …]} />`
  * → a Markdown table. Left untouched if the data array cannot be parsed.
+ *
+ * The `data` expression is located with a brace/bracket/string-aware scanner
+ * (see {@link readBalanced}) rather than a non-greedy regex, and each object is
+ * parsed by {@link parsePropsData}, so nested braces (`{ a: b }[]`), pipes, and
+ * both quote styles survive intact. Table cells are escaped so a `|` inside a
+ * type never breaks the Markdown table.
  */
 function propsTableToMarkdown(content: string): string {
-  return content.replace(
-    /<PropsTable\s+data=\{(\[[\s\S]*?\])\}\s*\/>/g,
-    (full, dataText) => {
-      const objects = dataText.match(/\{[^{}]*\}/g)
-      if (!objects) {
-        return full
+  const tag = '<PropsTable'
+  let result = ''
+  let cursor = 0
+  for (
+    let start = content.indexOf(tag, cursor);
+    start !== -1;
+    start = content.indexOf(tag, cursor)
+  ) {
+    result += content.slice(cursor, start)
+
+    // Locate `data={ … }` for this tag, then read the balanced brace group so
+    // nested braces inside the array don't confuse the delimiter.
+    const dataAt = content.indexOf('data=', start)
+    const braceAt = dataAt === -1 ? -1 : content.indexOf('{', dataAt)
+    const close = braceAt === -1 ? -1 : readBalanced(content, braceAt, '{', '}')
+    const tagEnd = close === -1 ? -1 : content.indexOf('/>', close)
+    const rows =
+      close === -1 ? null : parsePropsData(content.slice(braceAt + 1, close))
+
+    if (!rows || tagEnd === -1) {
+      // Not a shape we can parse — emit the tag verbatim and move past it.
+      result += tag
+      cursor = start + tag.length
+      continue
+    }
+
+    result += renderPropsTable(rows)
+    cursor = tagEnd + 2
+  }
+  return result + content.slice(cursor)
+}
+
+/** Assemble the Markdown table from parsed prop rows, escaping every cell. */
+function renderPropsTable(rows: Array<Record<string, string>>): string {
+  const body = rows.map((row) => {
+    const name = escapeCell(row.name ?? '')
+    const type = escapeCell(row.type ?? '')
+    const def = escapeCell(row.default ?? '')
+    const desc = escapeCell(row.nameDetails || row.typeDetails || '')
+    return `| \`${name}\` | \`${type}\` | ${def ? `\`${def}\`` : '-'} | ${desc || '-'} |`
+  })
+  return [
+    '| Prop | Type | Default | Description |',
+    '| ---- | ---- | ------- | ----------- |',
+    ...body,
+  ].join('\n')
+}
+
+/**
+ * Escape a value for a single Markdown table cell: `|` would otherwise start a
+ * new column (even inside an inline-code span, per GFM), and a newline would
+ * break the row.
+ */
+function escapeCell(value: string): string {
+  return value
+    .replace(/\|/g, '\\|')
+    .replace(/\s*\n\s*/g, ' ')
+    .trim()
+}
+
+/**
+ * Return the index of the `}`/`]` that closes the group opened at `openAt`,
+ * skipping string literals so braces inside `"…"`, `'…'`, or `` `…` `` don't
+ * shift the depth. Returns -1 when unbalanced.
+ */
+function readBalanced(
+  text: string,
+  openAt: number,
+  open: string,
+  closeCh: string,
+): number {
+  let depth = 0
+  let quote: string | null = null
+  for (let i = openAt; i < text.length; i++) {
+    const c = text[i]
+    if (quote) {
+      if (c === '\\') {
+        i++
+      } else if (c === quote) {
+        quote = null
       }
-      const get = (obj: string, key: string) =>
-        obj.match(new RegExp(`${key}\\s*:\\s*"([^"]*)"`))?.[1] ?? ''
-      const rows = objects.map((obj: string) => {
-        const name = get(obj, 'name')
-        const type = get(obj, 'type')
-        const def = get(obj, 'default')
-        const desc = get(obj, 'nameDetails') || get(obj, 'typeDetails')
-        return `| \`${name}\` | \`${type}\` | ${def ? `\`${def}\`` : '-'} | ${desc || '-'} |`
-      })
-      return [
-        '| Prop | Type | Default | Description |',
-        '| ---- | ---- | ------- | ----------- |',
-        ...rows,
-      ].join('\n')
-    },
-  )
+      continue
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      quote = c
+    } else if (c === open) {
+      depth++
+    } else if (c === closeCh) {
+      depth--
+      if (depth === 0) {
+        return i
+      }
+    }
+  }
+  return -1
+}
+
+/**
+ * Parse a `[{ key: "value", … }, …]` object-literal array into plain records.
+ * All authored PropsTable values are string literals; this reads them with a
+ * quote-aware scanner so single/double/backtick quotes and nested braces are
+ * handled. Returns null if the text is not a parseable array of objects.
+ */
+function parsePropsData(
+  arrayText: string,
+): Array<Record<string, string>> | null {
+  const open = arrayText.indexOf('[')
+  if (open === -1) {
+    return null
+  }
+  const objects: Array<Record<string, string>> = []
+  let i = open + 1
+  while (i < arrayText.length) {
+    while (i < arrayText.length && /[\s,]/.test(arrayText[i])) {
+      i++
+    }
+    if (i >= arrayText.length || arrayText[i] === ']') {
+      break
+    }
+    if (arrayText[i] !== '{') {
+      return null
+    }
+    const close = readBalanced(arrayText, i, '{', '}')
+    if (close === -1) {
+      return null
+    }
+    const obj = parseObjectBody(arrayText.slice(i + 1, close))
+    if (!obj) {
+      return null
+    }
+    objects.push(obj)
+    i = close + 1
+  }
+  return objects.length ? objects : null
+}
+
+/** Parse the inside of a `{ key: "value", … }` literal into a key→value record. */
+function parseObjectBody(body: string): Record<string, string> | null {
+  const obj: Record<string, string> = {}
+  let i = 0
+  while (i < body.length) {
+    while (i < body.length && /[\s,]/.test(body[i])) {
+      i++
+    }
+    if (i >= body.length) {
+      break
+    }
+    // Key: a bare identifier or a quoted string.
+    let key: string
+    const kq = body[i]
+    if (kq === '"' || kq === "'" || kq === '`') {
+      const read = readString(body, i)
+      if (!read) {
+        return null
+      }
+      key = read.value
+      i = read.end
+    } else {
+      const start = i
+      while (i < body.length && /[\w$]/.test(body[i])) {
+        i++
+      }
+      if (i === start) {
+        return null
+      }
+      key = body.slice(start, i)
+    }
+    while (i < body.length && /\s/.test(body[i])) {
+      i++
+    }
+    if (body[i] !== ':') {
+      return null
+    }
+    i++
+    while (i < body.length && /\s/.test(body[i])) {
+      i++
+    }
+    // Value: string literals are captured; any other shape is skipped so the
+    // record still parses (unknown keys are ignored downstream anyway).
+    const vq = body[i]
+    if (vq === '"' || vq === "'" || vq === '`') {
+      const read = readString(body, i)
+      if (!read) {
+        return null
+      }
+      obj[key] = read.value
+      i = read.end
+    } else {
+      i = skipValue(body, i)
+    }
+  }
+  return obj
+}
+
+/**
+ * Read the string literal starting at `at` (its opening quote). Returns the
+ * unescaped contents and the index just past the closing quote, or null if the
+ * string is never closed.
+ */
+function readString(
+  text: string,
+  at: number,
+): { value: string; end: number } | null {
+  const quote = text[at]
+  let value = ''
+  for (let i = at + 1; i < text.length; i++) {
+    const c = text[i]
+    if (c === '\\') {
+      value += text[i + 1] ?? ''
+      i++
+    } else if (c === quote) {
+      return { value, end: i + 1 }
+    } else {
+      value += c
+    }
+  }
+  return null
+}
+
+/** Skip a non-string value up to the next top-level comma, respecting nesting. */
+function skipValue(text: string, at: number): number {
+  let depth = 0
+  let quote: string | null = null
+  for (let i = at; i < text.length; i++) {
+    const c = text[i]
+    if (quote) {
+      if (c === '\\') {
+        i++
+      } else if (c === quote) {
+        quote = null
+      }
+      continue
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      quote = c
+    } else if (c === '{' || c === '[' || c === '(') {
+      depth++
+    } else if (c === '}' || c === ']' || c === ')') {
+      depth--
+    } else if (c === ',' && depth === 0) {
+      return i
+    }
+  }
+  return text.length
 }
 
 async function replaceAsync(
@@ -172,15 +442,13 @@ export async function generateLlmMarkdownFiles(): Promise<void> {
     entries
       .filter((entry) => entry.isDirectory())
       .map(async (entry) => {
-        const docDir = join(docsDir, entry.name)
-        let raw: string
+        let markdown: string
         try {
-          raw = await readFile(join(docDir, 'doc.mdx'), 'utf-8')
+          markdown = await getDocMarkdown(entry.name)
         } catch {
           // Not a documentation page (e.g. PMA plan/task folders); skip it.
           return
         }
-        const markdown = await processMdxForLLMs(raw, docDir)
         markdownById.set(entry.name, markdown)
         await writeFile(join(outDir, `${entry.name}.md`), markdown, 'utf-8')
       }),
@@ -235,7 +503,7 @@ async function writeLlmsIndexFile(
   markdownById: Map<string, string>,
   registry: Registry | null,
 ): Promise<void> {
-  const base = registry?.homepage ?? SITE_URL
+  const base = registry?.homepage ?? getBaseUrl()
   const lines: string[] = ['# ikui', '', `> ${SITE_DESCRIPTION}`, '']
   lines.push(
     `Install any component with the shadcn CLI, e.g. ` +
@@ -291,7 +559,7 @@ async function writeLlmsIndexFile(
   await writeFile(join(process.cwd(), 'public', 'llms.txt'), content, 'utf-8')
 }
 
-/** Read and parse `registry.json`; returns null when it is absent. */
+/** Read and parse `registry.json` from disk; returns null when it is absent. */
 async function readRegistry(): Promise<Registry | null> {
   try {
     const raw = await readFile(join(process.cwd(), 'registry.json'), 'utf-8')

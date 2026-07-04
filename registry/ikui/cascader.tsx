@@ -71,6 +71,31 @@ export function Cascader({
   const isMobile = useIsMobile()
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
   const columnRefs = React.useRef<Map<string, HTMLDivElement>>(new Map())
+  // Deferred focus/scroll targets, flushed once the DOM has committed — avoids
+  // the old magic setTimeout(50) that raced Popover/Drawer mount+paint.
+  const pendingFocusRef = React.useRef<string | null>(null)
+  const pendingScrollRef = React.useRef(false)
+
+  React.useEffect(() => {
+    if (!pendingFocusRef.current && !pendingScrollRef.current) return
+    // rAF-after-commit: runs after the new column/popup content is laid out and
+    // after Base UI's own open-focus, so our focus target reliably wins.
+    const frame = requestAnimationFrame(() => {
+      if (pendingScrollRef.current) {
+        pendingScrollRef.current = false
+        const el = scrollContainerRef.current
+        if (el) {
+          el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' })
+        }
+      }
+      if (pendingFocusRef.current) {
+        const key = pendingFocusRef.current
+        pendingFocusRef.current = null
+        columnRefs.current.get(key)?.focus()
+      }
+    })
+    return () => cancelAnimationFrame(frame)
+  })
 
   const selectedValue = value !== undefined ? value : internalValue
 
@@ -123,16 +148,8 @@ export function Cascader({
       setExpandedPath(newPath)
       setFocusedColumn(columnIndex + 1)
       setFocusedIndex(0)
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTo({
-            left: scrollContainerRef.current.scrollWidth,
-            behavior: 'smooth',
-          })
-        }
-        const key = `${columnIndex + 1}-0`
-        columnRefs.current.get(key)?.focus()
-      }, 50)
+      pendingScrollRef.current = true
+      pendingFocusRef.current = `${columnIndex + 1}-0`
     } else {
       const newSelectedOptions = getSelectedOptions(newPath)
       if (value === undefined) {
@@ -148,14 +165,7 @@ export function Cascader({
     if (option.disabled) return
     const newPath = [...expandedPath.slice(0, columnIndex), option.value]
     setExpandedPath(newPath)
-    setTimeout(() => {
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTo({
-          left: scrollContainerRef.current.scrollWidth,
-          behavior: 'smooth',
-        })
-      }
-    }, 50)
+    pendingScrollRef.current = true
   }
 
   const handleClear = (e: React.MouseEvent) => {
@@ -225,10 +235,7 @@ export function Cascader({
             (opt) => opt.value === parentValue,
           )
           setFocusedIndex(parentIndex >= 0 ? parentIndex : 0)
-          setTimeout(() => {
-            const key = `${columnIndex - 1}-${parentIndex >= 0 ? parentIndex : 0}`
-            columnRefs.current.get(key)?.focus()
-          }, 50)
+          pendingFocusRef.current = `${columnIndex - 1}-${parentIndex >= 0 ? parentIndex : 0}`
         }
         break
 
@@ -406,10 +413,9 @@ export function Cascader({
       )
       setFocusedColumn(0)
       setFocusedIndex(0)
-      setTimeout(() => {
-        const key = `0-0`
-        columnRefs.current.get(key)?.focus()
-      }, 50)
+      // Popover uses Base UI's initialFocus (below); the Drawer falls back to
+      // this deferred flush. Harmless for the Popover — same target element.
+      pendingFocusRef.current = `0-0`
     } else {
       setExpandedPath([])
     }
@@ -437,6 +443,7 @@ export function Cascader({
       <PopoverContent
         className={cn('w-auto p-0', popupClassName)}
         align="start"
+        initialFocus={() => columnRefs.current.get('0-0') ?? null}
       >
         {columnsContent}
       </PopoverContent>

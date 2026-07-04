@@ -44,38 +44,36 @@ export function TimelinePlayhead({
     Math.max(0, contentWidth - LINE_WIDTH),
   )
   const ref = React.useRef<HTMLDivElement>(null)
-  const onSeekRef = React.useRef(onSeek)
-  onSeekRef.current = onSeek
   const dragging = React.useRef(false)
 
-  React.useEffect(() => {
-    const seekFromClientX = (clientX: number) => {
-      // The parent is the time-scaled content (width = duration × pps), so its
-      // left edge is time 0 — even when scrolled.
-      const parent = ref.current?.parentElement
-      if (!parent) return
-      const rect = parent.getBoundingClientRect()
-      const time = Math.min(duration, Math.max(0, (clientX - rect.left) / pps))
-      onSeekRef.current?.(time)
-    }
-    const onMove = (event: PointerEvent) => {
-      if (dragging.current) seekFromClientX(event.clientX)
-    }
-    const onUp = () => {
-      dragging.current = false
-    }
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
-    return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-    }
-  }, [pps, duration])
+  const seekFromClientX = (clientX: number) => {
+    // The parent is the time-scaled content (width = duration × pps), so its
+    // left edge is time 0 — even when scrolled.
+    const parent = ref.current?.parentElement
+    if (!parent) return
+    const rect = parent.getBoundingClientRect()
+    const time = Math.min(duration, Math.max(0, (clientX - rect.left) / pps))
+    onSeek?.(time)
+  }
 
   const onPointerDown = (event: React.PointerEvent) => {
     event.preventDefault()
     event.stopPropagation()
+    // Capture the pointer so move/up dispatch to the playhead for the drag's
+    // duration only — no window listeners kept for the component's whole
+    // lifetime — and scrubbing keeps tracking outside the 2px line's bounds.
+    event.currentTarget.setPointerCapture(event.pointerId)
     dragging.current = true
+  }
+
+  // Only scrubs while a drag is live (guarded by `dragging`); the capture routes
+  // moves here even when the pointer leaves the thin line.
+  const onPointerMove = (event: React.PointerEvent) => {
+    if (dragging.current) seekFromClientX(event.clientX)
+  }
+
+  const endDrag = () => {
+    dragging.current = false
   }
 
   const onKeyDown = (event: React.KeyboardEvent) => {
@@ -96,6 +94,9 @@ export function TimelinePlayhead({
       aria-valuemax={duration}
       aria-valuenow={currentTime}
       onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
       onKeyDown={onKeyDown}
       className={className}
       style={{

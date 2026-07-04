@@ -229,7 +229,7 @@ class ParticleEngine {
   private uPointSize: WebGLUniformLocation | null = null
   private uDepth: WebGLUniformLocation | null = null
 
-  constructor(optionsParam?: ParticleEngineOptions | HTMLElement) {
+  constructor(optionsParam?: RawOptions | HTMLElement) {
     let options: RawOptions = {}
     if (optionsParam) {
       if (optionsParam instanceof HTMLElement) {
@@ -271,8 +271,7 @@ class ParticleEngine {
       this._draw = () => this._webglRenderer()
       try {
         this._webglInitContext()
-      } catch (e) {
-        console.log(e)
+      } catch {
         this.renderer = 'default'
       }
     } else {
@@ -520,15 +519,9 @@ class ParticleEngine {
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!
     gl.shaderSource(vertexShader, this.vertexShaderScript)
     gl.compileShader(vertexShader)
-    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-      console.log(gl.getShaderInfoLog(vertexShader))
-    }
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!
     gl.shaderSource(fragmentShader, this.fragmentShaderScript)
     gl.compileShader(fragmentShader)
-    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-      console.log(gl.getShaderInfoLog(fragmentShader))
-    }
     this.program = gl.createProgram()!
     gl.attachShader(this.program, vertexShader)
     gl.attachShader(this.program, fragmentShader)
@@ -1229,12 +1222,50 @@ export function ParticleImage({
   const imageParticleRef = React.useRef<HTMLImageElement>(null)
 
   React.useEffect(() => {
-    if (!imageParticleRef.current) return
+    const element = imageParticleRef.current
+    if (!element) return
 
-    const particles = new ParticleEngine(imageParticleRef.current)
+    // Reconstruct the engine whenever any option changes so the canvas stays
+    // in sync with the props. The prior effect only ran on mount.
+    const particles = new ParticleEngine({
+      image: element,
+      imageUrl: imageSrc,
+      width: canvasWidth,
+      height: canvasHeight,
+      gravity,
+      particleSize,
+      particleGap,
+      mouseForce,
+      renderer,
+      color,
+      colorArr,
+      initPosition,
+      initDirection,
+      fadePosition,
+      fadeDirection,
+      noise,
+      responsiveWidth,
+    })
 
     return () => particles.destroy()
-  }, [])
+  }, [
+    imageSrc,
+    canvasWidth,
+    canvasHeight,
+    gravity,
+    particleSize,
+    particleGap,
+    mouseForce,
+    renderer,
+    color,
+    colorArr,
+    initPosition,
+    initDirection,
+    fadePosition,
+    fadeDirection,
+    noise,
+    responsiveWidth,
+  ])
 
   return (
     // biome-ignore lint/performance/noImgElement: the source image is sampled into a canvas, next/image would not work
@@ -1242,21 +1273,6 @@ export function ParticleImage({
       ref={imageParticleRef}
       src={imageSrc}
       alt=""
-      data-particle-gap={particleGap}
-      data-width={canvasWidth}
-      data-height={canvasHeight}
-      data-gravity={gravity}
-      data-particle-size={particleSize}
-      data-mouse-force={mouseForce}
-      data-renderer={renderer}
-      data-color={color}
-      data-color-arr={colorArr}
-      data-init-position={initPosition}
-      data-init-direction={initDirection}
-      data-fade-position={fadePosition}
-      data-fade-direction={fadeDirection}
-      data-noise={noise}
-      data-responsive-width={responsiveWidth}
       className={cn('hidden h-32 w-32', className)}
     />
   )
