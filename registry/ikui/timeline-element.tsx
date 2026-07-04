@@ -285,5 +285,3 @@ export function TimelineElement({
     </div>
   )
 }
-
-export default TimelineElement

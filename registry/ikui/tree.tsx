@@ -29,6 +29,11 @@ export interface TreeRenderItemParams {
 export interface TreeProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
   data: TreeDataItem[] | TreeDataItem
+  /** Controlled selected node id. */
+  selectedId?: string
+  /** Uncontrolled initial selected node id; its ancestors start expanded. */
+  defaultSelectedId?: string
+  /** @deprecated Use defaultSelectedId instead. */
   initialSelectedItemId?: string
   onSelectChange?: (item: TreeDataItem) => void
   expandAll?: boolean
@@ -250,6 +255,8 @@ function TreeNode({ item, level }: TreeNodeProps) {
 
 export function Tree({
   data,
+  selectedId,
+  defaultSelectedId,
   initialSelectedItemId,
   onSelectChange,
   expandAll = false,
@@ -264,23 +271,30 @@ export function Tree({
     () => (Array.isArray(data) ? data : [data]),
     [data],
   )
-  const [selectedItemId, setSelectedItemId] = React.useState(
-    initialSelectedItemId,
+  const [internalSelectedId, setInternalSelectedId] = React.useState(
+    defaultSelectedId ?? initialSelectedItemId,
   )
+  const currentSelectedId =
+    selectedId !== undefined ? selectedId : internalSelectedId
+  // Externally supplied selection intent: the controlled value, or the initial
+  // uncontrolled default. Internal (uncontrolled) clicks deliberately do not
+  // re-drive expansion, so this excludes `internalSelectedId`.
+  const selectionSeed = selectedId ?? defaultSelectedId ?? initialSelectedItemId
   const [expandedIds, setExpandedIds] = React.useState(() =>
-    collectExpandedIds(items, initialSelectedItemId, expandAll),
+    collectExpandedIds(items, selectionSeed, expandAll),
   )
   const [activeId, setActiveId] = React.useState<string | undefined>(
-    initialSelectedItemId,
+    selectionSeed,
   )
   const rootRef = React.useRef<HTMLDivElement>(null)
 
   // Re-sync self-managed expansion whenever the driving inputs change, so a new
-  // `initialSelectedItemId`, an `expandAll` toggle, or fresh `data` takes effect
-  // on already-mounted nodes instead of being frozen at first render.
+  // controlled `selectedId` / initial default, an `expandAll` toggle, or fresh
+  // `data` takes effect on already-mounted nodes instead of being frozen at
+  // first render.
   React.useEffect(() => {
-    setExpandedIds(collectExpandedIds(items, initialSelectedItemId, expandAll))
-  }, [items, initialSelectedItemId, expandAll])
+    setExpandedIds(collectExpandedIds(items, selectionSeed, expandAll))
+  }, [items, selectionSeed, expandAll])
 
   const visible = React.useMemo(
     () => flattenVisible(items, expandedIds),
@@ -300,10 +314,10 @@ export function Tree({
 
   const select = React.useCallback(
     (item: TreeDataItem) => {
-      setSelectedItemId(item.id)
+      if (selectedId === undefined) setInternalSelectedId(item.id)
       onSelectChange?.(item)
     },
-    [onSelectChange],
+    [selectedId, onSelectChange],
   )
 
   const setExpanded = React.useCallback((id: string, open: boolean) => {
@@ -418,7 +432,7 @@ export function Tree({
 
   const contextValue = React.useMemo<TreeContextValue>(
     () => ({
-      selectedItemId,
+      selectedItemId: currentSelectedId,
       tabbableId,
       expandedIds,
       select,
@@ -430,7 +444,7 @@ export function Tree({
       chevronPosition,
     }),
     [
-      selectedItemId,
+      currentSelectedId,
       tabbableId,
       expandedIds,
       select,

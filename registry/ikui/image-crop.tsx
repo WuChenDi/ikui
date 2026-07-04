@@ -2,6 +2,7 @@
 
 import type {
   CSSProperties,
+  HTMLAttributes,
   KeyboardEvent,
   PointerEvent,
   ReactNode,
@@ -372,7 +373,11 @@ export interface ImageCropState {
   newCropIsBeingDrawn: boolean
 }
 
-export interface ImageCropProps {
+export interface ImageCropProps
+  extends Omit<
+    HTMLAttributes<HTMLDivElement>,
+    'onChange' | 'onDragStart' | 'onDragEnd'
+  > {
   /** The element to crop, e.g. an `<img>` or `<video>`. */
   children?: ReactNode
   /** The current crop. Omit entirely for no crop. This is a controlled value:
@@ -474,6 +479,7 @@ export function ImageCrop(props: ImageCropProps) {
     style,
     selectionClassName,
     handleClassName,
+    ...rest
   } = props
 
   const componentRef = useRef<HTMLDivElement>(null)
@@ -935,6 +941,7 @@ export function ImageCrop(props: ImageCropProps) {
   return (
     <div
       ref={componentRef}
+      {...rest}
       tabIndex={-1}
       className={cn(
         'relative inline-block max-w-full select-none outline-none',

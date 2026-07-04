@@ -16,8 +16,9 @@ import { Demo as ActionsDemo } from './demo-actions'
 A data-driven hierarchical tree view. Pass a `data` array of `TreeDataItem`
 nodes — any node with `children` is a folder that expands and collapses, anything
 else is a leaf. The tree manages its own expand state (auto-expanding the
-ancestors of `initialSelectedItemId`, or everything when `expandAll` is set) and
-its own selection, reporting changes through `onSelectChange`. Each node can carry
+ancestors of the selected node, or everything when `expandAll` is set) and its
+selection — controlled with `selectedId` or uncontrolled from `defaultSelectedId`,
+reporting changes through `onSelectChange`. Each node can carry
 its own icons, an `actions` slot, and a `disabled` flag, or you can take over the
 whole row with `renderItem`.
 
@@ -48,7 +49,7 @@ const data: TreeDataItem[] = [
 
 <Tree
   data={data}
-  initialSelectedItemId="page"
+  defaultSelectedId="page"
   onSelectChange={(item) => console.log(item?.name)}
 />;
 ```
@@ -125,9 +126,19 @@ when the row is selected. Clicks inside `actions` don't select or toggle the row
       typeDetails: "The node tree to render"
     },
     {
+      name: "selectedId",
+      type: "string",
+      typeDetails: "Controlled selected node id"
+    },
+    {
+      name: "defaultSelectedId",
+      type: "string",
+      typeDetails: "Uncontrolled initial selected id; its ancestors start expanded"
+    },
+    {
       name: "initialSelectedItemId",
       type: "string",
-      typeDetails: "Id selected on mount; its ancestors start expanded"
+      typeDetails: "Deprecated alias of defaultSelectedId"
     },
     {
       name: "onSelectChange",

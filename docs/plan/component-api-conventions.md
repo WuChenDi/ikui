@@ -1,13 +1,13 @@
 # Component API conventions (proposal)
 
-Status: proposal — needs approval
+Status: approved — implemented
 Task: audit finding C10 (campaign l1-2q7jtz04)
 
-> **Proposal-only.** This document changes **no** public component API. It records
-> the inconsistencies audit finding C10 flagged and proposes conventions to adopt
-> going forward. Applying any of these to existing components is a **breaking
-> change** and must be scheduled as separate, approved work. Nothing here is
-> implemented yet.
+> **Implemented.** The conventions below were approved and applied across
+> `registry/ikui`. Changes are additive where possible: `tree` keeps
+> `initialSelectedItemId` as a deprecated alias, and the unused `default`
+> exports on the `timeline-*` files were removed. See **Decision** for the
+> resolved open questions and the per-question outcomes.
 
 ## Why
 
@@ -168,17 +168,32 @@ None of this ships as part of C10. Suggested sequencing when scheduled:
 Each step is its own approved change with its own doc/demo updates and a green
 `pnpm lint && pnpm build` + `pnpm registry:build`.
 
-## Open questions (for the approver)
+## Resolved open questions
 
-- Standardize the value-prop **name** on `value`/`defaultValue`/`onValueChange`
-  (Base UI style) or keep domain-specific names (`crop`, `selectedId`)? The
-  proposal assumes domain-specific names with `default*`/`on*Change` affixes.
-- Is forwarding the root DOM ref on **every** interactive component worth the
-  churn, or only when a concrete consumer need exists?
-- Keep `image-crop` controlled-only (it is arguably correct for a
-  fully-derived crop), or force the dual pattern for uniformity?
+- **Value-prop naming** — keep domain-specific names with `default*`/`on*Change`
+  affixes (not the generic `value`/`onValueChange`). `tree` now exposes
+  `selectedId` / `defaultSelectedId` / `onSelectChange`, with
+  `initialSelectedItemId` retained as a deprecated alias.
+- **Ref forwarding** — forward the root DOM node on interactive/root-rendering
+  components only (`cascader`, `waveform-player`, `password-input`,
+  `image-compare` gained it). Pure data-display / fragment components are left
+  without a root ref by design.
+- **`image-crop`** — kept controlled-only, as its fully-derived crop makes that
+  the correct model; no dual pattern forced.
+
+## Deviations
+
+- **`image-crop` `defaultCrop` skipped.** The optional uncontrolled path was not
+  added: a module-level `defaultCrop` helper name already exists and `crop` is
+  read at ~20 sites, so an internal-state fork reintroduces the derived-every-
+  render complexity the proposal explicitly says to avoid. `image-crop` stays
+  controlled-only.
+- **Components intentionally without a root ref** (per the ref-forwarding
+  decision): `chart`, `heatmap-calendar`, `spark-chart`, `particle-image`,
+  `image-grid`, and `qr-code` (which already exposes an imperative `QRCodeHandle`
+  instead). These are data-display or fragment-rendering and gain no root-ref.
 
 ## Decision
 
-Pending L1 → user approval. Yellow: no code changed; this is a convention
-proposal only.
+Approved and implemented. C-1..C-4 applied per the resolved answers above.
+`pnpm lint && pnpm registry:check && pnpm build` green.

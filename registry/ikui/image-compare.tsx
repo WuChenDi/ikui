@@ -1,8 +1,9 @@
 'use client'
 
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import type { ReactNode, RefObject } from 'react'
+import type { HTMLAttributes, ReactNode, RefObject } from 'react'
 import {
+  forwardRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -11,7 +12,7 @@ import {
 } from 'react'
 import { cn } from '@/lib/utils'
 
-export interface ImageCompareProps {
+export interface ImageCompareProps extends HTMLAttributes<HTMLDivElement> {
   aspectRatio?: 'taller' | 'wider'
   /**
    * Fill the parent container's height instead of deriving it from the image
@@ -97,337 +98,362 @@ function useContainerSize(
   return ref
 }
 
-export function ImageCompare(props: ImageCompareProps) {
-  const {
-    aspectRatio = 'taller',
-    fill = false,
-    handle = null,
-    hover = false,
-    leftImage,
-    leftImageAlt = '',
-    leftImageLabel = null,
-    objectFit = 'cover',
-    onSliderPositionChange,
-    rightImage,
-    rightImageAlt = '',
-    rightImageLabel = null,
-    skeleton = null,
-    sliderPositionPercentage = 0.5,
-    vertical = false,
-  } = props
+const ImageCompare = forwardRef<HTMLDivElement, ImageCompareProps>(
+  (props, forwardedRef) => {
+    const {
+      aspectRatio = 'taller',
+      className,
+      fill = false,
+      handle = null,
+      hover = false,
+      leftImage,
+      leftImageAlt = '',
+      leftImageLabel = null,
+      objectFit = 'cover',
+      onSliderPositionChange,
+      rightImage,
+      rightImageAlt = '',
+      rightImageLabel = null,
+      skeleton = null,
+      sliderPositionPercentage = 0.5,
+      vertical = false,
+      ...rest
+    } = props
 
-  const horizontal = !vertical
+    const horizontal = !vertical
 
-  // 0 to 1
-  const [sliderPosition, setSliderPosition] = useState<number>(() =>
-    Math.min(Math.max(sliderPositionPercentage, 0), 1),
-  )
-  const [isSliding, setIsSliding] = useState<boolean>(false)
-
-  // Keep the latest callback in a ref so the pointer listeners always call
-  // the current one without having to reattach on every render.
-  const onSliderPositionChangeRef = useRef(onSliderPositionChange)
-  onSliderPositionChangeRef.current = onSliderPositionChange
-
-  // size of the parent container
-  const [containerWidth, setContainerWidth] = useState<number>(0)
-  const [containerHeight, setContainerHeight] = useState<number>(0)
-
-  // Mirror the layout/behaviour values the pointer listeners read into a ref
-  // so the listeners stay stable across resizes and prop changes. Without this
-  // the effect below would tear down and reattach the listeners on every
-  // dimension change; instead it only re-runs to (de)activate on image load.
-  const latestRef = useRef({
-    containerWidth,
-    containerHeight,
-    horizontal,
-    hover,
-  })
-  latestRef.current = { containerWidth, containerHeight, horizontal, hover }
-
-  // refs to HTML elements. In fill mode the height tracks the parent container
-  // rather than being derived from the image ratio.
-  const handleContainerResize = useCallback(
-    (size: { width: number; height: number }) => {
-      setContainerWidth(size.width)
-      if (fill) {
-        setContainerHeight(size.height)
-      }
-    },
-    [fill],
-  )
-  const containerRef = useContainerSize(handleContainerResize)
-  const rightImageRef = useRef<HTMLImageElement>(null)
-  const leftImageRef = useRef<HTMLImageElement>(null)
-
-  // image loading flag
-  const [imagesLoaded, setImagesLoaded] = useState(false)
-  const checkImagesLoaded = useCallback(() => {
-    const left = leftImageRef.current
-    const right = rightImageRef.current
-    // Require a non-zero natural size: a `complete` image that failed to load
-    // reports naturalWidth 0, which would later divide by zero in getImageRatio.
-    if (
-      left?.complete &&
-      right?.complete &&
-      left.naturalWidth > 0 &&
-      right.naturalWidth > 0
-    ) {
-      setImagesLoaded(true)
-    }
-  }, [])
-
-  // Manage image loading state. Reset whenever an image source changes.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when the image sources change
-  useEffect(() => {
-    // Sometimes onLoad is not called (e.g. due to cache), so check explicitly.
-    checkImagesLoaded()
-
-    return () => {
-      setImagesLoaded(false)
-    }
-  }, [leftImage, rightImage, checkImagesLoaded])
-
-  // Set container height based on the image ratio (skipped in fill mode, where
-  // the height instead follows the parent container).
-  useEffect(() => {
-    if (
-      fill ||
-      !(leftImageRef.current && rightImageRef.current) ||
-      containerWidth === 0 ||
-      !imagesLoaded
-    ) {
-      return
-    }
-    const height = calculateContainerHeight(
-      containerWidth,
-      getImageRatio(leftImageRef.current),
-      getImageRatio(rightImageRef.current),
-      aspectRatio,
+    // 0 to 1
+    const [sliderPosition, setSliderPosition] = useState<number>(() =>
+      Math.min(Math.max(sliderPositionPercentage, 0), 1),
     )
-    setContainerHeight(height)
-  }, [containerWidth, imagesLoaded, aspectRatio, fill])
+    const [isSliding, setIsSliding] = useState<boolean>(false)
 
-  // Setup pointer (mouse/touch) event listeners. The listeners attach once the
-  // images have loaded and stay attached: the container dimensions, orientation
-  // and hover flag they depend on are all read through `latestRef`, so a resize
-  // or prop change never needs to reattach them. The onSliderPositionChange
-  // callback is likewise read through a ref.
-  useEffect(() => {
-    // do nothing if refs are not ready, or images haven't loaded yet
-    if (!containerRef.current || !imagesLoaded) {
-      return
-    }
+    // Keep the latest callback in a ref so the pointer listeners always call
+    // the current one without having to reattach on every render.
+    const onSliderPositionChangeRef = useRef(onSliderPositionChange)
+    onSliderPositionChangeRef.current = onSliderPositionChange
 
-    const containerElement = containerRef.current
+    // size of the parent container
+    const [containerWidth, setContainerWidth] = useState<number>(0)
+    const [containerHeight, setContainerHeight] = useState<number>(0)
 
-    const stickSliderToPointer = (e: PointerEvent) => {
-      const { containerWidth, containerHeight, horizontal } = latestRef.current
+    // Mirror the layout/behaviour values the pointer listeners read into a ref
+    // so the listeners stay stable across resizes and prop changes. Without this
+    // the effect below would tear down and reattach the listeners on every
+    // dimension change; instead it only re-runs to (de)activate on image load.
+    const latestRef = useRef({
+      containerWidth,
+      containerHeight,
+      horizontal,
+      hover,
+    })
+    latestRef.current = { containerWidth, containerHeight, horizontal, hover }
 
-      // Get the cursor position from the edge of the container
-      const rect = containerElement.getBoundingClientRect()
-      const position = horizontal ? e.clientX - rect.left : e.clientY - rect.top
+    // refs to HTML elements. In fill mode the height tracks the parent container
+    // rather than being derived from the image ratio.
+    const handleContainerResize = useCallback(
+      (size: { width: number; height: number }) => {
+        setContainerWidth(size.width)
+        if (fill) {
+          setContainerHeight(size.height)
+        }
+      },
+      [fill],
+    )
+    const containerRef = useContainerSize(handleContainerResize)
+    // Merge the internal container ref with the one the consumer forwarded so
+    // the same node drives the ResizeObserver and is exposed for measure/scroll.
+    const setContainerRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        containerRef.current = node
+        if (typeof forwardedRef === 'function') {
+          forwardedRef(node)
+        } else if (forwardedRef) {
+          forwardedRef.current = node
+        }
+      },
+      [containerRef, forwardedRef],
+    )
+    const rightImageRef = useRef<HTMLImageElement>(null)
+    const leftImageRef = useRef<HTMLImageElement>(null)
 
-      // Clamp the slider position so it never overflows the container
-      const halfLineWidth = LINE_WIDTH / 2
-      const maxPosition = horizontal
-        ? containerWidth - halfLineWidth
-        : containerHeight - halfLineWidth
-      const clampedPosition = Math.min(
-        Math.max(position, halfLineWidth),
-        maxPosition,
+    // image loading flag
+    const [imagesLoaded, setImagesLoaded] = useState(false)
+    const checkImagesLoaded = useCallback(() => {
+      const left = leftImageRef.current
+      const right = rightImageRef.current
+      // Require a non-zero natural size: a `complete` image that failed to load
+      // reports naturalWidth 0, which would later divide by zero in getImageRatio.
+      if (
+        left?.complete &&
+        right?.complete &&
+        left.naturalWidth > 0 &&
+        right.naturalWidth > 0
+      ) {
+        setImagesLoaded(true)
+      }
+    }, [])
+
+    // Manage image loading state. Reset whenever an image source changes.
+    // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when the image sources change
+    useEffect(() => {
+      // Sometimes onLoad is not called (e.g. due to cache), so check explicitly.
+      checkImagesLoaded()
+
+      return () => {
+        setImagesLoaded(false)
+      }
+    }, [leftImage, rightImage, checkImagesLoaded])
+
+    // Set container height based on the image ratio (skipped in fill mode, where
+    // the height instead follows the parent container).
+    useEffect(() => {
+      if (
+        fill ||
+        !(leftImageRef.current && rightImageRef.current) ||
+        containerWidth === 0 ||
+        !imagesLoaded
+      ) {
+        return
+      }
+      const height = calculateContainerHeight(
+        containerWidth,
+        getImageRatio(leftImageRef.current),
+        getImageRatio(rightImageRef.current),
+        aspectRatio,
       )
+      setContainerHeight(height)
+    }, [containerWidth, imagesLoaded, aspectRatio, fill])
 
-      const ratio =
-        clampedPosition / (horizontal ? containerWidth : containerHeight)
+    // Setup pointer (mouse/touch) event listeners. The listeners attach once the
+    // images have loaded and stay attached: the container dimensions, orientation
+    // and hover flag they depend on are all read through `latestRef`, so a resize
+    // or prop change never needs to reattach them. The onSliderPositionChange
+    // callback is likewise read through a ref.
+    useEffect(() => {
+      // do nothing if refs are not ready, or images haven't loaded yet
+      if (!containerRef.current || !imagesLoaded) {
+        return
+      }
 
-      setSliderPosition(ratio)
-      onSliderPositionChangeRef.current?.(ratio)
-    }
+      const containerElement = containerRef.current
 
-    const onStart = (e: PointerEvent) => {
-      setIsSliding(true)
-      e.preventDefault()
+      const stickSliderToPointer = (e: PointerEvent) => {
+        const { containerWidth, containerHeight, horizontal } =
+          latestRef.current
 
-      // Use pointer capture to keep tracking the container being operated on.
-      // It is automatically cleared on `pointerup` / `pointercancel`.
-      containerElement.setPointerCapture(e.pointerId)
+        // Get the cursor position from the edge of the container
+        const rect = containerElement.getBoundingClientRect()
+        const position = horizontal
+          ? e.clientX - rect.left
+          : e.clientY - rect.top
 
-      // The very first move must be fired manually.
-      stickSliderToPointer(e)
-    }
+        // Clamp the slider position so it never overflows the container
+        const halfLineWidth = LINE_WIDTH / 2
+        const maxPosition = horizontal
+          ? containerWidth - halfLineWidth
+          : containerHeight - halfLineWidth
+        const clampedPosition = Math.min(
+          Math.max(position, halfLineWidth),
+          maxPosition,
+        )
 
-    const onMove = (e: PointerEvent) => {
-      const isTargetElement = containerElement.hasPointerCapture(e.pointerId)
-      if (isTargetElement || latestRef.current.hover) {
+        const ratio =
+          clampedPosition / (horizontal ? containerWidth : containerHeight)
+
+        setSliderPosition(ratio)
+        onSliderPositionChangeRef.current?.(ratio)
+      }
+
+      const onStart = (e: PointerEvent) => {
+        setIsSliding(true)
+        e.preventDefault()
+
+        // Use pointer capture to keep tracking the container being operated on.
+        // It is automatically cleared on `pointerup` / `pointercancel`.
+        containerElement.setPointerCapture(e.pointerId)
+
+        // The very first move must be fired manually.
         stickSliderToPointer(e)
       }
-    }
 
-    const onFinish = () => {
-      setIsSliding(false)
-    }
+      const onMove = (e: PointerEvent) => {
+        const isTargetElement = containerElement.hasPointerCapture(e.pointerId)
+        if (isTargetElement || latestRef.current.hover) {
+          stickSliderToPointer(e)
+        }
+      }
 
-    containerElement.addEventListener('pointerdown', onStart)
-    containerElement.addEventListener('pointermove', onMove)
-    containerElement.addEventListener('pointerup', onFinish)
-    containerElement.addEventListener('pointercancel', onFinish)
+      const onFinish = () => {
+        setIsSliding(false)
+      }
 
-    return () => {
-      containerElement.removeEventListener('pointerdown', onStart)
-      containerElement.removeEventListener('pointermove', onMove)
-      containerElement.removeEventListener('pointerup', onFinish)
-      containerElement.removeEventListener('pointercancel', onFinish)
-    }
-  }, [imagesLoaded, containerRef])
+      containerElement.addEventListener('pointerdown', onStart)
+      containerElement.addEventListener('pointermove', onMove)
+      containerElement.addEventListener('pointerup', onFinish)
+      containerElement.addEventListener('pointercancel', onFinish)
 
-  // Clip regions for the overlay image and its label, driven by the slider.
-  const leftClip = horizontal
-    ? `inset(0 ${containerWidth * (1 - sliderPosition)}px 0 0)`
-    : `inset(0 0 ${containerHeight * (1 - sliderPosition)}px 0)`
-  const rightClip = horizontal
-    ? `inset(0 0 0 ${containerWidth * sliderPosition}px)`
-    : `inset(${containerHeight * sliderPosition}px 0 0 0)`
+      return () => {
+        containerElement.removeEventListener('pointerdown', onStart)
+        containerElement.removeEventListener('pointermove', onMove)
+        containerElement.removeEventListener('pointerup', onFinish)
+        containerElement.removeEventListener('pointercancel', onFinish)
+      }
+    }, [imagesLoaded, containerRef])
 
-  const labelBase = cn(
-    'absolute bg-black/50 px-5 py-2.5 text-white transition-opacity duration-100 ease-out',
-    isSliding ? 'opacity-0' : 'opacity-100',
-  )
+    // Clip regions for the overlay image and its label, driven by the slider.
+    const leftClip = horizontal
+      ? `inset(0 ${containerWidth * (1 - sliderPosition)}px 0 0)`
+      : `inset(0 0 ${containerHeight * (1 - sliderPosition)}px 0)`
+    const rightClip = horizontal
+      ? `inset(0 0 0 ${containerWidth * sliderPosition}px)`
+      : `inset(${containerHeight * sliderPosition}px 0 0 0)`
 
-  return (
-    <>
-      {skeleton && !imagesLoaded && (
-        <div
-          className="relative box-border w-full overflow-hidden"
-          // Height is only known after the images load; until then let the
-          // skeleton size itself instead of collapsing to 0.
-          style={{ height: containerHeight || undefined }}
-        >
-          {skeleton}
-        </div>
-      )}
+    const labelBase = cn(
+      'absolute bg-black/50 px-5 py-2.5 text-white transition-opacity duration-100 ease-out',
+      isSliding ? 'opacity-0' : 'opacity-100',
+    )
 
-      <div
-        ref={containerRef}
-        className={cn(
-          'relative box-border w-full overflow-hidden',
-          fill && 'h-full',
-          horizontal ? 'touch-pan-y' : 'touch-pan-x',
-          imagesLoaded ? 'block' : 'hidden',
-        )}
-        style={fill ? undefined : { height: containerHeight }}
-      >
-        {/* biome-ignore lint/performance/noImgElement: clip-path overlay with arbitrary URLs, next/image would not fit */}
-        <img
-          onLoad={() => checkImagesLoaded()}
-          alt={rightImageAlt}
-          ref={rightImageRef}
-          src={rightImage}
-          className={cn(
-            'absolute block h-full w-full',
-            objectFit === 'contain' ? 'object-contain' : 'object-cover',
-          )}
-          style={{ clipPath: rightClip }}
-        />
-        {/* biome-ignore lint/performance/noImgElement: clip-path overlay with arbitrary URLs, next/image would not fit */}
-        <img
-          onLoad={() => checkImagesLoaded()}
-          alt={leftImageAlt}
-          ref={leftImageRef}
-          src={leftImage}
-          className={cn(
-            'absolute block h-full w-full',
-            objectFit === 'contain' ? 'object-contain' : 'object-cover',
-          )}
-          style={{ clipPath: leftClip }}
-        />
-        <div
-          className={cn(
-            'absolute flex items-center justify-center',
-            horizontal
-              ? 'h-full w-10 cursor-ew-resize flex-col'
-              : 'h-10 w-full cursor-ns-resize flex-row',
-          )}
-          style={
-            horizontal
-              ? {
-                  left: containerWidth * sliderPosition - HANDLE_SIZE / 2,
-                  top: 0,
-                }
-              : {
-                  left: 0,
-                  top: containerHeight * sliderPosition - HANDLE_SIZE / 2,
-                }
-          }
-        >
+    return (
+      <>
+        {skeleton && !imagesLoaded && (
           <div
-            className={cn(
-              'flex-[0_1_auto] bg-white',
-              ELEVATION,
-              horizontal ? 'h-full w-0.5' : 'h-0.5 w-full',
-            )}
-          />
-          {/* biome-ignore lint/nursery/noMisusedPromises: handle is a ReactNode, not a Promise */}
-          {handle ? (
-            <div className="box-border flex h-auto w-auto flex-[1_0_auto] items-center justify-center">
-              {handle}
-            </div>
-          ) : (
-            <div
-              className={cn(
-                'box-border flex h-10 w-10 flex-[1_0_auto] items-center justify-center rounded-full border-2 border-white text-white',
-                ELEVATION,
-                !horizontal && 'rotate-90',
-              )}
-            >
-              <ChevronLeft size={16} strokeWidth={2.5} aria-hidden />
-              <ChevronRight size={16} strokeWidth={2.5} aria-hidden />
-            </div>
-          )}
-          <div
-            className={cn(
-              'flex-[0_1_auto] bg-white',
-              ELEVATION,
-              horizontal ? 'h-full w-0.5' : 'h-0.5 w-full',
-            )}
-          />
-        </div>
-        {/* labels */}
-        {leftImageLabel && (
-          <div
-            className="absolute h-full w-full"
-            style={{ clipPath: leftClip }}
+            className="relative box-border w-full overflow-hidden"
+            // Height is only known after the images load; until then let the
+            // skeleton size itself instead of collapsing to 0.
+            style={{ height: containerHeight || undefined }}
           >
-            <div
-              className={cn(
-                labelBase,
-                horizontal
-                  ? 'left-[5%] top-1/2 -translate-y-1/2'
-                  : 'left-1/2 top-[3%] -translate-x-1/2',
-              )}
-            >
-              {leftImageLabel}
-            </div>
+            {skeleton}
           </div>
         )}
-        {rightImageLabel && (
-          <div
-            className="absolute h-full w-full"
+
+        <div
+          {...rest}
+          ref={setContainerRef}
+          className={cn(
+            'relative box-border w-full overflow-hidden',
+            fill && 'h-full',
+            horizontal ? 'touch-pan-y' : 'touch-pan-x',
+            imagesLoaded ? 'block' : 'hidden',
+            className,
+          )}
+          style={fill ? undefined : { height: containerHeight }}
+        >
+          {/* biome-ignore lint/performance/noImgElement: clip-path overlay with arbitrary URLs, next/image would not fit */}
+          <img
+            onLoad={() => checkImagesLoaded()}
+            alt={rightImageAlt}
+            ref={rightImageRef}
+            src={rightImage}
+            className={cn(
+              'absolute block h-full w-full',
+              objectFit === 'contain' ? 'object-contain' : 'object-cover',
+            )}
             style={{ clipPath: rightClip }}
+          />
+          {/* biome-ignore lint/performance/noImgElement: clip-path overlay with arbitrary URLs, next/image would not fit */}
+          <img
+            onLoad={() => checkImagesLoaded()}
+            alt={leftImageAlt}
+            ref={leftImageRef}
+            src={leftImage}
+            className={cn(
+              'absolute block h-full w-full',
+              objectFit === 'contain' ? 'object-contain' : 'object-cover',
+            )}
+            style={{ clipPath: leftClip }}
+          />
+          <div
+            className={cn(
+              'absolute flex items-center justify-center',
+              horizontal
+                ? 'h-full w-10 cursor-ew-resize flex-col'
+                : 'h-10 w-full cursor-ns-resize flex-row',
+            )}
+            style={
+              horizontal
+                ? {
+                    left: containerWidth * sliderPosition - HANDLE_SIZE / 2,
+                    top: 0,
+                  }
+                : {
+                    left: 0,
+                    top: containerHeight * sliderPosition - HANDLE_SIZE / 2,
+                  }
+            }
           >
             <div
               className={cn(
-                labelBase,
-                horizontal
-                  ? 'right-[5%] top-1/2 -translate-y-1/2'
-                  : 'bottom-[3%] left-1/2 -translate-x-1/2',
+                'flex-[0_1_auto] bg-white',
+                ELEVATION,
+                horizontal ? 'h-full w-0.5' : 'h-0.5 w-full',
               )}
-            >
-              {rightImageLabel}
-            </div>
+            />
+            {handle ? (
+              <div className="box-border flex h-auto w-auto flex-[1_0_auto] items-center justify-center">
+                {handle}
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  'box-border flex h-10 w-10 flex-[1_0_auto] items-center justify-center rounded-full border-2 border-white text-white',
+                  ELEVATION,
+                  !horizontal && 'rotate-90',
+                )}
+              >
+                <ChevronLeft size={16} strokeWidth={2.5} aria-hidden />
+                <ChevronRight size={16} strokeWidth={2.5} aria-hidden />
+              </div>
+            )}
+            <div
+              className={cn(
+                'flex-[0_1_auto] bg-white',
+                ELEVATION,
+                horizontal ? 'h-full w-0.5' : 'h-0.5 w-full',
+              )}
+            />
           </div>
-        )}
-      </div>
-    </>
-  )
-}
+          {/* labels */}
+          {leftImageLabel && (
+            <div
+              className="absolute h-full w-full"
+              style={{ clipPath: leftClip }}
+            >
+              <div
+                className={cn(
+                  labelBase,
+                  horizontal
+                    ? 'left-[5%] top-1/2 -translate-y-1/2'
+                    : 'left-1/2 top-[3%] -translate-x-1/2',
+                )}
+              >
+                {leftImageLabel}
+              </div>
+            </div>
+          )}
+          {rightImageLabel && (
+            <div
+              className="absolute h-full w-full"
+              style={{ clipPath: rightClip }}
+            >
+              <div
+                className={cn(
+                  labelBase,
+                  horizontal
+                    ? 'right-[5%] top-1/2 -translate-y-1/2'
+                    : 'bottom-[3%] left-1/2 -translate-x-1/2',
+                )}
+              >
+                {rightImageLabel}
+              </div>
+            </div>
+          )}
+        </div>
+      </>
+    )
+  },
+)
+
+ImageCompare.displayName = 'ImageCompare'
+
+export { ImageCompare }
