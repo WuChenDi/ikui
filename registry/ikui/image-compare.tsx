@@ -337,7 +337,10 @@ const ImageCompare = forwardRef<HTMLDivElement, ImageCompareProps>(
             imagesLoaded ? 'block' : 'hidden',
             className,
           )}
-          style={fill ? undefined : { height: containerHeight }}
+          style={{
+            ...rest.style,
+            ...(fill ? {} : { height: containerHeight }),
+          }}
         >
           {/* biome-ignore lint/performance/noImgElement: clip-path overlay with arbitrary URLs, next/image would not fit */}
           <img
