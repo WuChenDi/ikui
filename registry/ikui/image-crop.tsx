@@ -376,7 +376,13 @@ export interface ImageCropState {
 export interface ImageCropProps
   extends Omit<
     HTMLAttributes<HTMLDivElement>,
-    'onChange' | 'onDragStart' | 'onDragEnd'
+    | 'onChange'
+    | 'onDragStart'
+    | 'onDragEnd'
+    | 'tabIndex'
+    | 'onPointerMove'
+    | 'onPointerUp'
+    | 'onPointerCancel'
   > {
   /** The element to crop, e.g. an `<img>` or `<video>`. */
   children?: ReactNode

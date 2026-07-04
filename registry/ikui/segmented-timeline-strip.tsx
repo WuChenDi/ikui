@@ -124,7 +124,10 @@ export function SegmentedTimelineStrip({
       ref={wrapperRef}
       {...rest}
       className={cn(className)}
-      onClick={handleClick}
+      onClick={(e) => {
+        rest.onClick?.(e)
+        handleClick(e)
+      }}
       style={{
         position: 'relative',
         width: '100%',
