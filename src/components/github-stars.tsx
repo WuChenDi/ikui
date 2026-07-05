@@ -10,6 +10,7 @@ async function getStars(): Promise<number> {
       next: { revalidate: 3600 },
       headers: {
         Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'ikui-site',
       },
     })
     if (!response.ok) return 0
