@@ -6,16 +6,12 @@ import { Button } from './ui/button'
 async function getStars(): Promise<number> {
   const repoPath = siteConfig.links.github.replace('https://github.com/', '')
   try {
-    const response = await fetch(`https://api.github.com/repos/${repoPath}`, {
+    const response = await fetch(`https://ungh.cc/repos/${repoPath}`, {
       next: { revalidate: 3600 },
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'ikui-site',
-      },
     })
     if (!response.ok) return 0
-    const data = (await response.json()) as { stargazers_count?: number }
-    return data.stargazers_count ?? 0
+    const data = (await response.json()) as { repo?: { stars?: number } }
+    return data.repo?.stars ?? 0
   } catch {
     return 0
   }
