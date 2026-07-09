@@ -95,7 +95,7 @@ export function Demo() {
               paddingAngle={3}
               stroke="var(--background)"
               strokeWidth={3}
-              shape={(props: PieSectorShapeProps, index: number) => (
+              shape={(props: PieSectorShapeProps, index?: string | number) => (
                 <Sector
                   {...props}
                   outerRadius={index === 2 ? 110 : props.outerRadius}
