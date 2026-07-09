@@ -33,6 +33,8 @@ export interface CascaderProps {
   onChange?: (value: string[], selectedOptions: CascaderOption[]) => void
   placeholder?: string
   disabled?: boolean
+  /** Trigger height, matching the Select component. */
+  size?: 'sm' | 'default'
   allowClear?: boolean
   /**
    * When a value is selected, hide the dropdown arrow and show only the
@@ -63,6 +65,7 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
       onChange,
       placeholder = 'Please select',
       disabled = false,
+      size = 'default',
       allowClear = true,
       clearReplacesArrow = false,
       className,
@@ -301,10 +304,13 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
         aria-haspopup="listbox"
         aria-disabled={disabled}
         tabIndex={disabled ? -1 : 0}
+        data-size={size}
         className={cn(
-          'inline-flex h-9 w-[200px] cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none transition-colors',
-          'hover:bg-accent hover:text-accent-foreground',
+          'flex w-[200px] cursor-pointer items-center justify-between gap-1.5 whitespace-nowrap rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm outline-none transition-colors select-none',
+          'data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)]',
           'focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
+          'aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40',
+          'dark:bg-input/30 dark:hover:bg-input/50',
           !displayValue && 'text-muted-foreground',
           disabled && 'pointer-events-none opacity-50',
           className,
@@ -334,7 +340,10 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
             </Button>
           )}
           {showArrow && (
-            <ChevronDown className="h-4 w-4 opacity-50" aria-hidden="true" />
+            <ChevronDown
+              className="size-4 text-muted-foreground"
+              aria-hidden="true"
+            />
           )}
         </div>
       </div>

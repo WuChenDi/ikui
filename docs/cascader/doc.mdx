@@ -2,6 +2,7 @@ import { Demo } from './demo'
 import { Demo as ControlledDemo } from './demo-controlled'
 import { Demo as HoverDemo } from './demo-hover'
 import { Demo as DisabledDemo } from './demo-disabled'
+import { Demo as SizesDemo } from './demo-sizes'
 import { Demo as ClearReplacesArrowDemo } from './demo-clear-replaces-arrow'
 import { Demo as CustomDemo } from './demo-custom'
 
@@ -96,6 +97,21 @@ Mark any option `disabled` to make it (and its branch) unselectable. Here
   </DemoCode>
 </DemoCanvas>
 
+### Sizes
+
+Use `size="sm"` for a more compact trigger. The default matches the `Select`
+component's height, so the two line up in the same form.
+
+<DemoCanvas>
+  <DemoPreview>
+    <SizesDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-sizes.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
 ### Clear replaces arrow
 
 Set `clearReplacesArrow` so that, once a value is selected, the dropdown arrow
@@ -162,6 +178,12 @@ here it shows only the leaf label instead of the full `a / b / c` path.
       type: "boolean",
       default: "false",
       typeDetails: "Disable the whole control"
+    },
+    {
+      name: "size",
+      type: '"sm" | "default"',
+      default: '"default"',
+      typeDetails: "Trigger height, matching the Select component"
     },
     {
       name: "allowClear",
