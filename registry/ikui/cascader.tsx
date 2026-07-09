@@ -2,6 +2,7 @@
 
 import { Check, ChevronDown, ChevronRight, X } from 'lucide-react'
 import * as React from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Drawer,
   DrawerContent,
@@ -33,6 +34,11 @@ export interface CascaderProps {
   placeholder?: string
   disabled?: boolean
   allowClear?: boolean
+  /**
+   * When a value is selected, hide the dropdown arrow and show only the
+   * clear button. Has no effect when `allowClear` is false.
+   */
+  clearReplacesArrow?: boolean
   className?: string
   popupClassName?: string
   expandTrigger?: 'click' | 'hover'
@@ -58,6 +64,7 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
       placeholder = 'Please select',
       disabled = false,
       allowClear = true,
+      clearReplacesArrow = false,
       className,
       popupClassName,
       expandTrigger = 'click',
@@ -283,6 +290,9 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
           : displayLabels.join(' / ')
         : null
 
+    const showClear = allowClear && !!displayValue && !disabled
+    const showArrow = !clearReplacesArrow || !showClear
+
     const triggerElement = (
       <div
         ref={ref}
@@ -310,18 +320,22 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
           {displayValue || placeholder}
         </span>
         <div className="flex shrink-0 items-center gap-1">
-          {allowClear && displayValue && !disabled && (
-            <button
+          {showClear && (
+            <Button
               type="button"
-              className="flex items-center justify-center rounded-sm opacity-50 outline-none transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring"
+              variant="ghost"
+              size="icon-xs"
+              className="opacity-60 hover:opacity-100"
               onClick={handleClear}
               onKeyDown={(e) => e.stopPropagation()}
               aria-label="Clear selection"
             >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
+              <X className="size-4" aria-hidden="true" />
+            </Button>
           )}
-          <ChevronDown className="h-4 w-4 opacity-50" aria-hidden="true" />
+          {showArrow && (
+            <ChevronDown className="h-4 w-4 opacity-50" aria-hidden="true" />
+          )}
         </div>
       </div>
     )
