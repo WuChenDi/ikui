@@ -418,9 +418,6 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
         )
         setFocusedColumn(0)
         setFocusedIndex(0)
-        // Popover uses Base UI's initialFocus (below); the Drawer falls back to
-        // this deferred flush. Harmless for the Popover — same target element.
-        pendingFocusRef.current = `0-0`
       } else {
         setExpandedPath([])
       }
@@ -448,7 +445,10 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
         <PopoverContent
           className={cn('w-auto p-0', popupClassName)}
           align="start"
-          initialFocus={() => columnRefs.current.get('0-0') ?? null}
+          // Only pre-focus (and thus highlight) the first option when opened via
+          // keyboard, so arrow-key navigation works. Mouse/touch opens leave
+          // focus put so nothing looks pre-selected.
+          initialFocus={(type) => type === 'keyboard'}
         >
           {columnsContent}
         </PopoverContent>
