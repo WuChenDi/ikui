@@ -2,6 +2,7 @@ import { Demo } from './demo'
 import { Demo as ControlledDemo } from './demo-controlled'
 import { Demo as HoverDemo } from './demo-hover'
 import { Demo as DisabledDemo } from './demo-disabled'
+import { Demo as ClearReplacesArrowDemo } from './demo-clear-replaces-arrow'
 import { Demo as CustomDemo } from './demo-custom'
 
 <DemoCanvas>
@@ -91,6 +92,22 @@ Mark any option `disabled` to make it (and its branch) unselectable. Here
   </DemoPreview>
   <DemoCode>
     ```tsx file=./demo-disabled.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Clear replaces arrow
+
+Set `clearReplacesArrow` so that, once a value is selected, the dropdown arrow
+is hidden and only the clear button is shown. It falls back to the arrow when
+nothing is selected.
+
+<DemoCanvas>
+  <DemoPreview>
+    <ClearReplacesArrowDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-clear-replaces-arrow.tsx
     ```
   </DemoCode>
 </DemoCanvas>
