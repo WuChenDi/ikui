@@ -15,7 +15,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "nsl run --name \"ikui\" -f next dev",
+    "dev": "nsl run --name \"ikui\" next dev",
     "build": "next build",
     "start": "next start",
     "lint": "biome check .",
@@ -38,9 +38,9 @@
     "date-fns": "^4.4.0",
     "embla-carousel-react": "^8.6.0",
     "fabric": "^7.4.0",
-    "lucide-react": "^1.23.0",
+    "lucide-react": "^1.24.0",
     "mdast-util-toc": "^7.1.0",
-    "mediabunny": "^1.50.7",
+    "mediabunny": "^1.50.8",
     "motion": "^12.42.2",
     "next": "16.2.10",
     "next-themes": "^0.4.6",
@@ -61,12 +61,12 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.2",
+    "@biomejs/biome": "^2.5.3",
     "@shikijs/rehype": "^4.3.1",
     "@tailwindcss/postcss": "^4.3.2",
     "@tailwindcss/typography": "^0.5.20",
     "@types/mdx": "^2.0.14",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
