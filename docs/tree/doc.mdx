@@ -2,6 +2,7 @@ import { Demo } from './demo'
 import { Demo as IconsDemo } from './demo-icons'
 import { Demo as SelectedDemo } from './demo-selected'
 import { Demo as ActionsDemo } from './demo-actions'
+import { Demo as DragDemo } from './demo-drag'
 
 <DemoCanvas>
   <DemoPreview>
@@ -20,7 +21,8 @@ ancestors of the selected node, or everything when `expandAll` is set) and its
 selection — controlled with `selectedId` or uncontrolled from `defaultSelectedId`,
 reporting changes through `onSelectChange`. Each node can carry
 its own icons, an `actions` slot, and a `disabled` flag, or you can take over the
-whole row with `renderItem`.
+whole row with `renderItem`. Mark nodes `draggable` / `droppable` to reorder or
+re-parent them with native drag-and-drop through `onDocumentDrag`.
 
 ## Installation
 
@@ -116,6 +118,24 @@ when the row is selected. Clicks inside `actions` don't select or toggle the row
   </DemoCode>
 </DemoCanvas>
 
+### Drag and drop
+
+Set `draggable` on the nodes you can pick up and `droppable` (default `true`) on
+the ones that can receive a drop. `onDocumentDrag(source, target)` fires on drop —
+the tree only tracks the gesture and highlights the target; you own the `data`, so
+reorder or re-parent it in the handler. Here, dropping a file onto a folder moves
+it in.
+
+<DemoCanvas>
+  <DemoPreview>
+    <DragDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-drag.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
 ## Props
 
 <PropsTable
@@ -173,6 +193,11 @@ when the row is selected. Clicks inside `actions` don't select or toggle the row
       typeDetails: "Replace the default row content (icon + name + actions)"
     },
     {
+      name: "onDocumentDrag",
+      type: "(source: TreeDataItem, target: TreeDataItem) => void",
+      typeDetails: "Fired when a draggable node is dropped onto another node"
+    },
+    {
       name: "className",
       type: "string",
       typeDetails: "Class applied to the tree container"
@@ -228,6 +253,17 @@ when the row is selected. Clicks inside `actions` don't select or toggle the row
       name: "disabled",
       type: "boolean",
       typeDetails: "Make the node unselectable and non-interactive"
+    },
+    {
+      name: "draggable",
+      type: "boolean",
+      typeDetails: "Allow this node to be picked up as a drag source"
+    },
+    {
+      name: "droppable",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Allow this node to receive a drop"
     },
     {
       name: "className",

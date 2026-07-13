@@ -14,6 +14,10 @@ export interface TreeDataItem {
   actions?: React.ReactNode
   onClick?: () => void
   disabled?: boolean
+  /** Allow this node to be picked up as a drag source. */
+  draggable?: boolean
+  /** Allow this node to receive a drop. Defaults to true. */
+  droppable?: boolean
   className?: string
 }
 
@@ -41,6 +45,11 @@ export interface TreeProps
   defaultNodeIcon?: React.ComponentType<{ className?: string }>
   defaultLeafIcon?: React.ComponentType<{ className?: string }>
   renderItem?: (params: TreeRenderItemParams) => React.ReactNode
+  /**
+   * Fired when a `draggable` node is dropped onto another node (HTML5 native
+   * drag-and-drop). Reorder / re-parent your `data` in the handler.
+   */
+  onDocumentDrag?: (source: TreeDataItem, target: TreeDataItem) => void
 }
 
 function collectExpandedIds(
@@ -120,6 +129,9 @@ interface TreeContextValue {
   defaultLeafIcon?: React.ComponentType<{ className?: string }>
   renderItem?: (params: TreeRenderItemParams) => React.ReactNode
   chevronPosition: 'left' | 'right'
+  draggedId?: string
+  startDrag: (item: TreeDataItem) => void
+  dropOn: (item: TreeDataItem) => void
 }
 
 const TreeContext = React.createContext<TreeContextValue | null>(null)
@@ -147,11 +159,44 @@ function TreeNode({ item, level }: TreeNodeProps) {
     defaultLeafIcon,
     renderItem,
     chevronPosition,
+    draggedId,
+    startDrag,
+    dropOn,
   } = useTreeContext()
 
+  const [isDragOver, setIsDragOver] = React.useState(false)
   const hasChildren = !!item.children?.length
   const open = hasChildren && expandedIds.has(item.id)
   const isSelected = selectedItemId === item.id
+  const isDroppable =
+    item.droppable !== false &&
+    !item.disabled &&
+    !!draggedId &&
+    draggedId !== item.id
+
+  function handleDragStart(e: React.DragEvent) {
+    if (!item.draggable || item.disabled) {
+      e.preventDefault()
+      return
+    }
+    e.dataTransfer.setData('text/plain', item.id)
+    e.dataTransfer.effectAllowed = 'move'
+    startDrag(item)
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    if (!isDroppable) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setIsDragOver(true)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    if (!isDroppable) return
+    e.preventDefault()
+    setIsDragOver(false)
+    dropOn(item)
+  }
   const Icon = getIcon(
     item,
     open,
@@ -195,10 +240,16 @@ function TreeNode({ item, level }: TreeNodeProps) {
       <div
         data-tree-row
         onClick={handleClick}
+        draggable={!!item.draggable && !item.disabled}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={handleDrop}
         className={cn(
           'group relative flex w-full cursor-pointer items-center rounded-md px-2 py-1.5 text-left text-sm transition-colors',
           'hover:bg-accent/70',
           isSelected && 'bg-accent/70 text-accent-foreground',
+          isDragOver && 'bg-primary/15 ring-1 ring-primary',
           item.disabled && 'pointer-events-none opacity-50',
           item.className,
         )}
@@ -264,6 +315,7 @@ export function Tree({
   defaultNodeIcon,
   defaultLeafIcon,
   renderItem,
+  onDocumentDrag,
   className,
   ...props
 }: TreeProps) {
@@ -285,6 +337,9 @@ export function Tree({
   )
   const [activeId, setActiveId] = React.useState<string | undefined>(
     selectionSeed,
+  )
+  const [draggedItem, setDraggedItem] = React.useState<TreeDataItem | null>(
+    null,
   )
   const rootRef = React.useRef<HTMLDivElement>(null)
 
@@ -329,6 +384,22 @@ export function Tree({
       return next
     })
   }, [])
+
+  const startDrag = React.useCallback((item: TreeDataItem) => {
+    setDraggedItem(item)
+  }, [])
+
+  const dropOn = React.useCallback(
+    (target: TreeDataItem) => {
+      setDraggedItem((source) => {
+        if (source && source.id !== target.id) {
+          onDocumentDrag?.(source, target)
+        }
+        return null
+      })
+    },
+    [onDocumentDrag],
+  )
 
   const focusNode = React.useCallback((id: string) => {
     setActiveId(id)
@@ -442,6 +513,9 @@ export function Tree({
       defaultLeafIcon,
       renderItem,
       chevronPosition,
+      draggedId: draggedItem?.id,
+      startDrag,
+      dropOn,
     }),
     [
       currentSelectedId,
@@ -454,6 +528,9 @@ export function Tree({
       defaultLeafIcon,
       renderItem,
       chevronPosition,
+      draggedItem,
+      startDrag,
+      dropOn,
     ],
   )
 

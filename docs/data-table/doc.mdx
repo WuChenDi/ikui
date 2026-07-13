@@ -1,0 +1,197 @@
+import { Demo } from './demo'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A full-featured data table built on [TanStack Table](https://tanstack.com/table).
+You own the table instance (columns, models, state); ikui gives you the
+composable UI around it: a scroll container with **sticky column pinning**, opt-in
+**row virtualization** for large datasets, **dnd-kit drag-to-reorder** rows, a
+paginated footer, and a filter **toolbar** driven by per-column `meta`.
+
+The toolbar reads each column's `meta.variant` and renders the matching control —
+`text`, `number`, `range` (a slider popover), `date` / `dateRange` (a calendar
+popover), and `select` / `multiSelect` (a faceted command popover) — alongside a
+column-visibility **view** menu. Sortable headers, a loading **skeleton**, and a
+row **drag handle** ship as separate pieces you compose as needed.
+
+## Installation
+
+<InstallationTabs item="data-table">
+```tsx file=../../registry/ikui/data-table.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+Declare filters through `columnDef.meta`, then hand the table to `DataTable` with
+`DataTableToolbar` as its child.
+
+```tsx
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { DataTable } from "@/components/data-table";
+import { DataTableToolbar } from "@/components/data-table-toolbar";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
+
+const columns = [
+  {
+    accessorKey: "title",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Title" />
+    ),
+    meta: { label: "Title", variant: "text", placeholder: "Filter titles..." },
+    enableColumnFilter: true,
+    filterFn: "includesString",
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    meta: {
+      label: "Status",
+      variant: "select",
+      options: [
+        { label: "Todo", value: "todo" },
+        { label: "Done", value: "done" },
+      ],
+    },
+    enableColumnFilter: true,
+    filterFn: "arrIncludesSome",
+  },
+];
+
+function Example() {
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  return (
+    <DataTable table={table}>
+      <DataTableToolbar table={table} />
+    </DataTable>
+  );
+}
+```
+
+## Column meta
+
+The toolbar and filters read these fields off `columnDef.meta` (types are added
+by `data-table-utils.ts` via module augmentation):
+
+<PropsTable
+  data={[
+    {
+      name: "label",
+      type: "string",
+      typeDetails: "Human label used by the toolbar and view menu"
+    },
+    {
+      name: "placeholder",
+      type: "string",
+      typeDetails: "Placeholder for text / number filter inputs"
+    },
+    {
+      name: "variant",
+      type: '"text" | "number" | "range" | "date" | "dateRange" | "select" | "multiSelect"',
+      typeDetails: "Which filter control the toolbar renders"
+    },
+    {
+      name: "options",
+      type: "{ label; value; count?; icon? }[]",
+      typeDetails: "Choices for select / multiSelect facets"
+    },
+    {
+      name: "range",
+      type: "[number, number]",
+      typeDetails: "Bounds for the range slider filter"
+    },
+    {
+      name: "unit",
+      type: "string",
+      typeDetails: "Suffix shown on number / range inputs"
+    }
+  ]}
+/>
+
+## Props
+
+<PropsTable
+  data={[
+    {
+      name: "table",
+      type: "Table<TData>",
+      typeDetails: "The TanStack Table instance to render"
+    },
+    {
+      name: "enableVirtualization",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Virtualize rows once there are more than 20"
+    },
+    {
+      name: "estimateRowSize",
+      type: "number",
+      default: "80",
+      typeDetails: "Estimated row height (px) for the virtualizer"
+    },
+    {
+      name: "enableDragAndDrop",
+      type: "boolean",
+      default: "false",
+      typeDetails: "Enable dnd-kit row reordering"
+    },
+    {
+      name: "onDragEnd",
+      type: "(event: DragEndEvent) => void",
+      typeDetails: "Persist the new order when a row is dropped"
+    },
+    {
+      name: "getRowId",
+      type: "(row: TData) => number | string",
+      typeDetails: "Stable id used for drag sorting and editing"
+    },
+    {
+      name: "showPagination",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Show the pagination footer"
+    },
+    {
+      name: "totalCount",
+      type: "number",
+      typeDetails: "Total row count for server-side pagination labels"
+    },
+    {
+      name: "actionBar",
+      type: "React.ReactNode",
+      typeDetails: "Rendered under the footer when rows are selected"
+    },
+    {
+      name: "footer",
+      type: "React.ReactNode",
+      typeDetails: "Rendered as a table footer when there are rows"
+    },
+    {
+      name: "emptyState",
+      type: "React.ReactNode",
+      typeDetails: "Shown in place of rows when the table is empty"
+    }
+  ]}
+/>

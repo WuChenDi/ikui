@@ -1,0 +1,85 @@
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import type { Row } from '@tanstack/react-table'
+import { flexRender } from '@tanstack/react-table'
+import type { VirtualItem, Virtualizer } from '@tanstack/react-virtual'
+import { TableCell, TableRow } from '@/components/ui/table'
+import { getCommonPinningStyles } from '@/lib/data-table-utils'
+import { cn } from '@/lib/utils'
+
+interface DraggableRowProps<TData> {
+  row: Row<TData>
+  rowId: string
+  isEditing?: boolean
+  virtualRow?: VirtualItem
+  rowVirtualizer?: Virtualizer<HTMLDivElement, Element>
+}
+
+export function DataTableDraggableRow<TData>({
+  row,
+  rowId,
+  isEditing,
+  virtualRow,
+  rowVirtualizer,
+}: DraggableRowProps<TData>) {
+  const {
+    transform,
+    transition,
+    setNodeRef,
+    isDragging,
+    setActivatorNodeRef,
+    listeners,
+    attributes,
+  } = useSortable({
+    id: rowId,
+    animateLayoutChanges: () => false,
+  })
+
+  return (
+    <TableRow
+      ref={(node) => {
+        setNodeRef(node)
+        if (virtualRow && rowVirtualizer) {
+          rowVirtualizer.measureElement(node)
+        }
+      }}
+      data-state={row.getIsSelected() && 'selected'}
+      data-dragging={isDragging}
+      data-index={virtualRow?.index}
+      className={cn(
+        'relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80',
+        isEditing && 'bg-muted/50',
+        isDragging && 'z-50 opacity-50',
+      )}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.8 : 1,
+        zIndex: isDragging ? 1 : 0,
+        position: 'relative',
+      }}
+    >
+      {row.getVisibleCells().map((cell) => {
+        const isPinned = cell.column.getIsPinned()
+        const isDragColumn = cell.column.id === 'drag'
+
+        return (
+          <TableCell
+            key={cell.id}
+            style={{
+              ...getCommonPinningStyles({
+                column: cell.column,
+                withBorder: true,
+              }),
+            }}
+            className={cn(isPinned && 'z-10 bg-background')}
+            ref={isDragColumn ? setActivatorNodeRef : undefined}
+            {...(isDragColumn ? { ...listeners, ...attributes } : {})}
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        )
+      })}
+    </TableRow>
+  )
+}

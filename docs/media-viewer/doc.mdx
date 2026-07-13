@@ -1,0 +1,119 @@
+import { Demo } from './demo'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A full-screen media lightbox that pages through a mixed list of **images**,
+**videos**, and **audio** in a single swipeable carousel. Images fit to the
+viewport, videos play inline with native controls, and audio slides show a
+compact waveform player under an optional cover that scales while it plays.
+
+It renders through a portal with its own fade in/out, background scroll lock,
+`Escape`-to-close, and a slide counter — no dialog dependency. Drive it as a
+controlled overlay with `open` / `onOpenChange`, and jump straight to any item
+with `initialIndex`.
+
+## Installation
+
+<InstallationTabs item="media-viewer">
+```tsx file=../../registry/ikui/media-viewer.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { useState } from "react";
+import { MediaViewer, type MediaViewerItem } from "@/components/media-viewer";
+
+const items: MediaViewerItem[] = [
+  { id: 1, type: "IMAGE", url: "/photo-1.jpg" },
+  { id: 2, type: "VIDEO", url: "/clip.mp4", poster: "/clip-poster.jpg" },
+  { id: 3, type: "AUDIO", url: "/track.mp3", poster: "/cover.jpg" },
+];
+
+function Gallery() {
+  const [open, setOpen] = useState(false);
+  const [index, setIndex] = useState(0);
+
+  return (
+    <>
+      <button onClick={() => { setIndex(0); setOpen(true); }}>Open</button>
+      <MediaViewer
+        open={open}
+        onOpenChange={setOpen}
+        items={items}
+        initialIndex={index}
+      />
+    </>
+  );
+}
+```
+
+## Props
+
+<PropsTable
+  data={[
+    {
+      name: "open",
+      type: "boolean",
+      typeDetails: "Whether the viewer is shown"
+    },
+    {
+      name: "onOpenChange",
+      type: "(open: boolean) => void",
+      typeDetails: "Fired when the viewer requests to close"
+    },
+    {
+      name: "items",
+      type: "MediaViewerItem[]",
+      typeDetails: "The media to page through"
+    },
+    {
+      name: "initialIndex",
+      type: "number",
+      default: "0",
+      typeDetails: "Item to open on"
+    },
+    {
+      name: "loop",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Loop the carousel (only when there is more than one item)"
+    }
+  ]}
+/>
+
+### MediaViewerItem
+
+<PropsTable
+  data={[
+    {
+      name: "id",
+      type: "string | number",
+      typeDetails: "Stable key; falls back to the array index"
+    },
+    {
+      name: "type",
+      type: '"IMAGE" | "VIDEO" | "AUDIO"',
+      typeDetails: "Which renderer the slide uses"
+    },
+    {
+      name: "url",
+      type: "string",
+      typeDetails: "Source of the image, video, or audio"
+    },
+    {
+      name: "poster",
+      type: "string",
+      typeDetails: "Video poster, or a cover shown above the audio waveform"
+    }
+  ]}
+/>

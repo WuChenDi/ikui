@@ -98,7 +98,7 @@
       "name": "tree",
       "type": "registry:component",
       "title": "Tree",
-      "description": "A data-driven hierarchical tree view of folders and leaves with selection, expand/collapse, per-node icons, an actions slot, and a custom renderItem. Self-managed expand state, animated open/close, and uncontrolled selection reported through onSelectChange.",
+      "description": "A data-driven hierarchical tree view of folders and leaves with selection, expand/collapse, per-node icons, an actions slot, and a custom renderItem. Self-managed expand state, animated open/close, ARIA roving-tabindex keyboard navigation, and native drag-and-drop to reorder or re-parent nodes via onDocumentDrag. Controlled or uncontrolled selection reported through onSelectChange.",
       "files": [
         {
           "path": "registry/ikui/tree.tsx",
@@ -516,6 +516,103 @@
       "meta": {
         "iframeHeight": 640
       }
+    },
+    {
+      "name": "data-table",
+      "type": "registry:component",
+      "title": "Data Table",
+      "description": "A full-featured data table built on TanStack Table: sticky column pinning, row virtualization for large datasets, dnd-kit drag-to-reorder rows, a paginated footer, a filter toolbar with text / number / range (slider) / date / faceted (select) filters driven by per-column meta, a column-visibility view menu, sortable column headers, and a loading skeleton. Bring your own TanStack table instance; the pieces are composable.",
+      "files": [
+        {
+          "path": "registry/ikui/data-table.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-pagination.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-view-options.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-column-header.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-faceted-filter.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-date-filter.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-slider-filter.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-skeleton.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-draggable-row.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-drag-handle.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/ikui/data-table-utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": [
+        "@tanstack/react-table",
+        "@tanstack/react-virtual",
+        "@dnd-kit/core",
+        "@dnd-kit/modifiers",
+        "@dnd-kit/sortable",
+        "@dnd-kit/utilities",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "table",
+        "button",
+        "select",
+        "dropdown-menu",
+        "popover",
+        "command",
+        "badge",
+        "separator",
+        "input",
+        "input-group",
+        "label",
+        "slider",
+        "calendar",
+        "skeleton"
+      ],
+      "category": "display"
+    },
+    {
+      "name": "media-viewer",
+      "type": "registry:component",
+      "title": "Media Viewer",
+      "description": "A full-screen media lightbox that pages through a mixed list of images, videos, and audio in one swipeable carousel. Images fit the viewport, videos play inline with native controls, and audio slides show a waveform player under an optional cover that scales while it plays. Renders through a portal with its own fade, scroll lock, Escape-to-close, and slide counter — no dialog dependency. Controlled via open / onOpenChange with an initialIndex.",
+      "files": [
+        {
+          "path": "registry/ikui/media-viewer.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "registryDependencies": ["@ikui/waveform-player", "carousel", "button"],
+      "category": "image"
     }
   ]
 }
