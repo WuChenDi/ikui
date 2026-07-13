@@ -153,17 +153,26 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
     const selectedOptions = getSelectedOptions(selectedValue)
     const displayLabels = selectedOptions.map((opt) => getStringLabel(opt))
 
-    const handleSelect = (option: CascaderOption, columnIndex: number) => {
+    const handleSelect = (
+      option: CascaderOption,
+      columnIndex: number,
+      // Move focus into the child column's first item. Only keyboard expansion
+      // does this (for arrow navigation); a mouse click leaves focus on the
+      // clicked item so the child's first option isn't auto-highlighted.
+      focusChild = false,
+    ) => {
       if (option.disabled) return
 
       const newPath = [...expandedPath.slice(0, columnIndex), option.value]
 
       if (option.children && option.children.length > 0) {
         setExpandedPath(newPath)
-        setFocusedColumn(columnIndex + 1)
-        setFocusedIndex(0)
         pendingScrollRef.current = true
-        pendingFocusRef.current = `${columnIndex + 1}-0`
+        if (focusChild) {
+          setFocusedColumn(columnIndex + 1)
+          setFocusedIndex(0)
+          pendingFocusRef.current = `${columnIndex + 1}-0`
+        }
       } else {
         const newSelectedOptions = getSelectedOptions(newPath)
         if (value === undefined) {
@@ -229,7 +238,7 @@ const Cascader = React.forwardRef<HTMLDivElement, CascaderProps>(
           e.preventDefault()
           if (!option.disabled) {
             if (hasChildren) {
-              handleSelect(option, columnIndex)
+              handleSelect(option, columnIndex, true)
             } else if (e.key === 'Enter') {
               handleSelect(option, columnIndex)
             }
