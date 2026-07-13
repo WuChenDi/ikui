@@ -110,6 +110,21 @@
       "category": "display"
     },
     {
+      "name": "date-range-picker",
+      "type": "registry:component",
+      "title": "Date Range Picker",
+      "description": "A popover date range picker with a quick-preset side panel (Today, Last 7 days, This month, …), a two-month calendar with live hover-range preview, min/max clamping, and a clearable trigger. Controlled or uncontrolled, with configurable presets and date-fns locale.",
+      "files": [
+        {
+          "path": "registry/ikui/date-range-picker.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["date-fns", "react-day-picker", "lucide-react"],
+      "registryDependencies": ["calendar", "popover", "button"],
+      "category": "form"
+    },
+    {
       "name": "heatmap-calendar",
       "type": "registry:component",
       "title": "Heatmap Calendar",
