@@ -48,7 +48,7 @@ src/app/              # Next.js App Router (docs, og, api/github/stars, sitemap�
 src/components/       # site chrome (header, sidebar, mdx widgets); ui/ = shadcn primitives
 src/lib/              # utils (cn, metadata), registry/doc loaders, config, types
 src/mdx-components.tsx # MDX component map (DemoCanvas, InstallationTabs, PropsTable…)
-docs/plan, docs/task  # PMA workflow tracking (see below)
+docs/plan, docs/task  # PMA workflow tracking — local-only, git-ignored (see below)
 ```
 
 Path aliases (`tsconfig.json`): `@/*` → `src/*` and repo root; `@/docs/*` → `docs/*`.
@@ -126,6 +126,10 @@ investigate → proposal → implement — and use the file-based tracking:
 
 - Plans: `docs/plan/P-XXX-*.md`
 - Tasks: `docs/task/` (index in `docs/task/index.md`)
+
+`docs/plan/` and `docs/task/` are **local-only and git-ignored** — internal
+process artifacts, never committed or pushed. Only the per-component site docs
+under `docs/<name>/` are tracked and published.
 
 Do not skip phases or bypass the task files for non-trivial work.
 
