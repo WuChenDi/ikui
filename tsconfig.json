@@ -24,6 +24,9 @@
       "@/components/cascader": ["./registry/ikui/cascader.tsx"],
       "@/components/chart": ["./registry/ikui/chart.tsx"],
       "@/components/copy-button": ["./registry/ikui/copy-button.tsx"],
+      "@/components/date-range-picker": [
+        "./registry/ikui/date-range-picker.tsx"
+      ],
       "@/components/heatmap-calendar": ["./registry/ikui/heatmap-calendar.tsx"],
       "@/components/image-compare": ["./registry/ikui/image-compare.tsx"],
       "@/components/image-crop": ["./registry/ikui/image-crop.tsx"],

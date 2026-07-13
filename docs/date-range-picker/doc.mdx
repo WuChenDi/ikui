@@ -1,0 +1,190 @@
+import { Demo } from './demo'
+import { Demo as PresetsDemo } from './demo-presets'
+import { Demo as MinMaxDemo } from './demo-min-max'
+import { Demo as NoPresetsDemo } from './demo-no-presets'
+
+<DemoCanvas>
+  <DemoPreview>
+    <Demo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+A popover date **range** picker with a quick-preset side panel. Pick a range in
+two clicks on the two-month calendar — the range previews live as you hover, and
+the value is only committed to `onChange` once the range is complete, so a
+half-finished selection never leaks out. Presets (Today, Last 7 days, This
+month, …) fill the range in a single click, `minDate` / `maxDate` clamp both the
+calendar and the presets, and the trigger clears back to empty. Works controlled
+(`value`) or uncontrolled (`defaultValue`); the preset list and date-fns
+`locale` are configurable.
+
+## Installation
+
+<InstallationTabs item="date-range-picker">
+```tsx file=../../registry/ikui/date-range-picker.tsx
+```
+</InstallationTabs>
+
+## Usage
+
+```tsx
+import { DateRangePicker } from "@/components/date-range-picker";
+```
+```tsx
+import { useState } from "react";
+import type { DateRange } from "react-day-picker";
+
+const [range, setRange] = useState<DateRange>();
+
+<DateRangePicker value={range} onChange={setRange} />;
+```
+
+## Examples
+
+### Custom presets
+
+Pass a `presets` array of `{ label, range }`. `range` is either a fixed
+`DateRange` or a factory evaluated on click (use a factory when it must be
+relative to "now").
+
+<DemoCanvas>
+  <DemoPreview>
+    <PresetsDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-presets.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Bounded range
+
+`minDate` and `maxDate` disable out-of-range days and clamp any preset or picked
+range to the window.
+
+<DemoCanvas>
+  <DemoPreview>
+    <MinMaxDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-min-max.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+### Without presets
+
+Pass `presets={[]}` to drop the side panel and show just the calendar.
+
+<DemoCanvas>
+  <DemoPreview>
+    <NoPresetsDemo />
+  </DemoPreview>
+  <DemoCode>
+    ```tsx file=./demo-no-presets.tsx
+    ```
+  </DemoCode>
+</DemoCanvas>
+
+## Props
+
+<PropsTable
+  data={[
+    {
+      name: "value",
+      type: "DateRange",
+      typeDetails: "Controlled selected range"
+    },
+    {
+      name: "defaultValue",
+      type: "DateRange",
+      typeDetails: "Uncontrolled initial range"
+    },
+    {
+      name: "onChange",
+      type: "(range: DateRange | undefined) => void",
+      typeDetails: "Fired when a complete range is committed or cleared"
+    },
+    {
+      name: "placeholder",
+      type: "string",
+      default: '"Pick a date range"',
+      typeDetails: "Trigger text when no range is selected"
+    },
+    {
+      name: "clearable",
+      type: "boolean",
+      default: "true",
+      typeDetails: "Show the clear button when a range is set"
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      default: "false",
+      typeDetails: "Disable the trigger"
+    },
+    {
+      name: "minDate",
+      type: "Date",
+      typeDetails: "Earliest selectable date; clamps presets too"
+    },
+    {
+      name: "maxDate",
+      type: "Date",
+      typeDetails: "Latest selectable date; clamps presets too"
+    },
+    {
+      name: "disabledDates",
+      type: "Matcher | Matcher[]",
+      typeDetails: "Extra disabled-day matchers passed to the calendar"
+    },
+    {
+      name: "numberOfMonths",
+      type: "number",
+      default: "2",
+      typeDetails: "Number of month panels shown"
+    },
+    {
+      name: "presets",
+      type: "DateRangePreset[]",
+      typeDetails: "Quick-select presets; pass [] to hide the side panel"
+    },
+    {
+      name: "locale",
+      type: "Locale",
+      typeDetails: "date-fns locale for the calendar and week presets"
+    },
+    {
+      name: "dateFormat",
+      type: "string",
+      default: '"yyyy-MM-dd"',
+      typeDetails: "date-fns format for the trigger label"
+    },
+    {
+      name: "className",
+      type: "string",
+      typeDetails: "Class applied to the trigger"
+    }
+  ]}
+/>
+
+### DateRangePreset
+
+<PropsTable
+  data={[
+    {
+      name: "label",
+      type: "string",
+      typeDetails: "Text shown in the preset list"
+    },
+    {
+      name: "range",
+      type: "DateRange | (() => DateRange)",
+      typeDetails: "A fixed range, or a factory evaluated on click"
+    }
+  ]}
+/>

@@ -43,3 +43,4 @@
 | T-039 | image-editor: use Field component for inspector rows | superseded | ikui | [P-021](../plan/P-021-add-image-editor.md) |
 | T-040 | Add password-input component (built on input-group) | completed | ikui | [P-022](../plan/P-022-add-password-input.md) |
 | T-041 | Add tree component (data-driven, self-contained) | completed | ikui | [P-023](../plan/P-023-add-tree.md) |
+| T-042 | Add date-range-picker component (range calendar + quick presets) | completed | ikui | [P-024](../plan/P-024-add-date-range-picker.md) |
