@@ -24,6 +24,38 @@
       "@/components/cascader": ["./registry/ikui/cascader.tsx"],
       "@/components/chart": ["./registry/ikui/chart.tsx"],
       "@/components/copy-button": ["./registry/ikui/copy-button.tsx"],
+      "@/components/data-table-column-header": [
+        "./registry/ikui/data-table-column-header.tsx"
+      ],
+      "@/components/data-table-date-filter": [
+        "./registry/ikui/data-table-date-filter.tsx"
+      ],
+      "@/components/data-table-drag-handle": [
+        "./registry/ikui/data-table-drag-handle.tsx"
+      ],
+      "@/components/data-table-draggable-row": [
+        "./registry/ikui/data-table-draggable-row.tsx"
+      ],
+      "@/components/data-table-faceted-filter": [
+        "./registry/ikui/data-table-faceted-filter.tsx"
+      ],
+      "@/components/data-table-pagination": [
+        "./registry/ikui/data-table-pagination.tsx"
+      ],
+      "@/components/data-table-skeleton": [
+        "./registry/ikui/data-table-skeleton.tsx"
+      ],
+      "@/components/data-table-slider-filter": [
+        "./registry/ikui/data-table-slider-filter.tsx"
+      ],
+      "@/components/data-table-toolbar": [
+        "./registry/ikui/data-table-toolbar.tsx"
+      ],
+      "@/lib/data-table-utils": ["./registry/ikui/data-table-utils.ts"],
+      "@/components/data-table-view-options": [
+        "./registry/ikui/data-table-view-options.tsx"
+      ],
+      "@/components/data-table": ["./registry/ikui/data-table.tsx"],
       "@/components/date-range-picker": [
         "./registry/ikui/date-range-picker.tsx"
       ],
@@ -31,6 +63,7 @@
       "@/components/image-compare": ["./registry/ikui/image-compare.tsx"],
       "@/components/image-crop": ["./registry/ikui/image-crop.tsx"],
       "@/components/image-grid": ["./registry/ikui/image-grid.tsx"],
+      "@/components/media-viewer": ["./registry/ikui/media-viewer.tsx"],
       "@/components/particle-image": ["./registry/ikui/particle-image.tsx"],
       "@/components/password-input": ["./registry/ikui/password-input.tsx"],
       "@/components/qr-code": ["./registry/ikui/qr-code.tsx"],
