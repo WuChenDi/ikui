@@ -169,3 +169,7 @@ tmp/
 /public/docs/
 /public/llms.txt
 /public/llms-full.txt
+
+# PMA workflow tracking — local-only internal process, not published
+/docs/plan/
+/docs/task/
