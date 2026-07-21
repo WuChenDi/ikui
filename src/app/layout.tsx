@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from '@next/third-parties/google'
 import type { Metadata, Viewport } from 'next'
 import { DynaPuff, Geist, Geist_Mono, Instrument_Serif } from 'next/font/google'
 import { siteConfig } from '@/lib/config'
@@ -115,6 +116,7 @@ export default async function RootLayout({
           {children}
         </ThemeProvider>
       </body>
+      <GoogleAnalytics gaId="G-Z87NH6JWSZ" />
     </html>
   )
 }
